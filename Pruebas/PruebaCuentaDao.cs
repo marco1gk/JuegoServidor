@@ -59,5 +59,60 @@ namespace Pruebas
 
 
         }
+        [Theory]
+        [InlineData("correoYaExiste@gmail.com", "YaExisteUsuario", "hashed_password")]
+        [InlineData("correoYaExiste2@gmail.com", "YaExisteUsuario2", "1234")]
+
+        public void validarInicioSesion(string correo, string usuario, string contraseña)
+        {
+            Cuenta resultado = new Cuenta();
+            using (var contexto = new ContextoBaseDatos())
+            {
+
+                var cuentaExistente = new Cuenta
+                {
+                    Correo = "correoYaExiste@gmail.com",
+                    ContraseniaHash = "hashed_password",
+                    Jugador = new Jugador
+                    {
+                        NombreUsuario = "YaExisteUsuario",
+                        NumeroFotoPerfil = 1
+                    }
+                };
+                var cuentaExistente2 = new Cuenta
+                {
+                    Correo = "correoYaExiste2@gmail.com",
+                    ContraseniaHash = "1234",
+                    Jugador = new Jugador
+                    {
+                        NombreUsuario = "YaExisteUsuario2",
+                        NumeroFotoPerfil = 1
+                    }
+                };
+                contexto.Cuentas.Add(cuentaExistente);
+                contexto.Cuentas.Add(cuentaExistente2);
+                contexto.SaveChanges();
+                CuentaDao cuentaDao = new CuentaDao();
+
+
+
+                resultado = cuentaDao.ValidarInicioSesion(correo, contraseña);
+
+                contexto.Cuentas.RemoveRange(contexto.Cuentas);
+                contexto.Jugadores.RemoveRange(contexto.Jugadores);
+                contexto.SaveChanges();
+
+            }
+            Assert.NotNull(resultado);
+            Assert.Equal(resultado.Correo, correo);
+            Assert.Equal(resultado.Jugador.NombreUsuario, usuario);
+
+        }
+
     }
+
+   
 }
+
+
+

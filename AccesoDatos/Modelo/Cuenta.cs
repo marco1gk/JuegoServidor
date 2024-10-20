@@ -22,7 +22,9 @@ namespace AccesoDatos.Modelo
         [Required]
         public string ContraseniaHash   { get; set; }
 
-        public Jugador Jugador { get; set; }
+
+        // Relación con Jugador (propiedad de navegación)
+        public virtual Jugador Jugador { get; set; } // Asegúrate de que sea virtual
 
     }
 }

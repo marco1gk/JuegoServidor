@@ -62,6 +62,10 @@
     <Compile Include="Migrations\202410192235299_MigracionInicial1.Designer.cs">
       <DependentUpon>202410192235299_MigracionInicial1.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202410202236079_arreglarTablas.cs" />
+    <Compile Include="Migrations\202410202236079_arreglarTablas.Designer.cs">
+      <DependentUpon>202410202236079_arreglarTablas.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Modelo\Cuenta.cs" />
     <Compile Include="Modelo\Jugador.cs" />
@@ -77,6 +81,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202410192235299_MigracionInicial1.resx">
       <DependentUpon>202410192235299_MigracionInicial1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202410202236079_arreglarTablas.resx">
+      <DependentUpon>202410202236079_arreglarTablas.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

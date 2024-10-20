@@ -11,41 +11,37 @@ namespace ServicioJuego
     [ServiceContract]
     public interface IGestionCuentaServicio
     {
-        [OperationContract]
-         bool GetData(JugadorDataContract jugador, CuentaDataContract cuent);
 
         [OperationContract]
-         bool AgregarJugador(JugadorDataContract jugador, CuentaDataContract cuenta);
+         bool AgregarJugador(JugadorDataContract jugador);
+
+        [OperationContract]
+        bool EditarContraseña(string correo,string nuevaContraseña);
+
+        [OperationContract]
+        JugadorDataContract ValidarInicioSesion(string nombreUsuario, string contraseniaHash);
     }
 
     [DataContract]
     public class JugadorDataContract
     {
+
+        [DataMember]
+        public int JugadorId { get; set; }
+
         [DataMember]
         public string NombreUsuario { get; set; }
-       
+
         [DataMember]
-        public int NumeroFotoPerfil  { get; set; }
+        public int NumeroFotoPerfil { get; set; }
 
-
-
-    }
-
-    //falta ver si se necesita la cuenta y el correo
-
-    [DataContract]
-     
-    public class CuentaDataContract
-    {
         [DataMember]
-        public string Correo {  get; set; }
+        public string Correo { get; set; }
 
         [DataMember]
         public string ContraseniaHash { get; set; }
-
-
-
     }
+
 }
 
 
