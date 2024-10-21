@@ -45,7 +45,7 @@ namespace ServicioJuego
                 {
                     JugadorId = cuenta.Jugador.JugadorId,
                     NombreUsuario = cuenta.Jugador.NombreUsuario,
-                    Correo = cuenta.Correo,
+                    Correo = cuenta.Correo, 
                     NumeroFotoPerfil = cuenta.Jugador.NumeroFotoPerfil
                 };
             }
