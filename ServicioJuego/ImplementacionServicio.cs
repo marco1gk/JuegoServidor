@@ -57,7 +57,24 @@ namespace ServicioJuego
             throw new NotImplementedException();
         }
 
-       
+        public JugadorDataContract ObtenerJugador(int idJugador)
+        {
+            JugadorDao JugadorDao = new JugadorDao();
+            Jugador jugador = JugadorDao.ObtenerJugador(idJugador);
+
+            if (jugador != null && jugador.Cuenta != null)
+            {
+                return new JugadorDataContract
+                {
+                    NombreUsuario = jugador.NombreUsuario,
+                    NumeroFotoPerfil = jugador.NumeroFotoPerfil,
+                    Correo = jugador.Cuenta.Correo
+                };
+            }
+            return null;
+        }
+
+
     }
 
 

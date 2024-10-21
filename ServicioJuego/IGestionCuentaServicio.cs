@@ -20,6 +20,10 @@ namespace ServicioJuego
 
         [OperationContract]
         JugadorDataContract ValidarInicioSesion(string nombreUsuario, string contraseniaHash);
+
+        [OperationContract]
+        JugadorDataContract ObtenerJugador(int idJugador);
+
     }
 
     [DataContract]
