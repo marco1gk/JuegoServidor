@@ -3,6 +3,7 @@ using AccesoDatos.Modelo;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Contexts;
 using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.Text;
@@ -72,6 +73,30 @@ namespace ServicioJuego
                 };
             }
             return null;
+        }
+
+        public bool EditarNombreUsuario(int idJugador, string nuevoNombreUsuario)
+        {
+            JugadorDao jugador = new JugadorDao();
+            return jugador.EditarNombreUsuario(idJugador, nuevoNombreUsuario);
+        }
+
+        public bool EditarCorreo(int idCuenta, string nuevoCorreo)
+        {
+            CuentaDao cuenta = new CuentaDao();
+            return cuenta.EditarCorreo(idCuenta, nuevoCorreo);
+        }
+
+        public string EnviarCodigoConfirmacion(string correo)
+        {
+            Recursos recurso = new Recursos();
+            return recurso.EnviarCodigoConfirmacion(correo);
+        }
+
+        public bool ValidarCodigo(string codigoIngresado, string codigoEnviado)
+        {
+            Recursos recurso = new Recursos();
+            return recurso.ValidarCodigo(codigoIngresado, codigoEnviado);
         }
 
 

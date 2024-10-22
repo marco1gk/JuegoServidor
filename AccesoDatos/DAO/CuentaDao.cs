@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Data.Entity;
+using System.Net.Mail;
 
 namespace AccesoDatos.DAO
 {
@@ -85,5 +86,32 @@ namespace AccesoDatos.DAO
                 return contexto.Cuentas.Any(cuenta => cuenta.Correo == correo);
             }
         }
+
+        public bool EditarCorreo(int idCuenta, string nuevoCorreo)
+        {
+            using (var contexto = new ContextoBaseDatos())
+            {
+                var cuenta = contexto.Cuentas
+                    .FirstOrDefault(j => j.JugadorId == idCuenta);
+
+                if (cuenta != null)
+                {
+                    cuenta.Correo = nuevoCorreo;
+
+                    try
+                    {
+                        int filasAlteradas = contexto.SaveChanges();
+                        return filasAlteradas > 0;
+                    }
+                    catch (DbUpdateException ex)
+                    {
+                        Console.WriteLine("Error al actualizar el correo: " + ex);
+                        return false;
+                    }
+                }
+                return false;
+            }
+        }
+
     }
 }

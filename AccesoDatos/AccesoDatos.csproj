@@ -54,6 +54,7 @@
     <Compile Include="ContextoBaseDatos.cs" />
     <Compile Include="DAO\CuentaDao.cs" />
     <Compile Include="DAO\JugadorDao.cs" />
+    <Compile Include="DAO\Recursos.cs" />
     <Compile Include="Migrations\202410192226316_MigracionInicial.cs" />
     <Compile Include="Migrations\202410192226316_MigracionInicial.Designer.cs">
       <DependentUpon>202410192226316_MigracionInicial.cs</DependentUpon>

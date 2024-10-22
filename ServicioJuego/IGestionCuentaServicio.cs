@@ -24,6 +24,19 @@ namespace ServicioJuego
         [OperationContract]
         JugadorDataContract ObtenerJugador(int idJugador);
 
+        [OperationContract]
+        bool EditarNombreUsuario(int idJugador, string nuevoNombreUsuario);
+
+        [OperationContract]
+        bool EditarCorreo(int idCuenta, string nuevoCorreo);
+
+        [OperationContract]
+        string EnviarCodigoConfirmacion(string correo);
+
+        [OperationContract]
+        bool ValidarCodigo(string codigoIngresado, string codigoEnviado);
+
+
     }
 
     [DataContract]
