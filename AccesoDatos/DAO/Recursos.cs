@@ -16,30 +16,37 @@ namespace AccesoDatos.DAO
 
             // Configuración del correo
             MailMessage mail = new MailMessage();
-            mail.From = new MailAddress("axel.lu04@gmail.com"); // Cambia por tu correo
+            mail.From = new MailAddress("vaomarco052@gmail.com"); // Tu correo
             mail.To.Add(correo);
             mail.Subject = "Código de Verificación";
             mail.Body = "Tu código de verificación es: " + codigo;
 
-            SmtpClient smtpClient = new SmtpClient("smtp.gmail.com", 587); // Cambia por tu servidor SMTP
-            smtpClient.Credentials = new System.Net.NetworkCredential("axel.lu04@gmail.com", "159753 cr"); // Cambia por tus credenciaes
+            SmtpClient smtpClient = new SmtpClient("smtp.gmail.com", 587);
+            smtpClient.Credentials = new System.Net.NetworkCredential("vaomarco052@gmail.com", "varillasMarco10@"); // Tu contraseña
             smtpClient.EnableSsl = true;
 
-            smtpClient.Send(mail);
+            try
+            {
+                smtpClient.Send(mail);
+                Console.WriteLine("Correo enviado exitosamente."); // Mensaje de éxito
+            }
+            catch (SmtpException ex)
+            {
+                Console.WriteLine("Error SMTP: " + ex.Message);
+                return null; // Devuelve null si hay un error
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error al enviar el correo: " + ex.Message);
+                return null; // Devuelve null si hay un error
+            }
 
             return codigo; // Devuelve el código para almacenarlo
         }
 
         public bool ValidarCodigo(string codigoIngresado, string codigoEnviado)
         {
-            if (codigoIngresado == codigoEnviado)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return codigoIngresado == codigoEnviado;
         }
     }
 }

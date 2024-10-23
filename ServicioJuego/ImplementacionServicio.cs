@@ -25,14 +25,6 @@ namespace ServicioJuego
             cuentaAux.ContraseniaHash= jugador.ContraseniaHash;
             return cuentaDao.AgregarJugadorConCuenta(jugadorAux, cuentaAux);
           
-            /*Jugador Jugador = new Jugador();
-            Jugador.NombreUsuario = jugador.NombreUsuario;
-            Jugador.NumeroFotoPerfil = jugador.NumeroFotoPerfil;
-            Cuenta Cuenta = new Cuenta();
-            Cuenta.Correo = cuenta.Correo;
-            Cuenta.ContraseniaHash=cuenta.ContraseniaHash;  
-            CuentaDao CuentaDao = new CuentaDao();
-            return CuentaDao.AgregarJugadorConCuenta(Jugador, Cuenta);*/
         }
          public JugadorDataContract ValidarInicioSesion(string nombreUsuario, string contraseniaHash)
         {

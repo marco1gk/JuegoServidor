@@ -45,6 +45,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IGestionCuentaServicio.cs" />
+    <Compile Include="ImplementacionSalaEspera.cs" />
+    <Compile Include="ILobbyManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ImplementacionServicio.cs" />
   </ItemGroup>
