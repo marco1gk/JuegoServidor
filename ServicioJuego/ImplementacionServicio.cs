@@ -26,7 +26,19 @@ namespace ServicioJuego
             return cuentaDao.AgregarJugadorConCuenta(jugadorAux, cuentaAux);
           
         }
-         public JugadorDataContract ValidarInicioSesion(string nombreUsuario, string contraseniaHash)
+        public bool ExisteCorreo(string correo)
+        {
+            CuentaDao cuentaDao = new CuentaDao();
+            return cuentaDao.ExisteCorreo(correo);
+        }
+
+        public bool ExisteNombreUsuario(string nombreUsuario)
+        {
+            CuentaDao cuentaDao = new CuentaDao();
+            return cuentaDao.ExisteNombreUsuario(nombreUsuario);
+        }
+
+        public JugadorDataContract ValidarInicioSesion(string nombreUsuario, string contraseniaHash)
         {
             CuentaDao cuentaDao = new CuentaDao();
             var cuenta = cuentaDao.ValidarInicioSesion(nombreUsuario, contraseniaHash); // Aquí devuelves la cuenta completa

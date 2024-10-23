@@ -36,6 +36,13 @@ namespace ServicioJuego
         [OperationContract]
         bool ValidarCodigo(string codigoIngresado, string codigoEnviado);
 
+        [OperationContract]
+        bool ExisteCorreo(string correo);
+
+        [OperationContract]
+        bool ExisteNombreUsuario(string nombreUsuario);
+
+
 
     }
 

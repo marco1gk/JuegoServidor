@@ -113,5 +113,24 @@ namespace AccesoDatos.DAO
             }
         }
 
+        public bool ExisteCorreo(string correo)
+        {
+            using (var context = new ContextoBaseDatos()) // Reemplaza con tu contexto
+            {
+                return context.Cuentas.Any(c => c.Correo == correo);
+            }
+        }
+
+        public bool ExisteNombreUsuario(string nombreUsuario)
+        {
+            using (var context = new ContextoBaseDatos()) // Reemplaza con tu contexto
+            {
+                return context.Jugadores.Any(j => j.NombreUsuario == nombreUsuario);
+            }
+        }
+
+
     }
+
+
 }
