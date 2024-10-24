@@ -26,9 +26,13 @@ namespace ServicioJuego
         [OperationContract]
         void sendMessage(string mensaje);
 
+        [OperationContract]
+        string BuscarLobbyDisponible();
 
 
-        
+
+
+
     }
 
     [ServiceContract]
@@ -60,6 +64,9 @@ namespace ServicioJuego
 
         [OperationContract]
         void NotifyExpulsedFromLobby();
+        // Nuevo método para recibir mensajes de chat
+        [OperationContract]
+        void ReceiveMessage(string username, string message);
     }
 
     [DataContract]

@@ -46,6 +46,19 @@ namespace ServicioJuego
 
         }
 
+        public string BuscarLobbyDisponible()
+        {
+            // Si hay un lobby disponible, devolver su código
+            if (lobbies.Any())
+            {
+                return lobbies.Keys.First(); // Devuelve el primer lobby disponible
+            }
+
+            // Si no hay lobbies disponibles, devuelve null
+            return null;
+        }
+
+
         public void JoinLobbyAsHost(string lobbyCode)
         {
             if (lobbies.ContainsKey(lobbyCode))
@@ -221,18 +234,53 @@ namespace ServicioJuego
 
         public void sendMessage(string mensaje)
         {
-            foreach (var lobby in lobbies)
+            // Obtener el canal de callback del jugador que envía el mensaje
+            ILobbyManagerCallback currentUserCallbackChannel = OperationContext.Current.GetCallbackChannel<ILobbyManagerCallback>();
+
+            // Buscar el lobby en el que está el jugador que envía el mensaje
+            string lobbyCode = lobbies
+                .Where(lobby => lobby.Value.Any(player => player.CallbackChannel == currentUserCallbackChannel)) // Buscar el lobby del jugador
+                .Select(lobby => lobby.Key) // Obtener el código del lobby
+                .FirstOrDefault();
+
+            // Si el lobby no existe, el jugador no está en un lobby válido
+            if (lobbyCode == null)
             {
-                List<LobbyPlayer> players = lobby.Value;  // Lista de jugadores en el lobby
+                Console.WriteLine("No se pudo encontrar el lobby del jugador que envía el mensaje.");
+                return;
+            }
 
-                Console.WriteLine("Players in the lobby:");
+            // Obtener el nombre del jugador que envía el mensaje
+            string sendingUsername = lobbies[lobbyCode]
+                .Where(player => player.CallbackChannel == currentUserCallbackChannel)
+                .Select(player => player.Username)
+                .FirstOrDefault();
 
-                foreach (var player in players)
+            // Verificar si el jugador fue encontrado
+            if (sendingUsername == null)
+            {
+                Console.WriteLine("No se pudo encontrar al jugador que envía el mensaje.");
+                return;
+            }
+
+            // Enviar el mensaje a todos los jugadores en el mismo lobby
+            List<LobbyPlayer> playersInLobby = lobbies[lobbyCode];
+            foreach (var player in playersInLobby)
+            {
+                try
                 {
-                    Console.WriteLine($"{player.Username}");  // Imprime solo el nombre del jugador
+                    // Enviar el mensaje a cada jugador en el lobby
+                    player.CallbackChannel.ReceiveMessage(sendingUsername, mensaje);
+                }
+                catch (CommunicationException ex)
+                {
+                    Console.WriteLine($"Error al enviar mensaje a {player.Username}: {ex.Message}");
                 }
             }
         }
+
+
+
 
     }
 }
