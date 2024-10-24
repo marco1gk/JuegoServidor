@@ -16,13 +16,13 @@ namespace AccesoDatos.DAO
 
             // Configuración del correo
             MailMessage mail = new MailMessage();
-            mail.From = new MailAddress("vaomarco052@gmail.com"); // Tu correo
+            mail.From = new MailAddress("hunterstrophy01@gmail.com"); // Tu correo
             mail.To.Add(correo);
             mail.Subject = "Código de Verificación";
             mail.Body = "Tu código de verificación es: " + codigo;
 
             SmtpClient smtpClient = new SmtpClient("smtp.gmail.com", 587);
-            smtpClient.Credentials = new System.Net.NetworkCredential("vaomarco052@gmail.com", "varillasMarco10@"); // Tu contraseña
+            smtpClient.Credentials = new System.Net.NetworkCredential("hunterstrophy01@gmail.com", "azcx qzqh kzdq ifve"); // Tu contraseña
             smtpClient.EnableSsl = true;
 
             try
