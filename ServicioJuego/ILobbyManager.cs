@@ -24,7 +24,7 @@ namespace ServicioJuego
         void ExitLobby(string lobbyCode, string username);
 
         [OperationContract]
-        void sendMessage(string mensaje);
+        void SendMessage(string mensaje);
 
         [OperationContract]
         string BuscarLobbyDisponible();
@@ -64,7 +64,6 @@ namespace ServicioJuego
 
         [OperationContract]
         void NotifyExpulsedFromLobby();
-        // Nuevo método para recibir mensajes de chat
         [OperationContract]
         void ReceiveMessage(string username, string message);
     }

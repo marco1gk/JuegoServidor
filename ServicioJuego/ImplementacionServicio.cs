@@ -41,11 +41,10 @@ namespace ServicioJuego
         public JugadorDataContract ValidarInicioSesion(string nombreUsuario, string contraseniaHash)
         {
             CuentaDao cuentaDao = new CuentaDao();
-            var cuenta = cuentaDao.ValidarInicioSesion(nombreUsuario, contraseniaHash); // Aquí devuelves la cuenta completa
+            var cuenta = cuentaDao.ValidarInicioSesion(nombreUsuario, contraseniaHash);
 
             if (cuenta != null)
             {
-                // Si se encuentra la cuenta, retornas los datos del jugador en un DataContract
                 return new JugadorDataContract
                 {
                     JugadorId = cuenta.Jugador.JugadorId,
@@ -55,7 +54,7 @@ namespace ServicioJuego
                 };
             }
 
-            return null; // Si no existe, retornas null
+            return null; 
         }
         public bool EditarContraseña(string correo, string nuevaContraseña)
         {
