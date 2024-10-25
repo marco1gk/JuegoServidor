@@ -20,7 +20,7 @@ namespace Pruebas
         [InlineData("correoNoExiste@gmail.com", "YaExisteUsuario", false)]
 
 
-        public void agregarCuenta(string mail,string nombreUsuario, bool salidaEsperada)
+        public void AgregarCuenta(string mail,string nombreUsuario, bool salidaEsperada)
         {
             bool resultado;
 
@@ -63,7 +63,7 @@ namespace Pruebas
         [InlineData("correoYaExiste@gmail.com", "YaExisteUsuario", "hashed_password")]
         [InlineData("correoYaExiste2@gmail.com", "YaExisteUsuario2", "1234")]
 
-        public void validarInicioSesion(string correo, string usuario, string contraseña)
+        public void ValidarInicioSesion(string correo, string usuario, string contraseña)
         {
             Cuenta resultado = new Cuenta();
             using (var contexto = new ContextoBaseDatos())
@@ -109,10 +109,135 @@ namespace Pruebas
 
         }
 
+          
+            [Theory]
+            [InlineData("correoExistente@gmail.com", "nuevaContraseña", true)]
+            [InlineData("correoInexistente@gmail.com", "nuevaContraseña", false)]
+            public void EditarContraseñaPorCorreo(string correo, string nuevaContraseña, bool salidaEsperada)
+            {
+                bool resultado;
+
+                using (var contexto = new ContextoBaseDatos())
+                {
+                    
+                    var cuenta = new Cuenta
+                    {
+                        Correo = "correoExistente@gmail.com",
+                        ContraseniaHash = "contraseñaAntigua",
+                        Jugador = new Jugador { NombreUsuario = "UsuarioExistente", NumeroFotoPerfil = 1 }
+                    };
+                    contexto.Cuentas.Add(cuenta);
+                    contexto.SaveChanges();
+
+                    CuentaDao cuentaDao = new CuentaDao();
+                    resultado = cuentaDao.EditarContraseñaPorCorreo(correo, nuevaContraseña);
+
+                    contexto.Cuentas.RemoveRange(contexto.Cuentas);
+                    contexto.SaveChanges();
+                }
+
+                Assert.Equal(salidaEsperada, resultado);
+            }
+
+            
+            [Theory]
+            [InlineData("correoExistente@gmail.com", true)]
+            [InlineData("correoNoExistente@gmail.com", false)]
+            public void ExistenciaCorreo(string correo, bool salidaEsperada)
+            {
+                bool resultado;
+
+                using (var contexto = new ContextoBaseDatos())
+                {
+                    
+                    var cuenta = new Cuenta { Correo = "correoExistente@gmail.com" };
+                    contexto.Cuentas.Add(cuenta);
+                    contexto.SaveChanges();
+
+                    CuentaDao cuentaDao = new CuentaDao();
+                    resultado = cuentaDao.ExistenciaCorreo(correo);
+
+                    contexto.Cuentas.RemoveRange(contexto.Cuentas);
+                    contexto.SaveChanges();
+                }
+
+                Assert.Equal(salidaEsperada, resultado);
+            }
+
+            
+            [Theory]
+            [InlineData(1, "nuevoCorreo@gmail.com", true)]
+            [InlineData(2, "correoInexistente@gmail.com", false)]
+            public void EditarCorreo(int idCuenta, string nuevoCorreo, bool salidaEsperada)
+            {
+                bool resultado;
+
+                using (var contexto = new ContextoBaseDatos())
+                {
+                    
+                    var cuenta = new Cuenta
+                    {
+                        JugadorId = 1,
+                        Correo = "correoAntiguo@gmail.com",
+                        Jugador = new Jugador { NombreUsuario = "UsuarioExistente", NumeroFotoPerfil = 1 }
+                    };
+                    contexto.Cuentas.Add(cuenta);
+                    contexto.SaveChanges();
+
+                    CuentaDao cuentaDao = new CuentaDao();
+                    resultado = cuentaDao.EditarCorreo(idCuenta, nuevoCorreo);
+
+                    contexto.Cuentas.RemoveRange(contexto.Cuentas);
+                    contexto.SaveChanges();
+                }
+
+                Assert.Equal(salidaEsperada, resultado);
+            }
+
+            [Theory]
+            [InlineData("correoExistente@gmail.com", true)]
+            [InlineData("correoNoExistente@gmail.com", false)]
+            public void ExisteCorreo(string correo, bool salidaEsperada)
+            {
+                bool resultado;
+
+                using (var contexto = new ContextoBaseDatos())
+                {
+                    var cuenta = new Cuenta { Correo = "correoExistente@gmail.com" };
+                    contexto.Cuentas.Add(cuenta);
+                    contexto.SaveChanges();
+
+                    CuentaDao cuentaDao = new CuentaDao();
+                    resultado = cuentaDao.ExisteCorreo(correo);
+
+                    contexto.Cuentas.RemoveRange(contexto.Cuentas);
+                    contexto.SaveChanges();
+                }
+
+                Assert.Equal(salidaEsperada, resultado);
+            }
+
+            [Theory]
+            [InlineData("UsuarioExistente", true)]
+            [InlineData("UsuarioInexistente", false)]
+            public void ExisteNombreUsuario(string nombreUsuario, bool salidaEsperada)
+            {
+                bool resultado;
+
+                using (var contexto = new ContextoBaseDatos())
+                {
+                    var jugador = new Jugador { NombreUsuario = "UsuarioExistente" };
+                    contexto.Jugadores.Add(jugador);
+                    contexto.SaveChanges();
+
+                    CuentaDao cuentaDao = new CuentaDao();
+                    resultado = cuentaDao.ExisteNombreUsuario(nombreUsuario);
+
+                    contexto.Jugadores.RemoveRange(contexto.Jugadores);
+                    contexto.SaveChanges();
+                }
+
+                Assert.Equal(salidaEsperada, resultado);
+            }
+        }
     }
-
-   
-}
-
-
-
