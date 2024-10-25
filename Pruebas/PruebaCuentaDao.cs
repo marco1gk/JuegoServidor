@@ -11,9 +11,11 @@ using Xunit;
 
 
 namespace Pruebas
-{
+{       
+
     public class PruebaCuentaDao
     {
+        
         [Theory]
         [InlineData ("vaomarco052@gmail.com","marco", true)]
         [InlineData ("correoYaExiste@gmail.com","NoExisteUsuario", false)]
@@ -239,5 +241,5 @@ namespace Pruebas
 
                 Assert.Equal(salidaEsperada, resultado);
             }
-        }
     }
+}
