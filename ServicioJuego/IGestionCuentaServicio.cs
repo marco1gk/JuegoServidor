@@ -16,7 +16,7 @@ namespace ServicioJuego
          bool AgregarJugador(JugadorDataContract jugador);
 
         [OperationContract]
-        bool EditarContraseña(string correo,string nuevaContraseña);
+        bool EditarContraseña(string correo, string nuevaContraseña);
 
         [OperationContract]
         JugadorDataContract ValidarInicioSesion(string nombreUsuario, string contraseniaHash);

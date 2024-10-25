@@ -59,7 +59,8 @@ namespace ServicioJuego
         }
         public bool EditarContraseña(string correo, string nuevaContraseña)
         {
-            throw new NotImplementedException();
+            CuentaDao cuenta = new CuentaDao();
+            return cuenta.EditarContraseñaPorCorreo(correo, nuevaContraseña);
         }
 
         public JugadorDataContract ObtenerJugador(int idJugador)
@@ -73,7 +74,8 @@ namespace ServicioJuego
                 {
                     NombreUsuario = jugador.NombreUsuario,
                     NumeroFotoPerfil = jugador.NumeroFotoPerfil,
-                    Correo = jugador.Cuenta.Correo
+                    Correo = jugador.Cuenta.Correo,
+                    ContraseniaHash = jugador.Cuenta.ContraseniaHash
                 };
             }
             return null;
