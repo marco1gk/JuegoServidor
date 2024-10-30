@@ -47,6 +47,16 @@ namespace AccesoDatos.DAO
             }
         }
 
+        public Cuenta ObtenerCuentaPorNombreUsuario(string nombreUsuario)
+        {
+            using (var contexto = new ContextoBaseDatos())
+            {
+                return contexto.Cuentas
+                    .Include(c => c.Jugador) // Asegúrate de que esto sea válido
+                    .FirstOrDefault(c => c.Correo == nombreUsuario);
+            }
+        }
+
         public bool EditarContraseñaPorCorreo(string correo, string nuevaContraseña)
         {
             using (var contexto = new ContextoBaseDatos())

@@ -19,10 +19,14 @@ namespace ServicioJuego
             Cuenta cuentaAux = new Cuenta();
             CuentaDao cuentaDao = new CuentaDao();
 
+            string salt = Recursos.GenerarSalt();
+            string contraseniaHash = Recursos.HashearContrasena(jugador.ContraseniaHash, salt);
+
             jugadorAux.NombreUsuario= jugador.NombreUsuario;
             jugadorAux.NumeroFotoPerfil= jugador.NumeroFotoPerfil;
-            cuentaAux.Correo= jugador.Correo;   
-            cuentaAux.ContraseniaHash= jugador.ContraseniaHash;
+            cuentaAux.Correo= jugador.Correo;
+            cuentaAux.Salt = salt;
+            cuentaAux.ContraseniaHash = contraseniaHash;
             return cuentaDao.AgregarJugadorConCuenta(jugadorAux, cuentaAux);
           
         }
@@ -41,10 +45,11 @@ namespace ServicioJuego
         public JugadorDataContract ValidarInicioSesion(string nombreUsuario, string contraseniaHash)
         {
             CuentaDao cuentaDao = new CuentaDao();
-            var cuenta = cuentaDao.ValidarInicioSesion(nombreUsuario, contraseniaHash);
+            var cuenta = cuentaDao.ObtenerCuentaPorNombreUsuario(nombreUsuario);
 
             if (cuenta != null)
             {
+                bool esValido = Recursos.VerificarContrasena(contraseniaHash, cuenta);
                 return new JugadorDataContract
                 {
                     JugadorId = cuenta.Jugador.JugadorId,

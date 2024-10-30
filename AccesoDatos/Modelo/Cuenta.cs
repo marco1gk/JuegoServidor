@@ -21,6 +21,9 @@ namespace AccesoDatos.Modelo
 
         [Required]
         public string ContraseniaHash   { get; set; }
+        
+        [Required]
+        public string Salt { get; set; }
 
 
         // Relación con Jugador (propiedad de navegación)
