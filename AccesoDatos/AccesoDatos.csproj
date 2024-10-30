@@ -72,6 +72,7 @@
       <DependentUpon>202410300131553_AgregarCampoSaltEnCuenta.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Modelo\Amistad.cs" />
     <Compile Include="Modelo\Cuenta.cs" />
     <Compile Include="Modelo\Jugador.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -38,6 +38,9 @@ namespace AccesoDatos
                 .WithRequired(cuenta => cuenta.Jugador)
                 .WillCascadeOnDelete(true);
 
+
+
+
             base.OnModelCreating(modelBuilder);
         }
 
