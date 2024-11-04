@@ -16,6 +16,8 @@ namespace AccesoDatos
         public DbSet<Cuenta> Cuentas { get; set; }
         public DbSet<Jugador> Jugadores { get; set; }
 
+        public DbSet<Amistad> Amistades { get; set; }
+
         public ContextoBaseDatos() : base ("name=ContactoBaseDatos") { }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
@@ -38,8 +40,12 @@ namespace AccesoDatos
                 .WithRequired(cuenta => cuenta.Jugador)
                 .WillCascadeOnDelete(true);
 
-
-
+            modelBuilder.Entity<Amistad>()
+                .ToTable("Amistades")
+                .HasRequired(amistad => amistad.Jugador)
+                .WithMany()
+                .HasForeignKey(amistad => amistad.JugadorId)
+                .WillCascadeOnDelete(false);
 
             base.OnModelCreating(modelBuilder);
         }

@@ -52,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ContextoBaseDatos.cs" />
+    <Compile Include="DAO\AmistadDao.cs" />
     <Compile Include="DAO\CuentaDao.cs" />
     <Compile Include="DAO\JugadorDao.cs" />
     <Compile Include="DAO\Recursos.cs" />
@@ -70,6 +71,22 @@
     <Compile Include="Migrations\202410300131553_AgregarCampoSaltEnCuenta.cs" />
     <Compile Include="Migrations\202410300131553_AgregarCampoSaltEnCuenta.Designer.cs">
       <DependentUpon>202410300131553_AgregarCampoSaltEnCuenta.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202410300457071_AmistadRealizada.cs" />
+    <Compile Include="Migrations\202410300457071_AmistadRealizada.Designer.cs">
+      <DependentUpon>202410300457071_AmistadRealizada.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202410301115243_atributoNuevo.cs" />
+    <Compile Include="Migrations\202410301115243_atributoNuevo.Designer.cs">
+      <DependentUpon>202410301115243_atributoNuevo.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202410301116496_atributoNuevoo.cs" />
+    <Compile Include="Migrations\202410301116496_atributoNuevoo.Designer.cs">
+      <DependentUpon>202410301116496_atributoNuevoo.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202410301332375_relacion.cs" />
+    <Compile Include="Migrations\202410301332375_relacion.Designer.cs">
+      <DependentUpon>202410301332375_relacion.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Modelo\Amistad.cs" />
@@ -93,6 +110,18 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202410300131553_AgregarCampoSaltEnCuenta.resx">
       <DependentUpon>202410300131553_AgregarCampoSaltEnCuenta.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202410300457071_AmistadRealizada.resx">
+      <DependentUpon>202410300457071_AmistadRealizada.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202410301115243_atributoNuevo.resx">
+      <DependentUpon>202410301115243_atributoNuevo.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202410301116496_atributoNuevoo.resx">
+      <DependentUpon>202410301116496_atributoNuevoo.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202410301332375_relacion.resx">
+      <DependentUpon>202410301332375_relacion.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

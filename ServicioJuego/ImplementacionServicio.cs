@@ -1,12 +1,16 @@
-﻿using AccesoDatos.DAO;
+﻿using AccesoDatos;
+using AccesoDatos.DAO;
 using AccesoDatos.Modelo;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Runtime.Remoting.Contexts;
 using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.Text;
+using System.Data.SqlClient;
+using System.Data.Entity.Core;
 
 namespace ServicioJuego
 {
@@ -84,6 +88,71 @@ namespace ServicioJuego
             }
             return null;
         }
+        public int GetIdPlayerByUsername(string username)
+        {
+            int idPlayer = 0;
+
+            try
+            {
+                using (var context = new ContextoBaseDatos())
+                {
+                    var player = context.Jugadores
+                        .FirstOrDefault(p => p.NombreUsuario == username);
+
+                    if (player != null)
+                    {
+                        idPlayer = player.JugadorId;
+                    }
+                }
+            }
+           
+            catch (SqlException ex)
+            {
+                Console.WriteLine(ex);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+
+            return idPlayer;
+        }
+
+        public string GetUsernameByIdPlayer(int idPlayer)
+        {
+            string username = string.Empty;
+
+            try
+            {
+                using (var context = new ContextoBaseDatos())
+                {
+                    var player = context.Jugadores
+                        .FirstOrDefault(p => p.JugadorId == idPlayer);
+
+                    if (player != null)
+                    {
+                        username = player.NombreUsuario;
+                    }
+                }
+            }
+            catch (EntityException ex)
+            {
+                Console.WriteLine(ex);
+            }
+            catch (SqlException ex)
+            {
+                Console.WriteLine(ex);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+
+            return username;
+        }
+
+
+
 
         public bool EditarNombreUsuario(int idJugador, string nuevoNombreUsuario)
         {
