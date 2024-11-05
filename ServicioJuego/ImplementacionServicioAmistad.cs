@@ -59,7 +59,7 @@ namespace ServicioJuego
 
             try
             {
-                hasRelation = friendRequestDataAccess.VerifyFriendship(idPlayerSender, idPlayerRequested);
+                hasRelation = friendRequestDataAccess.VerificarAmistad(idPlayerSender, idPlayerRequested);
 
             }
             catch (Exception ex)
@@ -89,7 +89,7 @@ namespace ServicioJuego
 
                 if (idPlayerRequested > 0)
                 {
-                    rowsAffected = friendRequestDataAccess.AddRequestFriendship(idPlayerSender, idPlayerRequested);
+                    rowsAffected = friendRequestDataAccess.AgregarSolicitudAmistad(idPlayerSender, idPlayerRequested);
                 }
 
                 return rowsAffected;

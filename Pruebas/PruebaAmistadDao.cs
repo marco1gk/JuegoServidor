@@ -25,7 +25,7 @@ namespace Pruebas
             int idPlayerSender = 1;
             int idPlayerRequested = 2;
 
-            var resultado = amistadDao.VerifyFriendship(idPlayerSender, idPlayerRequested);
+            var resultado = amistadDao.VerificarAmistad(idPlayerSender, idPlayerRequested);
 
             Assert.True(resultado);
         }
@@ -36,7 +36,7 @@ namespace Pruebas
             int idPlayerSender = 1;
             int idPlayerRequested = 3;
 
-            var resultado = amistadDao.VerifyFriendship(idPlayerSender, idPlayerRequested);
+            var resultado = amistadDao.VerificarAmistad(idPlayerSender, idPlayerRequested);
 
             Assert.False(resultado);
         }
@@ -47,7 +47,7 @@ namespace Pruebas
             int idPlayerSender = 1;
             int idPlayerRequested = 2;
 
-            Assert.Throws<EntityException>(() => amistadDao.VerifyFriendship(idPlayerSender, idPlayerRequested));
+            Assert.Throws<EntityException>(() => amistadDao.VerificarAmistad(idPlayerSender, idPlayerRequested));
         }
 
         [Fact]
@@ -56,7 +56,7 @@ namespace Pruebas
             int idPlayerSender = 1;
             int idPlayerRequested = 2;
 
-            var filasAfectadas = amistadDao.AddRequestFriendship(idPlayerSender, idPlayerRequested);
+            var filasAfectadas = amistadDao.AgregarSolicitudAmistad(idPlayerSender, idPlayerRequested);
 
             Assert.True(filasAfectadas > 0);
         }
@@ -67,7 +67,7 @@ namespace Pruebas
             int idPlayerSender = 1;
             int idPlayerRequested = 2;
 
-            Assert.Throws<SqlException>(() => amistadDao.AddRequestFriendship(idPlayerSender, idPlayerRequested));
+            Assert.Throws<SqlException>(() => amistadDao.AgregarSolicitudAmistad(idPlayerSender, idPlayerRequested));
         }
 
         [Fact]
@@ -76,7 +76,7 @@ namespace Pruebas
             int idPlayer = 1;
             int idPlayerFriend = 2;
 
-            var esAmigo = amistadDao.IsFriend(idPlayer, idPlayerFriend);
+            var esAmigo = amistadDao.EsAmigo(idPlayer, idPlayerFriend);
 
             Assert.True(esAmigo);
         }
@@ -87,7 +87,7 @@ namespace Pruebas
             int idPlayer = 1;
             int idPlayerFriend = 3;
 
-            var esAmigo = amistadDao.IsFriend(idPlayer, idPlayerFriend);
+            var esAmigo = amistadDao.EsAmigo(idPlayer, idPlayerFriend);
 
             Assert.False(esAmigo);
         }

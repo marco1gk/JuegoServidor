@@ -81,7 +81,7 @@ namespace ServicioJuego
             ImplementacionServicio userDataAccess = new ImplementacionServicio();
             int idOnlinePlayer = userDataAccess.GetIdPlayerByUsername(onlineUsername);
 
-            bool isFriend = friendRequestDataAccess.IsFriend(currentIdPlayer, idOnlinePlayer);
+            bool isFriend = friendRequestDataAccess.EsAmigo(currentIdPlayer, idOnlinePlayer);
 
             return isFriend;
         }

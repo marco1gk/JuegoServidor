@@ -18,25 +18,25 @@ namespace AccesoDatos.DAO
 {
     public class AmistadDao
     {
-        private const string STATUS_FRIEND = "Friend";
-        private const string STATUS_REQUEST = "Request";
+        private const string ESTADO_AMISTAD = "Friend";
+        private const string ESTADO_SOLICITUD = "Request";
 
-        public bool VerifyFriendship(int idPlayerSender, int idPlayerRequested)
+        public bool VerificarAmistad(int idJugadorMandaSolicitud, int idJugadorReciveSolicitud)
         {
-            bool hasRelation = false;
+            bool tieneRelacion = false;
 
             try
             {
-                using (var context = new ContextoBaseDatos())
+                using (var contexto = new ContextoBaseDatos())
                 {
-                    var fsiendship = (from fs in context.Amistades
+                    var amistad = (from fs in contexto.Amistades
                                       where
-                                          (fs.JugadorId == idPlayerSender && fs.AmigoId == idPlayerRequested)
-                                          || (fs.JugadorId == idPlayerRequested && fs.AmigoId == idPlayerSender)
-                                          && (fs.EstadoAmistad.Equals(STATUS_FRIEND) || fs.EstadoAmistad.Equals(STATUS_REQUEST))
+                                          (fs.JugadorId == idJugadorMandaSolicitud && fs.AmigoId == idJugadorReciveSolicitud)
+                                          || (fs.JugadorId == idJugadorReciveSolicitud && fs.AmigoId == idJugadorMandaSolicitud)
+                                          && (fs.EstadoAmistad.Equals(ESTADO_AMISTAD) || fs.EstadoAmistad.Equals(ESTADO_SOLICITUD))
                                       select fs).ToList();
 
-                    hasRelation = fsiendship.Any();
+                    tieneRelacion = amistad.Any();
                 }
             }
             catch (EntityException ex)
@@ -52,25 +52,25 @@ namespace AccesoDatos.DAO
                 throw new Exception(ex.Message);
             }
 
-            return hasRelation;
+            return tieneRelacion;
         }
 
-        public int AddRequestFriendship(int idPlayerSender, int idPlayerRequested)
+        public int AgregarSolicitudAmistad(int idJugadorMandaSolicitud, int idJugadorReciveSolicitud)
         {
             int rowsAffected = -1;
 
-            if (idPlayerSender > 0 && idPlayerRequested > 0)
+            if (idJugadorMandaSolicitud > 0 && idJugadorReciveSolicitud > 0)
             {
-                Amistad fsiendShip = new Amistad();
-                fsiendShip.JugadorId = idPlayerSender;
-                fsiendShip.AmigoId = idPlayerRequested;
-                fsiendShip.EstadoAmistad = STATUS_REQUEST;
+                Amistad amistad = new Amistad();
+                amistad.JugadorId = idJugadorMandaSolicitud;
+                amistad.AmigoId = idJugadorReciveSolicitud;
+                amistad.EstadoAmistad = ESTADO_SOLICITUD;
 
                 try
                 {
                     using (var context = new ContextoBaseDatos())
                     {
-                        context.Amistades.Add(fsiendShip);
+                        context.Amistades.Add(amistad);
                         rowsAffected = context.SaveChanges();
                     }
                 }
@@ -91,7 +91,7 @@ namespace AccesoDatos.DAO
             return rowsAffected;
         }
 
-        public bool IsFriend(int idPlayer, int idPlayerFriend)
+        public bool EsAmigo(int idPlayer, int idPlayerFriend)
         {
             try
             {
@@ -101,7 +101,7 @@ namespace AccesoDatos.DAO
                                       where
                                           ((fs.JugadorId == idPlayer && fs.AmigoId == idPlayerFriend)
                                           || (fs.JugadorId == idPlayerFriend && fs.AmigoId == idPlayer))
-                                          && (fs.EstadoAmistad.Equals(STATUS_FRIEND))
+                                          && (fs.EstadoAmistad.Equals(ESTADO_AMISTAD))
                                       select fs).ToList();
                     bool isFriend = fsiendship.Any();
                     return isFriend;
@@ -131,7 +131,7 @@ namespace AccesoDatos.DAO
                 {
                     var playerFriendRequests = (
                         from fs in context.Amistades
-                        where (fs.AmigoId == idPlayer && fs.EstadoAmistad.Equals(STATUS_REQUEST))
+                        where (fs.AmigoId == idPlayer && fs.EstadoAmistad.Equals(ESTADO_SOLICITUD))
                         select fs.JugadorId
                     ).ToList();
 
@@ -168,13 +168,13 @@ namespace AccesoDatos.DAO
                 using (var context = new ContextoBaseDatos())
                 {
                     var friendship = context.Amistades.FirstOrDefault(fs =>
-                        (fs.JugadorId == idPlayerAccepted && fs.AmigoId == idCurrentPlayer && fs.EstadoAmistad == STATUS_REQUEST)
-                        || (fs.JugadorId == idCurrentPlayer && fs.AmigoId == idPlayerAccepted && fs.EstadoAmistad == STATUS_REQUEST)
+                        (fs.JugadorId == idPlayerAccepted && fs.AmigoId == idCurrentPlayer && fs.EstadoAmistad == ESTADO_SOLICITUD)
+                        || (fs.JugadorId == idCurrentPlayer && fs.AmigoId == idPlayerAccepted && fs.EstadoAmistad == ESTADO_SOLICITUD)
                     );
 
                     if (friendship != null)
                     {
-                        friendship.EstadoAmistad = STATUS_FRIEND;
+                        friendship.EstadoAmistad = ESTADO_AMISTAD;
                         rowsAffected = context.SaveChanges();
                     }
                 }
@@ -204,8 +204,8 @@ namespace AccesoDatos.DAO
                 using (var context = new ContextoBaseDatos())
                 {
                     var friendship = context.Amistades.FirstOrDefault(fs =>
-                        (fs.JugadorId == idPlayerRejected && fs.AmigoId == idCurrentPlayer && fs.EstadoAmistad == STATUS_REQUEST)
-                        || (fs.JugadorId == idCurrentPlayer && fs.AmigoId == idPlayerRejected && fs.EstadoAmistad == STATUS_REQUEST)
+                        (fs.JugadorId == idPlayerRejected && fs.AmigoId == idCurrentPlayer && fs.EstadoAmistad == ESTADO_SOLICITUD)
+                        || (fs.JugadorId == idCurrentPlayer && fs.AmigoId == idPlayerRejected && fs.EstadoAmistad == ESTADO_SOLICITUD)
                     );
 
                     if (friendship != null)
@@ -240,8 +240,8 @@ namespace AccesoDatos.DAO
                 using (var context = new ContextoBaseDatos())
                 {
                     var friendship = context.Amistades.FirstOrDefault(fs =>
-                        (fs.JugadorId == idPlayerFriend && fs.AmigoId == idCurrentPlayer && fs.EstadoAmistad == STATUS_FRIEND)
-                        || (fs.JugadorId == idCurrentPlayer && fs.AmigoId == idPlayerFriend && fs.EstadoAmistad == STATUS_FRIEND)
+                        (fs.JugadorId == idPlayerFriend && fs.AmigoId == idCurrentPlayer && fs.EstadoAmistad == ESTADO_AMISTAD)
+                        || (fs.JugadorId == idCurrentPlayer && fs.AmigoId == idPlayerFriend && fs.EstadoAmistad == ESTADO_AMISTAD)
                     );
 
                     if (friendship != null)
@@ -274,7 +274,7 @@ namespace AccesoDatos.DAO
                 using (var context = new ContextoBaseDatos())
                 {
                     var friends = context.Amistades
-                    .Where(f => (f.AmigoId == idPlayer || f.JugadorId == idPlayer) && f.EstadoAmistad == STATUS_FRIEND)
+                    .Where(f => (f.AmigoId == idPlayer || f.JugadorId == idPlayer) && f.EstadoAmistad == ESTADO_AMISTAD)
                     .SelectMany(f => new[] { f.JugadorId, f.AmigoId })
                     .Distinct()
                     .Where(id => id != idPlayer)
