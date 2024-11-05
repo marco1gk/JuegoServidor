@@ -20,8 +20,8 @@ namespace ServicioJuego
             }
             catch (Exception ex)
             {
-                throw new FaultException<TimbiricheServerException>(
-        new TimbiricheServerException(ex.Message, ex),
+                throw new FaultException<ExcepcionServicio>(
+        new ExcepcionServicio(ex.Message, ex),
         new FaultReason(ex.Message)
     );
             }
@@ -41,8 +41,8 @@ namespace ServicioJuego
             }
             catch (Exception ex)
             {
-                throw new FaultException<TimbiricheServerException>(
-        new TimbiricheServerException(ex.Message, ex),
+                throw new FaultException<ExcepcionServicio>(
+        new ExcepcionServicio(ex.Message, ex),
         new FaultReason(ex.Message)
     );
             }
@@ -64,8 +64,8 @@ namespace ServicioJuego
             }
             catch (Exception ex)
             {
-                throw new FaultException<TimbiricheServerException>(
-         new TimbiricheServerException(ex.Message, ex),
+                throw new FaultException<ExcepcionServicio>(
+         new ExcepcionServicio(ex.Message, ex),
          new FaultReason(ex.Message)
      );
             }
@@ -96,8 +96,8 @@ namespace ServicioJuego
             }
             catch (Exception ex)
             {
-                throw new FaultException<TimbiricheServerException>(
-           new TimbiricheServerException(ex.Message, ex),
+                throw new FaultException<ExcepcionServicio>(
+           new ExcepcionServicio(ex.Message, ex),
            new FaultReason(ex.Message)
        );
             }
@@ -125,16 +125,16 @@ namespace ServicioJuego
             }
             catch (Exception ex)
             {
-                throw new FaultException<TimbiricheServerException>(
-                     new TimbiricheServerException(ex.Message, ex),
+                throw new FaultException<ExcepcionServicio>(
+                     new ExcepcionServicio(ex.Message, ex),
                      new FaultReason(ex.Message)
                  );
             }
         }
     }
-    public class TimbiricheServerException : Exception
+    public class ExcepcionServicio : Exception
     {
-        public TimbiricheServerException(string message) : base(message) { }
-        public TimbiricheServerException(string message, Exception inner) : base(message, inner) { }
+        public ExcepcionServicio(string message) : base(message) { }
+        public ExcepcionServicio(string message, Exception inner) : base(message, inner) { }
     }
 }

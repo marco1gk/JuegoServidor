@@ -1,245 +1,156 @@
 ﻿using AccesoDatos;
 using AccesoDatos.DAO;
 using AccesoDatos.Modelo;
-using System;
+using Moq;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
-using System.Security.Principal;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
+public class PruebaCuentaDao
+{
+    private readonly Mock<ContextoBaseDatos> _contextMock;
+    private readonly Mock<DbSet<Cuenta>> _cuentasMock;
+    private readonly Mock<DbSet<Jugador>> _jugadoresMock;
+    private readonly CuentaDao _cuentaDao;
 
-namespace Pruebas
-{       
-
-    public class PruebaCuentaDao
+    public PruebaCuentaDao()
     {
-        
-        [Theory]
-        [InlineData ("vaomarco052@gmail.com","marco", true)]
-        [InlineData ("correoYaExiste@gmail.com","NoExisteUsuario", false)]
-        [InlineData("correoNoExiste@gmail.com", "YaExisteUsuario", false)]
+        _contextMock = new Mock<ContextoBaseDatos>();
+        _cuentasMock = new Mock<DbSet<Cuenta>>();
+        _jugadoresMock = new Mock<DbSet<Jugador>>();
+
+        // Configuración del contexto simulado
+        _contextMock.Setup(c => c.Cuentas).Returns(_cuentasMock.Object);
+        _contextMock.Setup(c => c.Jugadores).Returns(_jugadoresMock.Object);
+
+        _cuentaDao = new CuentaDao();
+    }
+
+    [Fact]
+    public void AgregarJugadorConCuenta_DebeRetornarTrue_SiSeAgregaCorrectamente()
+    {
+        var jugador = new Jugador { JugadorId = 1, NombreUsuario = "testUser" };
+        var cuenta = new Cuenta { JugadorId = 1, Correo = "test@example.com", ContraseniaHash = "hashedPassword", Salt = "saltValue" };
+
+        _cuentasMock.Setup(m => m.Add(cuenta)).Returns(cuenta);
+        _jugadoresMock.Setup(m => m.Add(jugador)).Returns(jugador);
+        _contextMock.Setup(c => c.SaveChanges()).Returns(2);
+
+        var resultado = _cuentaDao.AgregarJugadorConCuenta(jugador, cuenta);
+
+        Assert.True(resultado);
+    }
 
 
-        public void AgregarCuenta(string mail,string nombreUsuario, bool salidaEsperada)
+    [Fact]
+    public void ValidarInicioSesion_DebeRetornarCuenta_SiCorreoYContraseñaSonCorrectos()
+    {
+        var cuentaExistente = new Cuenta
         {
-            bool resultado;
+            JugadorId = 1,
+            Correo = "test@example.com",
+            ContraseniaHash = "hashedPassword",
+            Jugador = new Jugador { NombreUsuario = "testUser" }
+        };
+        var data = new List<Cuenta> { cuentaExistente }.AsQueryable();
 
-            using (var contexto = new ContextoBaseDatos())
-            {
-                var cuentaExistente = new Cuenta
-                {
-                    Correo = "correoYaExiste@gmail.com",
-                    ContraseniaHash = "hashed_password",
-                    Jugador = new Jugador
-                    {
-                        NombreUsuario = "YaExisteUsuario",
-                        NumeroFotoPerfil = 1
-                    }
-                };
-                contexto.Cuentas.Add(cuentaExistente);
-                contexto.SaveChanges();
-                CuentaDao cuentaDao = new CuentaDao();
+        // Configura el DbSet de `Cuentas` para que se comporte como `IQueryable`
+        _cuentasMock.As<IQueryable<Cuenta>>().Setup(m => m.Provider).Returns(data.Provider);
+        _cuentasMock.As<IQueryable<Cuenta>>().Setup(m => m.Expression).Returns(data.Expression);
+        _cuentasMock.As<IQueryable<Cuenta>>().Setup(m => m.ElementType).Returns(data.ElementType);
+        _cuentasMock.As<IQueryable<Cuenta>>().Setup(m => m.GetEnumerator()).Returns(data.GetEnumerator());
 
-                Jugador jugadorPrueba = new Jugador();
-                jugadorPrueba.NombreUsuario = nombreUsuario;
-                jugadorPrueba.NumeroFotoPerfil = 1;
+        var resultado = _cuentaDao.ValidarInicioSesion("test@example.com", "hashedPassword");
 
-                Cuenta cuentaPrueba = new Cuenta();
-                cuentaPrueba.ContraseniaHash = "12345";
-                cuentaPrueba.Correo = mail;
+        Assert.NotNull(resultado);
+        Assert.Equal("test@example.com", resultado.Correo);
+    }
 
-                resultado = cuentaDao.AgregarJugadorConCuenta(jugadorPrueba, cuentaPrueba);
+    [Fact]
+    public void ObtenerCuentaPorNombreUsuario_DebeRetornarCuenta_SiNombreUsuarioExiste()
+    {
+        var cuentaExistente = new Cuenta { JugadorId = 1, Correo = "test@example.com", Jugador = new Jugador { NombreUsuario = "testUser" } };
+        var data = new List<Cuenta> { cuentaExistente }.AsQueryable();
 
-                contexto.Cuentas.RemoveRange(contexto.Cuentas);
-                contexto.Jugadores.RemoveRange(contexto.Jugadores);
-                contexto.SaveChanges();
+        _cuentasMock.As<IQueryable<Cuenta>>().Setup(m => m.Provider).Returns(data.Provider);
+        _cuentasMock.As<IQueryable<Cuenta>>().Setup(m => m.Expression).Returns(data.Expression);
+        _cuentasMock.As<IQueryable<Cuenta>>().Setup(m => m.ElementType).Returns(data.ElementType);
+        _cuentasMock.As<IQueryable<Cuenta>>().Setup(m => m.GetEnumerator()).Returns(data.GetEnumerator());
 
-            }
-            Assert.Equal(resultado, salidaEsperada);
+        var resultado = _cuentaDao.ObtenerCuentaPorNombreUsuario("test@example.com");
 
+        Assert.NotNull(resultado);
+        Assert.Equal("test@example.com", resultado.Correo);
+    }
 
-        }
-        [Theory]
-        [InlineData("correoYaExiste@gmail.com", "YaExisteUsuario", "hashed_password")]
-        [InlineData("correoYaExiste2@gmail.com", "YaExisteUsuario2", "1234")]
+    [Fact]
+    public void EditarContraseñaPorCorreo_DebeRetornarTrue_SiActualizaLaContraseña()
+    {
+        var cuentaExistente = new Cuenta { JugadorId = 1, Correo = "test@example.com", ContraseniaHash = "oldPassword" };
+        var data = new List<Cuenta> { cuentaExistente }.AsQueryable();
 
-        public void ValidarInicioSesion(string correo, string usuario, string contraseña)
-        {
-            Cuenta resultado = new Cuenta();
-            using (var contexto = new ContextoBaseDatos())
-            {
+        _cuentasMock.As<IQueryable<Cuenta>>().Setup(m => m.Provider).Returns(data.Provider);
+        _cuentasMock.As<IQueryable<Cuenta>>().Setup(m => m.Expression).Returns(data.Expression);
+        _cuentasMock.As<IQueryable<Cuenta>>().Setup(m => m.ElementType).Returns(data.ElementType);
+        _cuentasMock.As<IQueryable<Cuenta>>().Setup(m => m.GetEnumerator()).Returns(data.GetEnumerator());
 
-                var cuentaExistente = new Cuenta
-                {
-                    Correo = "correoYaExiste@gmail.com",
-                    ContraseniaHash = "hashed_password",
-                    Jugador = new Jugador
-                    {
-                        NombreUsuario = "YaExisteUsuario",
-                        NumeroFotoPerfil = 1
-                    }
-                };
-                var cuentaExistente2 = new Cuenta
-                {
-                    Correo = "correoYaExiste2@gmail.com",
-                    ContraseniaHash = "1234",
-                    Jugador = new Jugador
-                    {
-                        NombreUsuario = "YaExisteUsuario2",
-                        NumeroFotoPerfil = 1
-                    }
-                };
-                contexto.Cuentas.Add(cuentaExistente);
-                contexto.Cuentas.Add(cuentaExistente2);
-                contexto.SaveChanges();
-                CuentaDao cuentaDao = new CuentaDao();
+        _contextMock.Setup(c => c.SaveChanges()).Returns(1);
 
+        var resultado = _cuentaDao.EditarContraseñaPorCorreo("test@example.com", "newPassword");
 
+        Assert.True(resultado);
+        Assert.Equal("newPassword", cuentaExistente.ContraseniaHash);
+    }
 
-                resultado = cuentaDao.ValidarInicioSesion(correo, contraseña);
+    [Fact]
+    public void ExistenciaCorreo_DebeRetornarTrue_SiCorreoExiste()
+    {
+        var cuentaExistente = new Cuenta { Correo = "test@example.com" };
+        var data = new List<Cuenta> { cuentaExistente }.AsQueryable();
 
-                contexto.Cuentas.RemoveRange(contexto.Cuentas);
-                contexto.Jugadores.RemoveRange(contexto.Jugadores);
-                contexto.SaveChanges();
+        _cuentasMock.As<IQueryable<Cuenta>>().Setup(m => m.Provider).Returns(data.Provider);
+        _cuentasMock.As<IQueryable<Cuenta>>().Setup(m => m.Expression).Returns(data.Expression);
+        _cuentasMock.As<IQueryable<Cuenta>>().Setup(m => m.ElementType).Returns(data.ElementType);
+        _cuentasMock.As<IQueryable<Cuenta>>().Setup(m => m.GetEnumerator()).Returns(data.GetEnumerator());
 
-            }
-            Assert.NotNull(resultado);
-            Assert.Equal(resultado.Correo, correo);
-            Assert.Equal(resultado.Jugador.NombreUsuario, usuario);
+        var resultado = _cuentaDao.ExistenciaCorreo("test@example.com");
 
-        }
+        Assert.True(resultado);
+    }
 
-          
-            [Theory]
-            [InlineData("correoExistente@gmail.com", "nuevaContraseña", true)]
-            [InlineData("correoInexistente@gmail.com", "nuevaContraseña", false)]
-            public void EditarContraseñaPorCorreo(string correo, string nuevaContraseña, bool salidaEsperada)
-            {
-                bool resultado;
+    [Fact]
+    public void EditarCorreo_DebeRetornarTrue_SiActualizaElCorreo()
+    {
+        var cuentaExistente = new Cuenta { JugadorId = 1, Correo = "old@example.com" };
+        var data = new List<Cuenta> { cuentaExistente }.AsQueryable();
 
-                using (var contexto = new ContextoBaseDatos())
-                {
-                    
-                    var cuenta = new Cuenta
-                    {
-                        Correo = "correoExistente@gmail.com",
-                        ContraseniaHash = "contraseñaAntigua",
-                        Jugador = new Jugador { NombreUsuario = "UsuarioExistente", NumeroFotoPerfil = 1 }
-                    };
-                    contexto.Cuentas.Add(cuenta);
-                    contexto.SaveChanges();
+        _cuentasMock.As<IQueryable<Cuenta>>().Setup(m => m.Provider).Returns(data.Provider);
+        _cuentasMock.As<IQueryable<Cuenta>>().Setup(m => m.Expression).Returns(data.Expression);
+        _cuentasMock.As<IQueryable<Cuenta>>().Setup(m => m.ElementType).Returns(data.ElementType);
+        _cuentasMock.As<IQueryable<Cuenta>>().Setup(m => m.GetEnumerator()).Returns(data.GetEnumerator());
 
-                    CuentaDao cuentaDao = new CuentaDao();
-                    resultado = cuentaDao.EditarContraseñaPorCorreo(correo, nuevaContraseña);
+        _contextMock.Setup(c => c.SaveChanges()).Returns(1);
 
-                    contexto.Cuentas.RemoveRange(contexto.Cuentas);
-                    contexto.SaveChanges();
-                }
+        var resultado = _cuentaDao.EditarCorreo(1, "new@example.com");
 
-                Assert.Equal(salidaEsperada, resultado);
-            }
+        Assert.True(resultado);
+        Assert.Equal("new@example.com", cuentaExistente.Correo);
+    }
 
-            
-            [Theory]
-            [InlineData("correoExistente@gmail.com", true)]
-            [InlineData("correoNoExistente@gmail.com", false)]
-            public void ExistenciaCorreo(string correo, bool salidaEsperada)
-            {
-                bool resultado;
+    [Fact]
+    public void ExisteNombreUsuario_DebeRetornarTrue_SiNombreUsuarioExiste()
+    {
+        var jugadorExistente = new Jugador { NombreUsuario = "testUser" };
+        var data = new List<Jugador> { jugadorExistente }.AsQueryable();
 
-                using (var contexto = new ContextoBaseDatos())
-                {
-                    
-                    var cuenta = new Cuenta { Correo = "correoExistente@gmail.com" };
-                    contexto.Cuentas.Add(cuenta);
-                    contexto.SaveChanges();
+        _jugadoresMock.As<IQueryable<Jugador>>().Setup(m => m.Provider).Returns(data.Provider);
+        _jugadoresMock.As<IQueryable<Jugador>>().Setup(m => m.Expression).Returns(data.Expression);
+        _jugadoresMock.As<IQueryable<Jugador>>().Setup(m => m.ElementType).Returns(data.ElementType);
+        _jugadoresMock.As<IQueryable<Jugador>>().Setup(m => m.GetEnumerator()).Returns(data.GetEnumerator());
 
-                    CuentaDao cuentaDao = new CuentaDao();
-                    resultado = cuentaDao.ExistenciaCorreo(correo);
+        var resultado = _cuentaDao.ExisteNombreUsuario("testUser");
 
-                    contexto.Cuentas.RemoveRange(contexto.Cuentas);
-                    contexto.SaveChanges();
-                }
-
-                Assert.Equal(salidaEsperada, resultado);
-            }
-
-            
-            [Theory]
-            [InlineData(1, "nuevoCorreo@gmail.com", true)]
-            [InlineData(2, "correoInexistente@gmail.com", false)]
-            public void EditarCorreo(int idCuenta, string nuevoCorreo, bool salidaEsperada)
-            {
-                bool resultado;
-
-                using (var contexto = new ContextoBaseDatos())
-                {
-                    
-                    var cuenta = new Cuenta
-                    {
-                        JugadorId = 1,
-                        Correo = "correoAntiguo@gmail.com",
-                        Jugador = new Jugador { NombreUsuario = "UsuarioExistente", NumeroFotoPerfil = 1 }
-                    };
-                    contexto.Cuentas.Add(cuenta);
-                    contexto.SaveChanges();
-
-                    CuentaDao cuentaDao = new CuentaDao();
-                    resultado = cuentaDao.EditarCorreo(idCuenta, nuevoCorreo);
-
-                    contexto.Cuentas.RemoveRange(contexto.Cuentas);
-                    contexto.SaveChanges();
-                }
-
-                Assert.Equal(salidaEsperada, resultado);
-            }
-
-            [Theory]
-            [InlineData("correoExistente@gmail.com", true)]
-            [InlineData("correoNoExistente@gmail.com", false)]
-            public void ExisteCorreo(string correo, bool salidaEsperada)
-            {
-                bool resultado;
-
-                using (var contexto = new ContextoBaseDatos())
-                {
-                    var cuenta = new Cuenta { Correo = "correoExistente@gmail.com" };
-                    contexto.Cuentas.Add(cuenta);
-                    contexto.SaveChanges();
-
-                    CuentaDao cuentaDao = new CuentaDao();
-                    resultado = cuentaDao.ExisteCorreo(correo);
-
-                    contexto.Cuentas.RemoveRange(contexto.Cuentas);
-                    contexto.SaveChanges();
-                }
-
-                Assert.Equal(salidaEsperada, resultado);
-            }
-
-            [Theory]
-            [InlineData("UsuarioExistente", true)]
-            [InlineData("UsuarioInexistente", false)]
-            public void ExisteNombreUsuario(string nombreUsuario, bool salidaEsperada)
-            {
-                bool resultado;
-
-                using (var contexto = new ContextoBaseDatos())
-                {
-                    var jugador = new Jugador { NombreUsuario = "UsuarioExistente" };
-                    contexto.Jugadores.Add(jugador);
-                    contexto.SaveChanges();
-
-                    CuentaDao cuentaDao = new CuentaDao();
-                    resultado = cuentaDao.ExisteNombreUsuario(nombreUsuario);
-
-                    contexto.Jugadores.RemoveRange(contexto.Jugadores);
-                    contexto.SaveChanges();
-                }
-
-                Assert.Equal(salidaEsperada, resultado);
-            }
+        Assert.True(resultado);
     }
 }

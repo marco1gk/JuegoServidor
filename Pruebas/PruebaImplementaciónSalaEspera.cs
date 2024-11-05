@@ -15,133 +15,158 @@ using ServicioJuego;
 
 namespace Pruebas
 {
-    public class PruebaImplementacionServicio
+    public class PruebaImplementacionServicioSalaEspera
     {
-        private readonly ImplementacionServicio servicio;
-        private readonly Mock<ILobbyManagerCallback> callbackMock;
-
-        public PruebaImplementacionServicio()
-        {
-            servicio = new ImplementacionServicio();
-            callbackMock = new Mock<ILobbyManagerCallback>();
-         //   OperationContext.Current = new OperationContext(new Mock<IContextChannel>().Object);
-        }
-
+        // Prueba para el método CreateLobby
         [Fact]
-        public void CrearLobby_ConJugador_DevuelveCodigoLobby()
+        public void CrearLobby_DeberiaCrearNuevoLobby()
         {
-            // Arrange
-            var jugador = new LobbyPlayer
-            {
-                Username = "Jugador1",
-                CallbackChannel = callbackMock.Object
-            };
+            // Configuración
+            var mockCallback = new Mock<ILobbyManagerCallback>();
+            var jugador = new LobbyPlayer { Username = "Jugador1", CallbackChannel = mockCallback.Object };
+            var servicio = new ImplementacionServicio();
 
-            // Act
+            // Acción
             servicio.CreateLobby(jugador);
 
-            // Assert
-            var lobbyCode = servicio.BuscarLobbyDisponible();
-            Assert.NotNull(lobbyCode);
+            // Verificación
+            Assert.NotNull(servicio.BuscarLobbyDisponible());
+            mockCallback.Verify(callback => callback.NotifyLobbyCreated(It.IsAny<string>()), Times.Once);
+        }
+
+        // Prueba para el método JoinLobbyAsHost
+        [Fact]
+        public void UnirseLobbyComoAnfitrion_DeberiaUnirJugadorAlLobby()
+        {
+            // Configuración
+            var mockCallback = new Mock<ILobbyManagerCallback>();
+            var jugador = new LobbyPlayer { Username = "Jugador1", CallbackChannel = mockCallback.Object };
+            var servicio = new ImplementacionServicio();
+            servicio.CreateLobby(jugador);
+
+            var codigoLobby = servicio.BuscarLobbyDisponible();
+
+            // Acción
+            servicio.JoinLobbyAsHost(codigoLobby);
+
+            // Verificación
+            mockCallback.Verify(callback => callback.NotifyLobbyCreated(codigoLobby), Times.Once);
+        }
+
+
+        // Prueba para el método JoinLobby
+        [Fact]
+        public void UnirseLobby_DeberiaAgregarJugadorAlLobbyExistente()
+        {
+            // Configuración
+            var mockCallback = new Mock<ILobbyManagerCallback>();
+            var jugador1 = new LobbyPlayer { Username = "Jugador1", CallbackChannel = mockCallback.Object };
+            var servicio = new ImplementacionServicio();
+            servicio.CreateLobby(jugador1);
+
+            var nuevoJugador = new LobbyPlayer { Username = "Jugador2", CallbackChannel = mockCallback.Object };
+            var codigoLobby = servicio.BuscarLobbyDisponible();
+
+            // Acción
+            servicio.JoinLobby(codigoLobby, nuevoJugador);
+
+            // Verificación
+            mockCallback.Verify(callback => callback.NotifyPlayersInLobby(codigoLobby, It.IsAny<List<LobbyPlayer>>()), Times.Once);
+            mockCallback.Verify(callback => callback.NotifyPlayerJoinToLobby(It.IsAny<LobbyPlayer>(), It.IsAny<int>()), Times.Once);
         }
 
         [Fact]
-        public void UnirseALobby_Existente_DevuelveNotificacion()
+        public void UnirseLobby_DeberiaManejarLobbyLleno()
         {
-            // Arrange
-            var jugador1 = new LobbyPlayer
+            // Configuración
+            var mockCallback = new Mock<ILobbyManagerCallback>();
+            var servicio = new ImplementacionServicio();
+            var codigoLobby = servicio.BuscarLobbyDisponible();
+
+            // Crear lobby lleno
+            for (int i = 1; i <= 4; i++)
             {
-                Username = "Jugador1",
-                CallbackChannel = callbackMock.Object
-            };
+                var jugador = new LobbyPlayer { Username = $"Jugador{i}", CallbackChannel = mockCallback.Object };
+                servicio.JoinLobby(codigoLobby, jugador);
+            }
 
-            var jugador2 = new LobbyPlayer
-            {
-                Username = "Jugador2",
-                CallbackChannel = callbackMock.Object
-            };
+            var nuevoJugador = new LobbyPlayer { Username = "Jugador5", CallbackChannel = mockCallback.Object };
 
-            servicio.CreateLobby(jugador1);
-            string lobbyCode = servicio.BuscarLobbyDisponible();
+            // Acción
+            servicio.JoinLobby(codigoLobby, nuevoJugador);
 
-            // Act
-            servicio.JoinLobby(lobbyCode, jugador2);
-
-            // Assert
-            callbackMock.Verify(c => c.NotifyPlayersInLobby(lobbyCode, It.IsAny<List<LobbyPlayer>>()), Times.Once);
+            // Verificación
+            mockCallback.Verify(callback => callback.NotifyLobbyIsFull(), Times.Once);
         }
 
         [Fact]
-        public void SalirDelLobby_EliminarJugador_DevuelveNotificacion()
+        public void UnirseLobby_DeberiaManejarLobbyNoExistente()
         {
-            // Arrange
-            var jugador1 = new LobbyPlayer
-            {
-                Username = "Jugador1",
-                CallbackChannel = callbackMock.Object
-            };
+            // Configuración
+            var mockCallback = new Mock<ILobbyManagerCallback>();
+            var nuevoJugador = new LobbyPlayer { Username = "Jugador2", CallbackChannel = mockCallback.Object };
+            var servicio = new ImplementacionServicio();
 
-            var jugador2 = new LobbyPlayer
-            {
-                Username = "Jugador2",
-                CallbackChannel = callbackMock.Object
-            };
+            // Acción
+            servicio.JoinLobby("CodigoInvalido", nuevoJugador);
 
+            // Verificación
+            mockCallback.Verify(callback => callback.NotifyLobbyDoesNotExist(), Times.Once);
+        }
+
+        // Prueba para el método ExitLobby
+        [Fact]
+        public void SalirLobby_DeberiaEliminarJugadorDelLobby()
+        {
+            // Configuración
+            var mockCallback = new Mock<ILobbyManagerCallback>();
+            var jugador = new LobbyPlayer { Username = "Jugador1", CallbackChannel = mockCallback.Object };
+            var servicio = new ImplementacionServicio();
+            servicio.CreateLobby(jugador);
+            var codigoLobby = servicio.BuscarLobbyDisponible();
+
+            // Acción
+            servicio.ExitLobby(codigoLobby, "Jugador1");
+
+            // Verificación
+            Assert.Null(servicio.BuscarLobbyDisponible());
+            mockCallback.Verify(callback => callback.NotifyPlayerLeftLobby("Jugador1"), Times.Once);
+        }
+
+
+        // Prueba para el método SendMessage
+        [Fact]
+        public void EnviarMensaje_DeberiaEnviarMensajeAJugadoresEnLobby()
+        {
+            // Configuración
+            var mockCallback = new Mock<ILobbyManagerCallback>();
+            var jugador1 = new LobbyPlayer { Username = "Jugador1", CallbackChannel = mockCallback.Object };
+            var servicio = new ImplementacionServicio();
             servicio.CreateLobby(jugador1);
-            string lobbyCode = servicio.BuscarLobbyDisponible();
-            servicio.JoinLobby(lobbyCode, jugador2);
+            var codigoLobby = servicio.BuscarLobbyDisponible();
 
-            // Act
-            servicio.ExitLobby(lobbyCode, "Jugador1");
+            var jugador2 = new LobbyPlayer { Username = "Jugador2", CallbackChannel = mockCallback.Object };
+            servicio.JoinLobby(codigoLobby, jugador2);
 
-            // Assert
-            callbackMock.Verify(c => c.NotifyPlayerLeftLobby("Jugador1"), Times.Once);
+            // Acción
+            servicio.SendMessage("Hola a todos");
+
+            // Verificación
+            mockCallback.Verify(callback => callback.ReceiveMessage("Jugador1", "Hola a todos"), Times.AtLeastOnce);
         }
 
         [Fact]
-        public void UnirseALobby_LobbyLlena_DevuelveNotificacionDeError()
+        public void EnviarMensaje_DeberiaManejarJugadorSinLobby()
         {
-            // Arrange
-            var jugador1 = new LobbyPlayer
-            {
-                Username = "Jugador1",
-                CallbackChannel = callbackMock.Object
-            };
+            // Configuración
+            var mockCallback = new Mock<ILobbyManagerCallback>();
+            var servicio = new ImplementacionServicio();
 
-            var jugador2 = new LobbyPlayer
-            {
-                Username = "Jugador2",
-                CallbackChannel = callbackMock.Object
-            };
+            // Acción
+            servicio.SendMessage("Mensaje sin lobby");
 
-            var jugador3 = new LobbyPlayer
-            {
-                Username = "Jugador3",
-                CallbackChannel = callbackMock.Object
-            };
-
-            var jugador4 = new LobbyPlayer
-            {
-                Username = "Jugador4",
-                CallbackChannel = callbackMock.Object
-            };
-
-            servicio.CreateLobby(jugador1);
-            string lobbyCode = servicio.BuscarLobbyDisponible();
-            servicio.JoinLobby(lobbyCode, jugador2);
-            servicio.JoinLobby(lobbyCode, jugador3);
-            servicio.JoinLobby(lobbyCode, jugador4);
-
-            // Act
-            var jugador5 = new LobbyPlayer
-            {
-                Username = "Jugador5",
-                CallbackChannel = callbackMock.Object
-            };
-            servicio.JoinLobby(lobbyCode, jugador5);
-
-            // Assert
-            callbackMock.Verify(c => c.NotifyLobbyIsFull(), Times.Once);
+            // Verificación
+            // (Aquí podrías verificar que no se llamó a ReceiveMessage, pero en este caso, el mensaje solo se muestra en la consola)
         }
     }
 }

@@ -13,8 +13,8 @@ namespace AccesoDatos
 {
     public class ContextoBaseDatos : DbContext
     {
-        public DbSet<Cuenta> Cuentas { get; set; }
-        public DbSet<Jugador> Jugadores { get; set; }
+        public virtual DbSet<Cuenta> Cuentas { get; set; }
+        public virtual DbSet<Jugador> Jugadores { get; set; }
 
         public DbSet<Amistad> Amistades { get; set; }
 
