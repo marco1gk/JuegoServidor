@@ -29,9 +29,8 @@ namespace ServicioJuego
         [OperationContract]
         string BuscarLobbyDisponible();
 
-
-
-
+        [OperationContract(IsOneWay = true)]
+        void StartGame(string lobbyCode);
 
     }
 
@@ -54,7 +53,7 @@ namespace ServicioJuego
         void NotifyHostPlayerLeftLobby();
 
         [OperationContract]
-        void NotifyStartOfMatch();
+        void NotifyStartMatch(LobbyPlayer[] jugadores);
 
         [OperationContract]
         void NotifyLobbyIsFull();
@@ -66,6 +65,8 @@ namespace ServicioJuego
         void NotifyExpulsedFromLobby();
         [OperationContract]
         void ReceiveMessage(string username, string message);
+        [OperationContract]
+        void NotifyCanStartGame(bool canStart);
     }
 
     [DataContract]
@@ -74,10 +75,10 @@ namespace ServicioJuego
         [DataMember]
         public string Username { get; set; }
 
-  
+        [DataMember]
+        public int NumeroFotoPerfil { get; set; } // Nueva propiedad para la foto de perfil
 
         public ILobbyManagerCallback CallbackChannel { get; set; }
-
 
         public override bool Equals(object obj)
         {

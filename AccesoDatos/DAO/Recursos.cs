@@ -75,7 +75,14 @@ namespace AccesoDatos.DAO
         public static bool VerificarContrasena(string contrasena, Cuenta cuenta)
         {
             var hashContrasena = HashearContrasena(contrasena, cuenta.Salt);
-            return hashContrasena == cuenta.ContraseniaHash;
+            if(hashContrasena == cuenta.ContraseniaHash)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }

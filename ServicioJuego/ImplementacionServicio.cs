@@ -54,13 +54,20 @@ namespace ServicioJuego
             if (cuenta != null)
             {
                 bool esValido = Recursos.VerificarContrasena(contraseniaHash, cuenta);
-                return new JugadorDataContract
+                Console.WriteLine($"Verificando contraseña para el usuario: {nombreUsuario}");
+                Console.WriteLine($"Salt: {cuenta.Salt}");
+                Console.WriteLine($"Hash de la contraseña ingresada: {Recursos.HashearContrasena(contraseniaHash, cuenta.Salt)}");
+                if (esValido)
                 {
-                    JugadorId = cuenta.Jugador.JugadorId,
-                    NombreUsuario = cuenta.Jugador.NombreUsuario,
-                    Correo = cuenta.Correo, 
-                    NumeroFotoPerfil = cuenta.Jugador.NumeroFotoPerfil
-                };
+                    return new JugadorDataContract
+                    {
+                        JugadorId = cuenta.Jugador.JugadorId,
+                        NombreUsuario = cuenta.Jugador.NombreUsuario,
+                        Correo = cuenta.Correo,
+                        NumeroFotoPerfil = cuenta.Jugador.NumeroFotoPerfil
+                    };
+                }
+                
             }
 
             return null; 

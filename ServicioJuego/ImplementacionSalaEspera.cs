@@ -97,6 +97,8 @@ namespace ServicioJuego
                         lobbyPlayer.CallbackChannel.NotifyPlayersInLobby(lobbyCode, playersInLobby);
                         NotifyPlayerJoinToLobby(playersInLobby, lobbyPlayer, numOfPlayersInLobby, lobbyCode);
                         playersInLobby.Add(lobbyPlayer);
+                        NotifyCanStartGameIfHost(playersInLobby);
+                        NotifyPlayersInLobby(lobbyCode, playersInLobby);
                     }
                     else
                     {
@@ -111,6 +113,59 @@ namespace ServicioJuego
             catch (CommunicationException ex)
             {
             Console.WriteLine(ex.ToString());
+            }
+        }
+
+        private void NotifyCanStartGameIfHost(List<LobbyPlayer> playersInLobby)
+        {
+            bool canStart = playersInLobby.Count >= 2;
+            LobbyPlayer host = playersInLobby[0];
+
+            foreach (var player in playersInLobby)
+            {
+                try
+                {
+                    player.CallbackChannel.NotifyCanStartGame(player.Equals(host) && canStart);
+                }
+                catch (CommunicationException ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
+            }
+        }
+
+        public void StartGame(string lobbyCode)
+        {
+            if (lobbies.ContainsKey(lobbyCode))
+            {
+                List<LobbyPlayer> playersInLobby = lobbies[lobbyCode];
+
+                foreach (var player in playersInLobby)
+                {
+                    try
+                    {
+                        // Crea una lista filtrada sin incluir al jugador actual
+                        LobbyPlayer[] filteredPlayersArray = playersInLobby
+                            .Where(p => p.Username != player.Username)
+                            .ToArray();
+
+                        Console.WriteLine($"Enviando lista filtrada a {player.Username}:");
+                        foreach (var p in filteredPlayersArray)
+                        {
+                            Console.WriteLine($"Jugador: {p.Username}");
+                        }
+
+                        // Envía la lista filtrada al jugador actual
+                        player.CallbackChannel.NotifyStartMatch(filteredPlayersArray);
+                    }
+                    catch (CommunicationException ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                        PerformExitLobby(lobbyCode, player.Username, false);
+                    }
+                }
+
+                // Lógica adicional para iniciar la partida si es necesario
             }
         }
 
@@ -270,8 +325,22 @@ namespace ServicioJuego
             }
         }
 
-
-
+        public void NotifyPlayersInLobby(string lobbyCode, List<LobbyPlayer> lobbyPlayers)
+        {
+            // Notificación de la lista de jugadores a cada cliente.
+            foreach (var player in lobbyPlayers)
+            {
+                try
+                {
+                    player.CallbackChannel.NotifyPlayersInLobby(lobbyCode, lobbyPlayers);
+                }
+                catch (CommunicationException ex)
+                {
+                    Console.WriteLine($"Error notificando a {player.Username}: {ex.Message}");
+                    // Aquí podrías manejar la salida del jugador si es necesario.
+                }
+            }
+        }
 
     }
 }
