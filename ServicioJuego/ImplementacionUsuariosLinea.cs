@@ -10,7 +10,7 @@ using AccesoDatos;
 
 namespace ServicioJuego
 {
-   // [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Reentrant)]
+    [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Reentrant)]
     public partial class ImplementacionServicio : IGestorUsuariosConectados 
     {
         private static readonly object lockObject = new object();

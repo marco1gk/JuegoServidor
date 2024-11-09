@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ServicioJuego
 {
-    [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Reentrant, InstanceContextMode = InstanceContextMode.PerSession)]
+   // [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Reentrant, InstanceContextMode = InstanceContextMode.PerSession)]
     public partial class ImplementacionServicio : ILobbyManager
     {
         private static readonly Dictionary<string, List<LobbyPlayer>> lobbies = new Dictionary<string, List<LobbyPlayer>>();
