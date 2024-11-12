@@ -79,7 +79,7 @@ namespace ServicioJuego
         {
             AmistadDao friendRequestDataAccess = new AmistadDao();
             ImplementacionServicio userDataAccess = new ImplementacionServicio();
-            int idOnlinePlayer = userDataAccess.GetIdPlayerByUsername(onlineUsername);
+            int idOnlinePlayer = userDataAccess.ObtenerIdJugadorPorNombreUsuario(onlineUsername);
 
             bool isFriend = friendRequestDataAccess.EsAmigo(currentIdPlayer, idOnlinePlayer);
 
@@ -91,7 +91,7 @@ namespace ServicioJuego
             if (onlineUsers.ContainsKey(username))
             {
                 onlineUsers.Remove(username);
-                onlineFriendship.Remove(username);
+                amistadEnLinea.Remove(username);
 
                 foreach (var user in onlineUsers.ToList())
                 {

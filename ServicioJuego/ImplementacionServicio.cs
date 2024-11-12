@@ -9,12 +9,10 @@ using System.Runtime.Remoting.Contexts;
 using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.Text;
-using System.Data.SqlClient;
 using System.Data.Entity.Core;
 
 namespace ServicioJuego
 {
-    // NOTA: puede usar el comando "Rename" del menú "Refactorizar" para cambiar el nombre de clase "Service1" en el código y en el archivo de configuración a la vez.
     public partial class ImplementacionServicio : IGestionCuentaServicio
     {
         public bool AgregarJugador(JugadorDataContract jugador)
@@ -95,7 +93,9 @@ namespace ServicioJuego
             }
             return null;
         }
-        public int GetIdPlayerByUsername(string username)
+
+        //esto va en el DAO
+        public int ObtenerIdJugadorPorNombreUsuario(string username)
         {
             int idPlayer = 0;
 
@@ -125,7 +125,9 @@ namespace ServicioJuego
             return idPlayer;
         }
 
-        public string GetUsernameByIdPlayer(int idPlayer)
+
+        //esto va en el DAO
+        public string ObtenerNombreUsuarioPorIdJugador(int idPlayer)
         {
             string username = string.Empty;
 
@@ -157,9 +159,6 @@ namespace ServicioJuego
 
             return username;
         }
-
-
-
 
         public bool EditarNombreUsuario(int idJugador, string nuevoNombreUsuario)
         {

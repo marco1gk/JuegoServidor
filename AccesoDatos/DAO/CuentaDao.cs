@@ -10,7 +10,7 @@ using System.Net.Mail;
 
 namespace AccesoDatos.DAO
 {
-    public class CuentaDao//editar cuenta
+    public class CuentaDao
     {
         public bool AgregarJugadorConCuenta(Jugador jugador, Cuenta cuenta )
         {
@@ -40,9 +40,8 @@ namespace AccesoDatos.DAO
         {
             using (var contexto = new ContextoBaseDatos())
             {
-                // Asegúrate de que estás incluyendo la propiedad correcta
                 return contexto.Cuentas
-                    .Include(c => c.Jugador) // Esto debe ser válido
+                    .Include(c => c.Jugador) 
                     .FirstOrDefault(c => c.Correo == correo && c.ContraseniaHash == contraseniaHash);
             }
         }
@@ -52,7 +51,7 @@ namespace AccesoDatos.DAO
             using (var contexto = new ContextoBaseDatos())
             {
                 return contexto.Cuentas
-                    .Include(c => c.Jugador) // Asegúrate de que esto sea válido
+                    .Include(c => c.Jugador) 
                     .FirstOrDefault(c => c.Correo == nombreUsuario);
             }
         }
@@ -125,7 +124,7 @@ namespace AccesoDatos.DAO
 
         public bool ExisteCorreo(string correo)
         {
-            using (var context = new ContextoBaseDatos()) // Reemplaza con tu contexto
+            using (var context = new ContextoBaseDatos()) 
             {
                 return context.Cuentas.Any(c => c.Correo == correo);
             }
@@ -133,7 +132,7 @@ namespace AccesoDatos.DAO
 
         public bool ExisteNombreUsuario(string nombreUsuario)
         {
-            using (var context = new ContextoBaseDatos()) // Reemplaza con tu contexto
+            using (var context = new ContextoBaseDatos()) 
             {
                 return context.Jugadores.Any(j => j.NombreUsuario == nombreUsuario);
             }

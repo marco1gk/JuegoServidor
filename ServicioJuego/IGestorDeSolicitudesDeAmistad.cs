@@ -12,22 +12,22 @@ namespace ServicioJuego
     public interface IGestorDeSolicitudesDeAmistad
     {
         [OperationContract(IsOneWay = true)]
-        void AddToOnlineFriendshipDictionary(string usernameCurrentPlayer);
+        void AgregarADiccionarioAmistadesEnLinea(string nombreUsuarioDeActualJugador);
 
         [OperationContract(IsOneWay = true)]
-        void SendFriendRequest(string usernamePlayerSender, string usernamePlayerRequested);
+        void EnviarSolicitudAmistad(string nombreUsuarioJugadorRemitente, string nombreUsuarioJugadorSolicitado);
 
         [OperationContract(IsOneWay = true)]
-        void AcceptFriendRequest(int idPlayerRequested, string usernamePlayerRequested, string usernamePlayerSender);
+        void AceptarSolicitudAmistad(int idJugadorSolicitado, string nombreUsuarioJugadorSolicitado, string nombreUsuarioJugadorRemitente);
 
         [OperationContract(IsOneWay = true)]
-        void RejectFriendRequest(int idCurrentPlayer, string username);
+        void RechazarSolicitudAmistad(int idJugadorActual, string nombreUsuario);
 
         [OperationContract(IsOneWay = true)]
-        void DeleteFriend(int idCurrentPlayer, string usernameCurrentPlayer, string usernameFriendDeleted);
+        void EliminarAmigo(int idJugadorActual, string nombreUsuarioDeActualJugador, string nombreUsuarioAmigoEliminado);
 
         [OperationContract(IsOneWay = true)]
-        void RemoveFromOnlineFriendshipDictionary(string username);
+        void EliminarDeDiccionarioAmistadesEnLinea(string nombreUsuario);
 
     }
 
@@ -35,12 +35,12 @@ namespace ServicioJuego
     public interface IGestorDeSolicitudesDeAmistadCallBack
     {
         [OperationContract]
-        void NotifyNewFriendRequest(string username);
+        void NotificarNuevaSolicitudAmistad(string nombreUsuario);
 
         [OperationContract]
-        void NotifyFriendRequestAccepted(string username);
+        void NotificarSolicitudAmistadAceptada(string nombreUsuario);
 
         [OperationContract]
-        void NotifyDeletedFriend(string username);
+        void NotificarAmigoEliminado(string nombreUsuario);
     }
 }

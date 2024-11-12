@@ -12,63 +12,63 @@ namespace ServicioJuego
     public partial class ImplementacionServicio :  IGestorDeSolicitudesDeAmistad
     {
 
-        private static Dictionary<string, IGestorDeSolicitudesDeAmistadCallBack> onlineFriendship = new Dictionary<string, IGestorDeSolicitudesDeAmistadCallBack>();
+        private static Dictionary<string, IGestorDeSolicitudesDeAmistadCallBack> amistadEnLinea = new Dictionary<string, IGestorDeSolicitudesDeAmistadCallBack>();
 
 
-        public void AddToOnlineFriendshipDictionary(string usernameCurrentPlayer)
+        public void AgregarADiccionarioAmistadesEnLinea(string nombreUsuarioJugadorActual)
         {
-            IGestorDeSolicitudesDeAmistadCallBack currentUserCallbackChannel = OperationContext.Current.GetCallbackChannel<IGestorDeSolicitudesDeAmistadCallBack>();
+            IGestorDeSolicitudesDeAmistadCallBack canalDeDevoluciónUsuarioActual = OperationContext.Current.GetCallbackChannel<IGestorDeSolicitudesDeAmistadCallBack>();
 
-            if (!onlineFriendship.ContainsKey(usernameCurrentPlayer))
+            if (!amistadEnLinea.ContainsKey(nombreUsuarioJugadorActual))
             {
-                onlineFriendship.Add(usernameCurrentPlayer, currentUserCallbackChannel);
+                amistadEnLinea.Add(nombreUsuarioJugadorActual, canalDeDevoluciónUsuarioActual);
             }
             else
             {
-                onlineFriendship[usernameCurrentPlayer] = currentUserCallbackChannel;
+                amistadEnLinea[nombreUsuarioJugadorActual] = canalDeDevoluciónUsuarioActual;
             }
         }
 
 
 
-        public void SendFriendRequest(string usernamePlayerSender, string usernamePlayerRequested)
+        public void EnviarSolicitudAmistad(string nombreUsuarioJugadorRemitente, string nombreUsuarioJugadorSolicitado)
         {
             lock (lockObject)
             {
-                if (onlineFriendship.ContainsKey(usernamePlayerRequested))
+                if (amistadEnLinea.ContainsKey(nombreUsuarioJugadorSolicitado))
                 {
                     try
                     {
-                        onlineFriendship[usernamePlayerRequested].NotifyNewFriendRequest(usernamePlayerSender);
+                        amistadEnLinea[nombreUsuarioJugadorSolicitado].NotificarNuevaSolicitudAmistad(nombreUsuarioJugadorRemitente);
                     }
                     catch (CommunicationException ex)
                     {
                         Console.WriteLine(ex);
-                        RemoveFromOnlineFriendshipDictionary(usernamePlayerSender);
+                        EliminarDeDiccionarioAmistadesEnLinea(nombreUsuarioJugadorRemitente);
                     }
                     catch (TimeoutException ex)
                     {
                         Console.WriteLine(ex);
-                        RemoveFromOnlineFriendshipDictionary(usernamePlayerSender);
+                        EliminarDeDiccionarioAmistadesEnLinea(nombreUsuarioJugadorRemitente);
                     }
                 }
             }
         }
 
-        public void AcceptFriendRequest(int idPlayerRequested, string usernamePlayerRequested, string usernamePlayerSender)
+        public void AceptarSolicitudAmistad(int idJugadorSolicitado, string nombreUsuarioJugadorSolicitado, string nombreUsuarioJugadorRemitente)
         {
-            ImplementacionServicio userDataAccess = new ImplementacionServicio();
-            AmistadDao friendRequestDataAccess = new AmistadDao();
+            ImplementacionServicio usuarioAccesoDatos = new ImplementacionServicio();
+            AmistadDao solicitudAmistadAccesoDatos = new AmistadDao();
 
             try
             {
-                int idPlayerSender = userDataAccess.GetIdPlayerByUsername(usernamePlayerSender);
-                int rowsAffected = friendRequestDataAccess.UpdateFriendRequestToAccepted(idPlayerRequested, idPlayerSender);
+                int idJugadorRemitente = usuarioAccesoDatos.ObtenerIdJugadorPorNombreUsuario(nombreUsuarioJugadorRemitente);
+                int filasAfectadas = solicitudAmistadAccesoDatos.ActualizarSolicitudAmistad_Aceptada(idJugadorSolicitado, idJugadorRemitente);
 
-                if (rowsAffected > 0)
+                if (filasAfectadas > 0)
                 {
-                    InformFriendRequestAccepted(usernamePlayerSender, usernamePlayerRequested);
-                    InformFriendRequestAccepted(usernamePlayerRequested, usernamePlayerSender);
+                    InformarSolicitusAmistadAceptada(nombreUsuarioJugadorRemitente, nombreUsuarioJugadorSolicitado);
+                    InformarSolicitusAmistadAceptada(nombreUsuarioJugadorSolicitado, nombreUsuarioJugadorRemitente);
                 }
             }
             catch (Exception ex)
@@ -79,55 +79,55 @@ namespace ServicioJuego
             }
         }
 
-        private void InformFriendRequestAccepted(string usernameTarget, string usernameNewFriend)
+        private void InformarSolicitusAmistadAceptada(string nombreUsuarioObjetivo, string nombreUsuarioNuevoAmigo)
         {
-            if (onlineFriendship.ContainsKey(usernameTarget))
+            if (amistadEnLinea.ContainsKey(nombreUsuarioObjetivo))
             {
                 try
                 {
-                    onlineFriendship[usernameTarget].NotifyFriendRequestAccepted(usernameNewFriend);
+                    amistadEnLinea[nombreUsuarioObjetivo].NotificarSolicitudAmistadAceptada(nombreUsuarioNuevoAmigo);
                 }
                 catch (CommunicationException ex)
                 {
                     Console.WriteLine(ex);
-                    RemoveFromOnlineFriendshipDictionary(usernameTarget);
+                    EliminarDeDiccionarioAmistadesEnLinea(nombreUsuarioObjetivo);
                 }
             }
         }
 
-        public void RejectFriendRequest(int idCurrentPlayer, string username)
+        public void RechazarSolicitudAmistad(int idJugadorActual, string nombreUsuario)
         {
-            ImplementacionServicio userDataAccess = new ImplementacionServicio();
-            AmistadDao friendRequestDataAccess = new AmistadDao();
+            ImplementacionServicio usuarioAccesoDatos = new ImplementacionServicio();
+            AmistadDao SolicitudAmistadAccesoDatos = new AmistadDao();
 
             try
             {
-                int idPlayerAccepted = userDataAccess.GetIdPlayerByUsername(username);
+                int idJugadorAceptado = usuarioAccesoDatos.ObtenerIdJugadorPorNombreUsuario(nombreUsuario);
 
-                friendRequestDataAccess.DeleteFriendRequest(idCurrentPlayer, idPlayerAccepted);
+                SolicitudAmistadAccesoDatos.BorrarSolicitudAmistad(idJugadorActual, idJugadorAceptado);
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
             }
         }
-
-        public void DeleteFriend(int idCurrentPlayer, string usernameCurrentPlayer, string usernameFriendDeleted)
+        
+        public void EliminarAmigo(int idJugadorActual, string nombreJugadorActual, string nombreUsuarioAmigoEliminado)
         {
             lock (lockObject)
             {
-                ImplementacionServicio userDataAccess = new ImplementacionServicio();
-                AmistadDao friendRequestDataAccess = new AmistadDao();
+                ImplementacionServicio usuarioAccesoDatos = new ImplementacionServicio();
+                AmistadDao SolicitudAmistadAccesoDatos = new AmistadDao();
 
                 try
                 {
-                    int idPlayerFriend = userDataAccess.GetIdPlayerByUsername(usernameFriendDeleted);
-                    int rowsAffected = friendRequestDataAccess.DeleteFriendship(idCurrentPlayer, idPlayerFriend);
+                    int idPlayerFriend = usuarioAccesoDatos.ObtenerIdJugadorPorNombreUsuario(nombreUsuarioAmigoEliminado);
+                    int rowsAffected = SolicitudAmistadAccesoDatos.BorrarAmistad(idJugadorActual, idPlayerFriend);
 
                     if (rowsAffected > 0)
                     {
-                        InformFriendDeleted(usernameCurrentPlayer, usernameFriendDeleted);
-                        InformFriendDeleted(usernameFriendDeleted, usernameCurrentPlayer);
+                        InformarAmigoEliminado(nombreJugadorActual, nombreUsuarioAmigoEliminado);
+                        InformarAmigoEliminado(nombreUsuarioAmigoEliminado, nombreJugadorActual);
                     }
                 }
                 catch (Exception ex)
@@ -137,25 +137,25 @@ namespace ServicioJuego
             }
         }
 
-        private void InformFriendDeleted(string usernameTarget, string usernameDeletedFriend)
+        private void InformarAmigoEliminado(string nombreUsuarioObjetivo, string nombreUsuarioAmigoEliminado)
         {
-            if (onlineFriendship.ContainsKey(usernameTarget))
+            if (amistadEnLinea.ContainsKey(nombreUsuarioObjetivo))
             {
                 try
                 {
-                    onlineFriendship[usernameTarget].NotifyDeletedFriend(usernameDeletedFriend);
+                    amistadEnLinea[nombreUsuarioObjetivo].NotificarAmigoEliminado(nombreUsuarioAmigoEliminado);
                 }
                 catch (CommunicationException ex)
                 {
                     Console.WriteLine(ex);
-                    RemoveFromOnlineFriendshipDictionary(usernameTarget);
+                    EliminarDeDiccionarioAmistadesEnLinea(nombreUsuarioObjetivo);
                 }
             }
         }
 
-        public void RemoveFromOnlineFriendshipDictionary(string username)
+        public void EliminarDeDiccionarioAmistadesEnLinea(string nombreUsuario)
         {
-            onlineFriendship.Remove(username);
+            amistadEnLinea.Remove(nombreUsuario);
         }
 
 

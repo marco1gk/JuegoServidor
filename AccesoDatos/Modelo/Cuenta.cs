@@ -25,9 +25,7 @@ namespace AccesoDatos.Modelo
         [Required]
         public string Salt { get; set; }
 
-
-        // Relación con Jugador (propiedad de navegación)
-        public virtual Jugador Jugador { get; set; } // Asegúrate de que sea virtual
+        public virtual Jugador Jugador { get; set; } 
 
     }
 }

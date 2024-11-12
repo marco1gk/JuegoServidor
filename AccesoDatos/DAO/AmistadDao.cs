@@ -121,7 +121,7 @@ namespace AccesoDatos.DAO
             }
         }
 
-        public List<int> GetPlayerIdOfFriendRequesters(int idPlayer)
+        public List<int> ObtenerIdJugadorSolicitantesAmistad(int idPlayer)
         {
             List<int> playersId = new List<int>();
 
@@ -159,7 +159,7 @@ namespace AccesoDatos.DAO
             }
         }
 
-        public int UpdateFriendRequestToAccepted(int idCurrentPlayer, int idPlayerAccepted)
+        public int ActualizarSolicitudAmistad_Aceptada(int idCurrentPlayer, int idPlayerAccepted)
         {
             int rowsAffected = -1;
 
@@ -195,7 +195,7 @@ namespace AccesoDatos.DAO
             return rowsAffected;
         }
 
-        public int DeleteFriendRequest(int idCurrentPlayer, int idPlayerRejected)
+        public int BorrarSolicitudAmistad(int idCurrentPlayer, int idPlayerRejected)
         {
             int rowsAffected = -1;
 
@@ -231,7 +231,7 @@ namespace AccesoDatos.DAO
             return rowsAffected;
         }
 
-        public int DeleteFriendship(int idCurrentPlayer, int idPlayerFriend)
+        public int BorrarAmistad(int idCurrentPlayer, int idPlayerFriend)
         {
             int rowsAffected = -1;
 
@@ -267,7 +267,7 @@ namespace AccesoDatos.DAO
             return rowsAffected;
         }
 
-        public List<string> GetFriends(int idPlayer)
+        public List<string> ObtenerAmigos(int idPlayer)
         {
             try
             {

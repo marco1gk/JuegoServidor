@@ -17,8 +17,7 @@ namespace AccesoDatos.Modelo
         [MaxLength(50)]
         public string NombreUsuario { get; set; }
         public int NumeroFotoPerfil { get; set; } = 1;
-        // Relación con Cuenta
-        public virtual Cuenta Cuenta { get; set; } // Asegúrate de que sea virtual
+        public virtual Cuenta Cuenta { get; set; }
 
     }
 }

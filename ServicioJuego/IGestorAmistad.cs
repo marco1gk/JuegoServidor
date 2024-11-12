@@ -12,17 +12,17 @@ namespace ServicioJuego
     {
         [OperationContract]
         
-        List<string> GetListUsernameFriends(int idPlayer);
+        List<string> ObtenerListaNombresUsuariosAmigos(int idPlayer);
 
         [OperationContract]
        
-        bool ValidateFriendRequestSending(int idPlayerSender, string usernamePlayerRequested);
+        bool ValidarEnvioSolicitudAmistad(int idPlayerSender, string usernamePlayerRequested);
 
         [OperationContract]
 
-        int AddRequestFriendship(int idPlayerSender, string usernamePlayerRequested);
+        int AgregarSolicitudAmistad(int idPlayerSender, string usernamePlayerRequested);
 
         [OperationContract]
-        List<string> GetUsernamePlayersRequesters(int idPlayer);
+        List<string> ObtenerNombresUsuariosSolicitantes(int idPlayer);
     }
 }

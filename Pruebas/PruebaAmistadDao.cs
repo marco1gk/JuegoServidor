@@ -97,7 +97,7 @@ namespace Pruebas
         {
             int idPlayer = 1;
 
-            var resultado = amistadDao.GetPlayerIdOfFriendRequesters(idPlayer);
+            var resultado = amistadDao.ObtenerIdJugadorSolicitantesAmistad(idPlayer);
 
             Assert.NotEmpty(resultado);
         }
@@ -108,7 +108,7 @@ namespace Pruebas
             int idCurrentPlayer = 1;
             int idPlayerAccepted = 2;
 
-            var filasAfectadas = amistadDao.UpdateFriendRequestToAccepted(idCurrentPlayer, idPlayerAccepted);
+            var filasAfectadas = amistadDao.ActualizarSolicitudAmistad_Aceptada(idCurrentPlayer, idPlayerAccepted);
 
             Assert.True(filasAfectadas > 0);
         }
@@ -119,7 +119,7 @@ namespace Pruebas
             int idCurrentPlayer = 1;
             int idPlayerAccepted = 3;
 
-            var filasAfectadas = amistadDao.UpdateFriendRequestToAccepted(idCurrentPlayer, idPlayerAccepted);
+            var filasAfectadas = amistadDao.ActualizarSolicitudAmistad_Aceptada(idCurrentPlayer, idPlayerAccepted);
 
             Assert.Equal(0, filasAfectadas);
         }
@@ -130,7 +130,7 @@ namespace Pruebas
             int idCurrentPlayer = 1;
             int idPlayerRejected = 2;
 
-            var filasAfectadas = amistadDao.DeleteFriendRequest(idCurrentPlayer, idPlayerRejected);
+            var filasAfectadas = amistadDao.BorrarSolicitudAmistad(idCurrentPlayer, idPlayerRejected);
 
             Assert.True(filasAfectadas > 0);
         }
@@ -141,7 +141,7 @@ namespace Pruebas
             int idCurrentPlayer = 1;
             int idPlayerFriend = 2;
 
-            var filasAfectadas = amistadDao.DeleteFriendship(idCurrentPlayer, idPlayerFriend);
+            var filasAfectadas = amistadDao.BorrarAmistad(idCurrentPlayer, idPlayerFriend);
 
             Assert.True(filasAfectadas > 0);
         }
@@ -151,7 +151,7 @@ namespace Pruebas
         {
             int idPlayer = 1;
 
-            var amigos = amistadDao.GetFriends(idPlayer);
+            var amigos = amistadDao.ObtenerAmigos(idPlayer);
 
             Assert.NotEmpty(amigos);
         }
@@ -161,7 +161,7 @@ namespace Pruebas
         {
             int idPlayer = 1;
 
-            Assert.Throws<EntityException>(() => amistadDao.GetFriends(idPlayer));
+            Assert.Throws<EntityException>(() => amistadDao.ObtenerAmigos(idPlayer));
         }
     }
 }

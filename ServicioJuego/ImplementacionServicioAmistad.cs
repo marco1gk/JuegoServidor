@@ -10,13 +10,13 @@ namespace ServicioJuego
 {
     public partial class ImplementacionServicio : IGestorAmistad
     {
-        public List<string> GetListUsernameFriends(int idPlayer)
+        public List<string> ObtenerListaNombresUsuariosAmigos(int idJugador)
         {
-            AmistadDao dataAccess = new AmistadDao();
+            AmistadDao AccesoDatos = new AmistadDao();
 
             try
             {
-                return dataAccess.GetFriends(idPlayer);
+                return AccesoDatos.ObtenerAmigos(idJugador);
             }
             catch (Exception ex)
             {
@@ -27,17 +27,17 @@ namespace ServicioJuego
             }
         }
 
-        public bool ValidateFriendRequestSending(int idPlayerSender, string usernamePlayerRequested)
+        public bool ValidarEnvioSolicitudAmistad(int idPlayerEnvia, string nombreJugadorSolicitado)
         {
-            bool isFriendRequestValid = false;
-            int idPlayerRequested = 0;
-            bool hasRelation = false;
-            ImplementacionServicio userDataAccess = new ImplementacionServicio();
-            AmistadDao friendRequestDataAccess = new AmistadDao();
+            bool SolicitudAmistadValida = false;
+            int idJugadorSolicitado = 0;
+            bool tieneRelacion = false;
+            ImplementacionServicio usuarioAccesoDatos = new ImplementacionServicio();
+            AmistadDao AccesoDatosSolicitudAmistad = new AmistadDao();
 
             try
             {
-                idPlayerRequested = userDataAccess.GetIdPlayerByUsername(usernamePlayerRequested);
+                idJugadorSolicitado = usuarioAccesoDatos.ObtenerIdJugadorPorNombreUsuario(nombreJugadorSolicitado);
             }
             catch (Exception ex)
             {
@@ -47,19 +47,19 @@ namespace ServicioJuego
     );
             }
 
-            if (idPlayerRequested < 1)
+            if (idJugadorSolicitado < 1)
             {
                 return false;
             }
 
-            if (idPlayerSender == idPlayerRequested)
+            if (idPlayerEnvia == idJugadorSolicitado)
             {
                 return false;
             }
 
             try
             {
-                hasRelation = friendRequestDataAccess.VerificarAmistad(idPlayerSender, idPlayerRequested);
+                tieneRelacion = AccesoDatosSolicitudAmistad.VerificarAmistad(idPlayerEnvia, idJugadorSolicitado);
 
             }
             catch (Exception ex)
@@ -70,29 +70,29 @@ namespace ServicioJuego
      );
             }
 
-            if (!hasRelation)
+            if (!tieneRelacion)
             {
-                isFriendRequestValid = true;
+                SolicitudAmistadValida = true;
             }
 
-            return isFriendRequestValid;
+            return SolicitudAmistadValida;
         }
 
-        public int AddRequestFriendship(int idPlayerSender, string usernamePlayerRequested)
+        public int AgregarSolicitudAmistad(int idJugadorEnvia, string nombreJugadorSolicitado)
         {
-            int rowsAffected = -1;
-            ImplementacionServicio userDataAccess = new ImplementacionServicio();
-            AmistadDao friendRequestDataAccess = new AmistadDao();
+            int columasAfectadas = -1;
+            ImplementacionServicio usuarioAccesoDatos = new ImplementacionServicio();
+            AmistadDao SolicitudAmistadAccesoDatos = new AmistadDao();
             try
             {
-                int idPlayerRequested = userDataAccess.GetIdPlayerByUsername(usernamePlayerRequested);
+                int idPlayerRequested = usuarioAccesoDatos.ObtenerIdJugadorPorNombreUsuario(nombreJugadorSolicitado);
 
                 if (idPlayerRequested > 0)
                 {
-                    rowsAffected = friendRequestDataAccess.AgregarSolicitudAmistad(idPlayerSender, idPlayerRequested);
+                    columasAfectadas = SolicitudAmistadAccesoDatos.AgregarSolicitudAmistad(idJugadorEnvia, idPlayerRequested);
                 }
 
-                return rowsAffected;
+                return columasAfectadas;
             }
             catch (Exception ex)
             {
@@ -103,25 +103,25 @@ namespace ServicioJuego
             }
         }
 
-        public List<string> GetUsernamePlayersRequesters(int idPlayer)
+        public List<string> ObtenerNombresUsuariosSolicitantes(int idJugador)
         {
-            List<string> usernamePlayers = new List<string>();
-            AmistadDao friendRequestDataAccess = new AmistadDao();
-            ImplementacionServicio userDataAccess = new ImplementacionServicio();
+            List<string> nombreJugadores = new List<string>();
+            AmistadDao solicitudAmistadAccesoDatos = new AmistadDao();
+            ImplementacionServicio usuarioAccesoDatos = new ImplementacionServicio();
 
             try
             {
-                List<int> playersRequestersId = friendRequestDataAccess.GetPlayerIdOfFriendRequesters(idPlayer);
+                List<int> playersRequestersId = solicitudAmistadAccesoDatos.ObtenerIdJugadorSolicitantesAmistad(idJugador);
 
                 if (playersRequestersId != null)
                 {
                     foreach (int idRequester in playersRequestersId)
                     {
-                        usernamePlayers.Add(userDataAccess.GetUsernameByIdPlayer(idRequester));
+                        nombreJugadores.Add(usuarioAccesoDatos.ObtenerNombreUsuarioPorIdJugador(idRequester));
                     }
                 }
 
-                return usernamePlayers;
+                return nombreJugadores;
             }
             catch (Exception ex)
             {
@@ -134,7 +134,7 @@ namespace ServicioJuego
     }
     public class ExcepcionServicio : Exception
     {
-        public ExcepcionServicio(string message) : base(message) { }
+        public ExcepcionServicio(string mensaje) : base(mensaje) { }
         public ExcepcionServicio(string message, Exception inner) : base(message, inner) { }
     }
 }

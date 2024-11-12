@@ -13,37 +13,35 @@ namespace AccesoDatos.DAO
     {
         public string EnviarCodigoConfirmacion(string correo)
         {
-            // Generar un código de verificación (puedes usar una lógica más compleja)
             string codigo = new Random().Next(100000, 999999).ToString();
 
-            // Configuración del correo
             MailMessage mail = new MailMessage();
-            mail.From = new MailAddress("hunterstrophy01@gmail.com"); // Tu correo
+            mail.From = new MailAddress("hunterstrophy01@gmail.com"); 
             mail.To.Add(correo);
             mail.Subject = "Código de Verificación";
             mail.Body = "Tu código de verificación es: " + codigo;
 
             SmtpClient smtpClient = new SmtpClient("smtp.gmail.com", 587);
-            smtpClient.Credentials = new System.Net.NetworkCredential("hunterstrophy01@gmail.com", "azcx qzqh kzdq ifve"); // Tu contraseña
+            smtpClient.Credentials = new System.Net.NetworkCredential("hunterstrophy01@gmail.com", "azcx qzqh kzdq ifve"); 
             smtpClient.EnableSsl = true;
 
             try
             {
                 smtpClient.Send(mail);
-                Console.WriteLine("Correo enviado exitosamente."); // Mensaje de éxito
+                Console.WriteLine("Correo enviado exitosamente.");
             }
             catch (SmtpException ex)
             {
                 Console.WriteLine("Error SMTP: " + ex.Message);
-                return null; // Devuelve null si hay un error
+                return null; 
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error al enviar el correo: " + ex.Message);
-                return null; // Devuelve null si hay un error
+                return null; 
             }
 
-            return codigo; // Devuelve el código para almacenarlo
+            return codigo;
         }
 
         public bool ValidarCodigo(string codigoIngresado, string codigoEnviado)
