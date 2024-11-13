@@ -8,77 +8,77 @@ using System.Threading.Tasks;
 
 namespace ServicioJuego
 {
-    [ServiceContract(CallbackContract = typeof(ILobbyManagerCallback))]
+    [ServiceContract(CallbackContract = typeof(IGestorSalasEsperasCallBack))]
     public interface ILobbyManager
     {
         [OperationContract(IsOneWay = true)]
-        void CreateLobby(LobbyPlayer jugador);
+        void CrearSalaEspera(JugadorSalaEspera jugador);
 
         [OperationContract(IsOneWay = true)]
-        void JoinLobby(string lobbyCode, LobbyPlayer lobbyPlayer);
+        void UnirseSalaEspera(string codigoSalaEspera, JugadorSalaEspera jugador);
 
         [OperationContract(IsOneWay = true)]
-        void JoinLobbyAsHost(string lobbyCode);
+        void UnirSalaEsperaComoAnfitrion(string codigoSalaEspera);
 
         [OperationContract]
-        void ExitLobby(string lobbyCode, string username);
+        void SalirSalaEspera(string codigoSalaEspera, string nombreUsuario);
 
         [OperationContract]
-        void SendMessage(string mensaje);
+        void MandarMensaje(string mensaje);
 
         [OperationContract]
-        string BuscarLobbyDisponible();
+        string BuscarSalaEsperaDisponible();
 
         [OperationContract(IsOneWay = true)]
-        void StartGame(string lobbyCode);
+        void IniciarPartida(string codigoSalaEspera);
 
     }
 
     [ServiceContract]
-    public interface ILobbyManagerCallback
+    public interface IGestorSalasEsperasCallBack
     {
         [OperationContract]
-        void NotifyLobbyCreated(string lobbyCode);
+        void NotificarSalaEsperaCreada(string codigoSalaEspera);
 
         [OperationContract]
-        void NotifyPlayersInLobby(string lobbyCode, List<LobbyPlayer> lobbyPlayers);
+        void NotificarJugadoresEnSalaEspera(string codigoSalaEspera, List<JugadorSalaEspera> jugador);
 
         [OperationContract]
-        void NotifyPlayerJoinToLobby(LobbyPlayer lobbyPlayer, int numOfPlayersInLobby);
+        void NotificarJugadorSeUnioSalaEspera(JugadorSalaEspera jugador, int numeroJugadoresSalaEspera);
 
         [OperationContract]
-        void NotifyPlayerLeftLobby(string username);
+        void NotificarJugadorSalioSalaEspera(string nombreUsuario);
 
         [OperationContract]
-        void NotifyHostPlayerLeftLobby();
+        void NotificarAnfritionJugadorSalioSalaEspera();
 
         [OperationContract]
-        void NotifyStartMatch(LobbyPlayer[] jugadores);
+        void NotificarIniciarPartida(JugadorSalaEspera[] jugadores);
 
         [OperationContract]
-        void NotifyLobbyIsFull();
+        void NotificarSalaEsperaLlena();
 
         [OperationContract]
-        void NotifyLobbyDoesNotExist();
+        void NotificarSalaEsperaNoExiste();
 
         [OperationContract]
-        void NotifyExpulsedFromLobby();
+        void NotificarExpulsadoSalaEspera();
         [OperationContract]
-        void ReceiveMessage(string username, string message);
+        void RecibirMensaje(string nombreUsuario, string mensaje);
         [OperationContract]
-        void NotifyCanStartGame(bool canStart);
+        void NotificarPuedeIniciarPartida(bool puedeIniciar);
     }
 
     [DataContract]
-    public class LobbyPlayer
+    public class JugadorSalaEspera
     {
         [DataMember]
-        public string Username { get; set; }
+        public string NombreUsuario { get; set; }
 
         [DataMember]
-        public int NumeroFotoPerfil { get; set; } // Nueva propiedad para la foto de perfil
+        public int NumeroFotoPerfil { get; set; } 
 
-        public ILobbyManagerCallback CallbackChannel { get; set; }
+        public IGestorSalasEsperasCallBack CallbackChannel { get; set; }
 
         public override bool Equals(object obj)
         {
@@ -88,14 +88,14 @@ namespace ServicioJuego
             }
             else
             {
-                LobbyPlayer otherPlayer = (LobbyPlayer)obj;
-                return Username == otherPlayer.Username;
+                JugadorSalaEspera otherPlayer = (JugadorSalaEspera)obj;
+                return NombreUsuario == otherPlayer.NombreUsuario;
             }
         }
 
         public override int GetHashCode()
         {
-            return Username.GetHashCode();
+            return NombreUsuario.GetHashCode();
         }
     }
 }
