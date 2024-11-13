@@ -70,10 +70,26 @@ namespace ServicioJuego
 
             return null; 
         }
-        public bool EditarContraseña(string correo, string nuevaContraseña)
+        public bool EditarContraseña(string correo, string nuevaContrasenia)
         {
-            CuentaDao cuenta = new CuentaDao();
-            return cuenta.EditarContraseñaPorCorreo(correo, nuevaContraseña);
+            CuentaDao cuentaDao = new CuentaDao();
+            return cuentaDao.EditarContraseñaPorCorreo(correo, nuevaContrasenia);
+        }
+
+        public bool VerificarContrasena(string contraseniaIngresada, string correo)
+        {
+            CuentaDao cuentaDao = new CuentaDao();
+            var cuenta = cuentaDao.ObtenerCuentaPorNombreUsuario(correo);
+            if (cuenta != null)
+            {
+                if (Recursos.VerificarContrasena(contraseniaIngresada, cuenta))
+                    return true;
+                else
+                    return false;
+            }
+            else
+                return false;
+        
         }
 
         public JugadorDataContract ObtenerJugador(int idJugador)

@@ -58,6 +58,8 @@
     <Compile Include="IGestorAmistad.cs" />
     <Compile Include="IGestorDeSolicitudesDeAmistad.cs" />
     <Compile Include="IGestorUsuariosConectados.cs" />
+    <Compile Include="IJuegoService.cs" />
+    <Compile Include="ImplementacionJuegoService.cs" />
     <Compile Include="ImplementacionSalaEspera.cs" />
     <Compile Include="ILobbyManager.cs" />
     <Compile Include="ImplementacionServicioAmistad.cs" />

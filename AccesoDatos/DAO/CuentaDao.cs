@@ -56,17 +56,19 @@ namespace AccesoDatos.DAO
             }
         }
 
-        public bool EditarContraseñaPorCorreo(string correo, string nuevaContraseña)
+        public bool EditarContraseñaPorCorreo(string correo, string nuevaContrasenia)
         {
             using (var contexto = new ContextoBaseDatos())
             {
-                
                 var cuentaExistente = contexto.Cuentas.SingleOrDefault(c => c.Correo == correo);
 
                 if (cuentaExistente != null)
                 {
-                   
-                    cuentaExistente.ContraseniaHash = nuevaContraseña;
+                    // Actualizar el hash y el salt de la contraseña
+                    string nuevoSalt = Recursos.GenerarSalt();
+                    string nuevaContraseniaHash = Recursos.HashearContrasena(nuevaContrasenia, nuevoSalt);
+                    cuentaExistente.ContraseniaHash = nuevaContraseniaHash;
+                    cuentaExistente.Salt = nuevoSalt;
 
                     try
                     {

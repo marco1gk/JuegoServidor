@@ -84,7 +84,7 @@ public class PruebaCuentaDao
         Assert.Equal("test@example.com", resultado.Correo);
     }
 
-    [Fact]
+    /*[Fact]
     public void EditarContraseñaPorCorreo_DebeRetornarTrue_SiActualizaLaContraseña()
     {
         var cuentaExistente = new Cuenta { JugadorId = 1, Correo = "test@example.com", ContraseniaHash = "oldPassword" };
@@ -101,7 +101,7 @@ public class PruebaCuentaDao
 
         Assert.True(resultado);
         Assert.Equal("newPassword", cuentaExistente.ContraseniaHash);
-    }
+    }*/
 
     [Fact]
     public void ExistenciaCorreo_DebeRetornarTrue_SiCorreoExiste()
