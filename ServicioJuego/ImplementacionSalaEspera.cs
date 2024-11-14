@@ -8,124 +8,124 @@ using System.Threading.Tasks;
 
 namespace ServicioJuego
 {
-    [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Reentrant, InstanceContextMode = InstanceContextMode.PerSession)]
+    // [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Reentrant, InstanceContextMode = InstanceContextMode.PerSession)]
     public partial class ImplementacionServicio : ILobbyManager
     {
-        private static readonly Dictionary<string, List<LobbyPlayer>> lobbies = new Dictionary<string, List<LobbyPlayer>>();
+        private static readonly Dictionary<string, List<JugadorSalaEspera>> salasEspera = new Dictionary<string, List<JugadorSalaEspera>>();
 
-        public void CreateLobby(LobbyPlayer lobbyPlayer)
+        public void CrearSalaEspera(JugadorSalaEspera jugador)
         {
 
-            ILobbyManagerCallback currentUserCallbackChannel = OperationContext.Current.GetCallbackChannel<ILobbyManagerCallback>();
-            lobbyPlayer.CallbackChannel = currentUserCallbackChannel;
+            IGestorSalasEsperasCallBack actualUsuarioCanalCallback = OperationContext.Current.GetCallbackChannel<IGestorSalasEsperasCallBack>();
+            jugador.CallbackChannel = actualUsuarioCanalCallback;
 
-            List<LobbyPlayer> players = new List<LobbyPlayer> { lobbyPlayer };
-            string lobbyCode = GenerateLobbyCode();
+            List<JugadorSalaEspera> jugadores = new List<JugadorSalaEspera> { jugador };
+            string codigoSalaEspera = GenerarCodigoSalaEspera();
 
-            lobbies.Add(lobbyCode, players);
+            salasEspera.Add(codigoSalaEspera, jugadores);
 
             try
             {
-                currentUserCallbackChannel.NotifyLobbyCreated(lobbyCode);
+                actualUsuarioCanalCallback.NotificarSalaEsperaCreada(codigoSalaEspera);
             }
             catch (CommunicationException ex)
-            
+
             {
 
                 Console.WriteLine(ex.ToString());
-                PerformExitLobby(lobbyCode, lobbyPlayer.Username, false);
+                RealizarSalidaLobby(codigoSalaEspera, jugador.NombreUsuario, false);
             }
             catch (TimeoutException ex)
             {
 
                 Console.WriteLine(ex.ToString());
 
-                PerformExitLobby(lobbyCode, lobbyPlayer.Username, false);
+                RealizarSalidaLobby(codigoSalaEspera, jugador.NombreUsuario, false);
             }
-            Console.WriteLine("esta jalando alv");
+            Console.WriteLine("Se creó una sala de espera");
 
         }
 
-        public string BuscarLobbyDisponible()
+        public string BuscarSalaEsperaDisponible()
         {
-            if (lobbies.Any())
+            if (salasEspera.Any())
             {
-                return lobbies.Keys.First();
+                return salasEspera.Keys.First();
             }
             return null;
         }
 
 
-        public void JoinLobbyAsHost(string lobbyCode)
+        public void UnirSalaEsperaComoAnfitrion(string codigoSalaEspera)
         {
-            if (lobbies.ContainsKey(lobbyCode))
+            if (salasEspera.ContainsKey(codigoSalaEspera))
             {
-                ILobbyManagerCallback currentUserCallbackChannel = OperationContext.Current.GetCallbackChannel<ILobbyManagerCallback>();
-                List<LobbyPlayer> players = lobbies[lobbyCode];
-                LobbyPlayer hostPlayer = players[0];
+                IGestorSalasEsperasCallBack usuarioActualCanalCallback = OperationContext.Current.GetCallbackChannel<IGestorSalasEsperasCallBack>();
+                List<JugadorSalaEspera> jugadores = salasEspera[codigoSalaEspera];
+                JugadorSalaEspera anfitrion = jugadores[0];
 
-                hostPlayer.CallbackChannel = currentUserCallbackChannel;
+                anfitrion.CallbackChannel = usuarioActualCanalCallback;
 
                 try
                 {
-                    currentUserCallbackChannel.NotifyLobbyCreated(lobbyCode);
+                    usuarioActualCanalCallback.NotificarSalaEsperaCreada(codigoSalaEspera);
                 }
                 catch (CommunicationException ex)
                 {
 
                     Console.WriteLine(ex.ToString());
-                    PerformExitLobby(lobbyCode, hostPlayer.Username, false);
+                    RealizarSalidaLobby(codigoSalaEspera, anfitrion.NombreUsuario, false);
                 }
             }
         }
 
-        public void JoinLobby(string lobbyCode, LobbyPlayer lobbyPlayer)
+        public void UnirseSalaEspera(string codigoSalaEspera, JugadorSalaEspera jugador)
         {
-            ILobbyManagerCallback currentUserCallbackChannel = OperationContext.Current.GetCallbackChannel<ILobbyManagerCallback>();
-            lobbyPlayer.CallbackChannel = currentUserCallbackChannel;
-            int maxSizePlayers = 4;
+            IGestorSalasEsperasCallBack currentUserCallbackChannel = OperationContext.Current.GetCallbackChannel<IGestorSalasEsperasCallBack>();
+            jugador.CallbackChannel = currentUserCallbackChannel;
+            int maximoJugadores = 4;
 
             try
             {
-                if (lobbies.ContainsKey(lobbyCode))
+                if (salasEspera.ContainsKey(codigoSalaEspera))
                 {
-                    List<LobbyPlayer> playersInLobby = lobbies[lobbyCode];
-                    int numOfPlayersInLobby = playersInLobby.Count;
+                    List<JugadorSalaEspera> jugadoresEnSala = salasEspera[codigoSalaEspera];
+                    int numeroJugadoresEnSala = jugadoresEnSala.Count;
 
-                    if (numOfPlayersInLobby < maxSizePlayers)
+                    if (numeroJugadoresEnSala < maximoJugadores)
                     {
-                        lobbyPlayer.CallbackChannel.NotifyPlayersInLobby(lobbyCode, playersInLobby);
-                        NotifyPlayerJoinToLobby(playersInLobby, lobbyPlayer, numOfPlayersInLobby, lobbyCode);
-                        playersInLobby.Add(lobbyPlayer);
-                        NotifyCanStartGameIfHost(playersInLobby);
-                        NotifyPlayersInLobby(lobbyCode, playersInLobby);
+                        jugador.CallbackChannel.NotificarJugadoresEnSalaEspera(codigoSalaEspera, jugadoresEnSala);
+                        NotificarJugadorIngresoSalaEspera(jugadoresEnSala, jugador, numeroJugadoresEnSala, codigoSalaEspera);
+                        jugadoresEnSala.Add(jugador);
+                        NotificarPuedeIniciarJuegoSiEsAnfitrión(jugadoresEnSala);
+                        NotificarJugadoresSalaEspera(codigoSalaEspera, jugadoresEnSala);
                     }
                     else
                     {
-                        lobbyPlayer.CallbackChannel.NotifyLobbyIsFull();
+                        jugador.CallbackChannel.NotificarSalaEsperaLlena();
                     }
                 }
                 else
                 {
-                    lobbyPlayer.CallbackChannel.NotifyLobbyDoesNotExist();
+                    jugador.CallbackChannel.NotificarSalaEsperaNoExiste();
                 }
             }
             catch (CommunicationException ex)
             {
-            Console.WriteLine(ex.ToString());
+                Console.WriteLine(ex.ToString());
             }
         }
 
-        private void NotifyCanStartGameIfHost(List<LobbyPlayer> playersInLobby)
+        private void NotificarPuedeIniciarJuegoSiEsAnfitrión(List<JugadorSalaEspera> jugadoresEnSalaEspera)
         {
-            bool canStart = playersInLobby.Count >= 2;
-            LobbyPlayer host = playersInLobby[0];
+            bool puedeIniciar = jugadoresEnSalaEspera.Count >= 2;
+            JugadorSalaEspera anfitrion = jugadoresEnSalaEspera[0];
 
-            foreach (var player in playersInLobby)
+            foreach (var jugador in jugadoresEnSalaEspera)
             {
                 try
                 {
-                    player.CallbackChannel.NotifyCanStartGame(player.Equals(host) && canStart);
+                    jugador.CallbackChannel.NotificarPuedeIniciarPartida(jugador.Equals(anfitrion) && puedeIniciar);
                 }
                 catch (CommunicationException ex)
                 {
@@ -134,197 +134,208 @@ namespace ServicioJuego
             }
         }
 
-        public void StartGame(string lobbyCode)
+        public void IniciarPartida(string codigoSalaEspera)
         {
-            if (lobbies.ContainsKey(lobbyCode))
+            if (salasEspera.ContainsKey(codigoSalaEspera))
             {
-                List<LobbyPlayer> playersInLobby = lobbies[lobbyCode];
+                List<JugadorSalaEspera> jugadoresEnSalaEspera = salasEspera[codigoSalaEspera];
 
-                foreach (var player in playersInLobby)
+                foreach (var jugador in jugadoresEnSalaEspera)
                 {
                     try
                     {
-                        player.CallbackChannel.NotifyStartMatch(playersInLobby.ToArray());
+                        // Crea una lista filtrada sin incluir al jugador actual
+                        JugadorSalaEspera[] listaJugadoresFiltrada = jugadoresEnSalaEspera
+                            .Where(p => p.NombreUsuario != jugador.NombreUsuario)
+                            .ToArray();
+
+                        Console.WriteLine($"Enviando lista filtrada a {jugador.NombreUsuario}:");
+                        foreach (var p in listaJugadoresFiltrada)
+                        {
+                            Console.WriteLine($"Jugador: {p.NombreUsuario}");
+                        }
+
+                        // Envía la lista filtrada al jugador actual
+                        jugador.CallbackChannel.NotificarIniciarPartida(listaJugadoresFiltrada);
                     }
                     catch (CommunicationException ex)
                     {
                         Console.WriteLine(ex.ToString());
-                        PerformExitLobby(lobbyCode, player.Username, false);
+                        RealizarSalidaLobby(codigoSalaEspera, jugador.NombreUsuario, false);
                     }
                 }
 
-                // Lógica adicional para iniciar la partida si es necesario
             }
         }
 
-        private void NotifyPlayerJoinToLobby(List<LobbyPlayer> playersInLobby, LobbyPlayer playerEntering, int numOfPlayersInLobby, string lobbyCode)
+        private void NotificarJugadorIngresoSalaEspera(List<JugadorSalaEspera> jugadoresSalaEspera, JugadorSalaEspera jugadorIngresando, int numeroJugadoresSalaEspera, string codigoSalaEspera)
         {
-            foreach (var player in playersInLobby.ToList())
+            foreach (var jugador in jugadoresSalaEspera.ToList())
             {
                 try
                 {
-                    player.CallbackChannel.NotifyPlayerJoinToLobby(playerEntering, numOfPlayersInLobby);
+                    jugador.CallbackChannel.NotificarJugadorSeUnioSalaEspera(jugadorIngresando, numeroJugadoresSalaEspera);
                 }
                 catch (CommunicationException ex)
                 {
 
                     Console.WriteLine(ex.ToString());
-                    PerformExitLobby(lobbyCode, player.Username, false);
+                    RealizarSalidaLobby(codigoSalaEspera, jugador.NombreUsuario, false);
                 }
             }
         }
 
-  
 
-        public void ExitLobby(string lobbyCode, string username)
+
+        public void SalirSalaEspera(string codigoSalaEspera, string nombreUsuario)
         {
-            PerformExitLobby(lobbyCode, username, false);
+            RealizarSalidaLobby(codigoSalaEspera, nombreUsuario, false);
         }
 
-        public void ExpulsePlayerFromLobby(string lobbyCode, string username)
+        public void ExpulsarJugadorSalaEspera(string codigoSalaEspera, string nombreUsuario)
         {
-            PerformExitLobby(lobbyCode, username, true);
+            RealizarSalidaLobby(codigoSalaEspera, nombreUsuario, true);
         }
 
 
-        private void PerformExitLobby(string lobbyCode, string username, bool isExpulsed)
+        private void RealizarSalidaLobby(string codigoSalaEspera, string nombreUsuario, bool expulsado)
         {
-            if (lobbies.ContainsKey(lobbyCode))
+            if (salasEspera.ContainsKey(codigoSalaEspera))
             {
-                List<LobbyPlayer> players = lobbies[lobbyCode];
-                LobbyPlayer playerToEliminate = null;
+                List<JugadorSalaEspera> jugadores = salasEspera[codigoSalaEspera];
+                JugadorSalaEspera jugadorAEliminar = null;
 
-                int hostIndex = 0;
-                int eliminatedPlayerIndex = hostIndex;
+                int anfitrionIndice = 0;
+                int indiceJugadorEliminado = anfitrionIndice;
 
-                foreach (LobbyPlayer player in players)
+                foreach (JugadorSalaEspera jugador in jugadores)
                 {
-                    if (player.Username.Equals(username))
+                    if (jugador.NombreUsuario.Equals(nombreUsuario))
                     {
-                        playerToEliminate = player;
+                        jugadorAEliminar = jugador;
                         break;
                     }
                     else
                     {
-                        eliminatedPlayerIndex++;
+                        indiceJugadorEliminado++;
                     }
                 }
 
-                if (isExpulsed)
+                if (expulsado)
                 {
-                    
+
                 }
 
-                players.Remove(playerToEliminate);
-                lobbies[lobbyCode] = players;
+                jugadores.Remove(jugadorAEliminar);
+                salasEspera[codigoSalaEspera] = jugadores;
 
-                NotifyPlayerLeftLobby(players, username, eliminatedPlayerIndex, lobbyCode, isExpulsed);
+                NotificarJugadorSalioSalaEspera(jugadores, nombreUsuario, indiceJugadorEliminado, codigoSalaEspera, expulsado);
 
-                if (eliminatedPlayerIndex == hostIndex)
+                if (indiceJugadorEliminado == anfitrionIndice)
                 {
-                    lobbies.Remove(lobbyCode);
+                    salasEspera.Remove(codigoSalaEspera);
                 }
             }
         }
 
-      
 
-        private void NotifyPlayerLeftLobby(List<LobbyPlayer> players, string username, int eliminatedPlayerIndex, string lobbyCode, bool isExpulsed)
+
+        private void NotificarJugadorSalioSalaEspera(List<JugadorSalaEspera> jugadores, string nombreUsuario, int indiceJugadorEliminado, string codigoSalaEspera, bool esExplusaldo)
         {
             int hostIndex = 0;
 
-            foreach (var callbackChannel in players.Select(p => p.CallbackChannel).ToList())
+            foreach (var callbackChannel in jugadores.Select(p => p.CallbackChannel).ToList())
             {
                 try
                 {
-                    if (eliminatedPlayerIndex != hostIndex)
+                    if (indiceJugadorEliminado != hostIndex)
                     {
-                        callbackChannel.NotifyPlayerLeftLobby(username);
+                        callbackChannel.NotificarJugadorSalioSalaEspera(nombreUsuario);
                     }
                     else
                     {
-                        callbackChannel.NotifyHostPlayerLeftLobby();
+                        callbackChannel.NotificarAnfritionJugadorSalioSalaEspera();
                     }
                 }
                 catch (CommunicationException ex)
                 {
                     Console.WriteLine(ex.ToString());
-                    PerformExitLobby(lobbyCode, username, isExpulsed);
+                    RealizarSalidaLobby(codigoSalaEspera, nombreUsuario, esExplusaldo);
                 }
             }
         }
 
-        private string GenerateLobbyCode()
+        private string GenerarCodigoSalaEspera()
         {
-            int length = 6;
-            string chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            int longitud = 6;
+            string caracteres = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
             Random random = new Random();
 
-            char[] code = new char[length];
+            char[] codigo = new char[longitud];
 
-            for (int i = 0; i < length; i++)
+            for (int i = 0; i < longitud; i++)
             {
-                code[i] = chars[random.Next(chars.Length)];
+                codigo[i] = caracteres[random.Next(caracteres.Length)];
             }
 
-            string lobbyCode = new string(code);
+            string codigoSalaEspera = new string(codigo);
 
-            return lobbies.ContainsKey(lobbyCode) ? GenerateLobbyCode() : lobbyCode;
+            return salasEspera.ContainsKey(codigoSalaEspera) ? GenerarCodigoSalaEspera() : codigoSalaEspera;
         }
 
-        public void SendMessage(string mensaje)
+        public void MandarMensaje(string mensaje)
         {
-            ILobbyManagerCallback currentUserCallbackChannel = OperationContext.Current.GetCallbackChannel<ILobbyManagerCallback>();
+            IGestorSalasEsperasCallBack canalUsuarioActualCallback = OperationContext.Current.GetCallbackChannel<IGestorSalasEsperasCallBack>();
 
-            string lobbyCode = lobbies
-                .Where(lobby => lobby.Value.Any(player => player.CallbackChannel == currentUserCallbackChannel)) 
-                .Select(lobby => lobby.Key) 
+            string codigoSalaEspera = salasEspera
+                .Where(lobby => lobby.Value.Any(player => player.CallbackChannel == canalUsuarioActualCallback))
+                .Select(lobby => lobby.Key)
                 .FirstOrDefault();
 
-            if (lobbyCode == null)
+            if (codigoSalaEspera == null)
             {
                 Console.WriteLine("No se pudo encontrar el lobby del jugador que envía el mensaje.");
                 return;
             }
 
-            string sendingUsername = lobbies[lobbyCode]
-                .Where(player => player.CallbackChannel == currentUserCallbackChannel)
-                .Select(player => player.Username)
+            string nombreUsuarioReceptor = salasEspera[codigoSalaEspera]
+                .Where(jugador => jugador.CallbackChannel == canalUsuarioActualCallback)
+                .Select(jugador => jugador.NombreUsuario)
                 .FirstOrDefault();
 
-            if (sendingUsername == null)
+            if (nombreUsuarioReceptor == null)
             {
                 Console.WriteLine("No se pudo encontrar al jugador que envía el mensaje.");
                 return;
             }
 
-            List<LobbyPlayer> playersInLobby = lobbies[lobbyCode];
-            foreach (var player in playersInLobby)
+            List<JugadorSalaEspera> jugadoresSalaEspera = salasEspera[codigoSalaEspera];
+            foreach (var jugador in jugadoresSalaEspera)
             {
                 try
                 {
 
-                    player.CallbackChannel.ReceiveMessage(sendingUsername, mensaje);
+                    jugador.CallbackChannel.RecibirMensaje(nombreUsuarioReceptor, mensaje);
                 }
                 catch (CommunicationException ex)
                 {
-                    Console.WriteLine($"Error al enviar mensaje a {player.Username}: {ex.Message}");
+                    Console.WriteLine($"Error al enviar mensaje a {jugador.NombreUsuario}: {ex.Message}");
                 }
             }
         }
 
-        public void NotifyPlayersInLobby(string lobbyCode, List<LobbyPlayer> lobbyPlayers)
+        public void NotificarJugadoresSalaEspera(string codigoSalaEspera, List<JugadorSalaEspera> jugadoresSalaEspera)
         {
             // Notificación de la lista de jugadores a cada cliente.
-            foreach (var player in lobbyPlayers)
+            foreach (var jugador in jugadoresSalaEspera)
             {
                 try
                 {
-                    player.CallbackChannel.NotifyPlayersInLobby(lobbyCode, lobbyPlayers);
+                    jugador.CallbackChannel.NotificarJugadoresEnSalaEspera(codigoSalaEspera, jugadoresSalaEspera);
                 }
                 catch (CommunicationException ex)
                 {
-                    Console.WriteLine($"Error notificando a {player.Username}: {ex.Message}");
+                    Console.WriteLine($"Error notificando a {jugador.NombreUsuario}: {ex.Message}");
                     // Aquí podrías manejar la salida del jugador si es necesario.
                 }
             }
