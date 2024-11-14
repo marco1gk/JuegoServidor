@@ -144,19 +144,7 @@ namespace ServicioJuego
                 {
                     try
                     {
-                        // Crea una lista filtrada sin incluir al jugador actual
-                        JugadorSalaEspera[] listaJugadoresFiltrada = jugadoresEnSalaEspera
-                            .Where(p => p.NombreUsuario != jugador.NombreUsuario)
-                            .ToArray();
-
-                        Console.WriteLine($"Enviando lista filtrada a {jugador.NombreUsuario}:");
-                        foreach (var p in listaJugadoresFiltrada)
-                        {
-                            Console.WriteLine($"Jugador: {p.NombreUsuario}");
-                        }
-
-                        // Envía la lista filtrada al jugador actual
-                        jugador.CallbackChannel.NotificarIniciarPartida(listaJugadoresFiltrada);
+                        jugador.CallbackChannel.NotificarIniciarPartida(jugadoresEnSalaEspera.ToArray());
                     }
                     catch (CommunicationException ex)
                     {
