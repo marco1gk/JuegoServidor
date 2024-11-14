@@ -11,33 +11,33 @@ using AccesoDatos;
 namespace ServicioJuego
 {
     [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Reentrant)]
-    public partial class ImplementacionServicio : IGestorUsuariosConectados 
+    public partial class ImplementacionServicio : IGestorUsuariosConectados
     {
-        private static readonly object lockObject = new object();
-        private static Dictionary<string, IGestorUsuarioCallback> onlineUsers = new Dictionary<string, IGestorUsuarioCallback>();
+        private static readonly object objetoDeBloqueo = new object();
+        private static Dictionary<string, IGestorUsuarioCallback> usuariosEnLinea = new Dictionary<string, IGestorUsuarioCallback>();
 
-        public void RegisterUserToOnlineUsers(int idPlayer, string username)
+        public void RegistrarUsuarioAUsuariosConectados(int jugadorId, string nombreUsuario)
         {
-            IGestorUsuarioCallback currentUserCallbackChannel = OperationContext.Current.GetCallbackChannel<IGestorUsuarioCallback>();
-            List<string> onlineUsernames = onlineUsers.Keys.ToList();
-            List<string> onlineFriends = new List<string>();
+            IGestorUsuarioCallback actualUsuarioCallbackCanal = OperationContext.Current.GetCallbackChannel<IGestorUsuarioCallback>();
+            List<string> nombresUsuarioEnLinea = usuariosEnLinea.Keys.ToList();
+            List<string> amigosEnLinea = new List<string>();
 
-            if (!onlineUsers.ContainsKey(username))
+            if (!usuariosEnLinea.ContainsKey(nombreUsuario))
             {
-                onlineUsers.Add(username, currentUserCallbackChannel);
+                usuariosEnLinea.Add(nombreUsuario, actualUsuarioCallbackCanal);
             }
             else
             {
-                onlineUsers[username] = currentUserCallbackChannel;
+                usuariosEnLinea[nombreUsuario] = actualUsuarioCallbackCanal;
             }
 
-            onlineFriends = onlineUsernames
-                .Where(onlineUsername => IsFriend(idPlayer, onlineUsername))
+            amigosEnLinea = nombresUsuarioEnLinea
+                .Where(onlineUsername => EsAmigo(jugadorId, onlineUsername))
                 .ToList();
 
             try
             {
-                currentUserCallbackChannel.NotifyOnlineFriends(onlineFriends);
+                actualUsuarioCallbackCanal.NotificarAmigosEnLinea(amigosEnLinea);
             }
             catch (CommunicationException ex)
             {
@@ -48,71 +48,101 @@ namespace ServicioJuego
                 Console.WriteLine(ex);
             }
 
-            NotifyUserLoggedInToFriends(idPlayer, username);
+            NotificarInicioDeSesiónAAmigos(jugadorId, nombreUsuario);
+
+            // Iniciar hilo de verificación de conexión (ping)
+            Task.Run(() => VerificarConexionUsuario(nombreUsuario));
         }
 
-        private void NotifyUserLoggedInToFriends(int idPlayer, string username)
+        private void VerificarConexionUsuario(string nombreUsuario)
         {
-            foreach (var user in onlineUsers.ToList())
+            while (true)
             {
-                if (user.Key != username && IsFriend(idPlayer, user.Key))
+                try
+                {
+                    if (usuariosEnLinea.ContainsKey(nombreUsuario))
+                    {
+                        usuariosEnLinea[nombreUsuario].Ping();
+                    }
+                }
+                catch (CommunicationException)
+                {
+                    Console.WriteLine($"Usuario {nombreUsuario} desconectado.");
+                    DesregistrarUsuarioDeUsuariosEnLinea(nombreUsuario);
+                    break;
+                }
+                catch (TimeoutException)
+                {
+                    Console.WriteLine($"Usuario {nombreUsuario} desconectado.");
+                    DesregistrarUsuarioDeUsuariosEnLinea(nombreUsuario);
+                    break;
+                }
+
+                // Esperar 30 segundos antes de verificar nuevamente
+                System.Threading.Thread.Sleep(30000);
+            }
+        }
+
+        private void NotificarInicioDeSesiónAAmigos(int jugadorId, string nombreUsuario)
+        {
+            foreach (var usuario in usuariosEnLinea.ToList())
+            {
+                if (usuario.Key != nombreUsuario && EsAmigo(jugadorId, usuario.Key))
                 {
                     try
                     {
-                        user.Value.NotifyUserLoggedIn(username);
+                        usuario.Value.NotificarUsuarioConectado(nombreUsuario);
                     }
                     catch (CommunicationException ex)
                     {
                         Console.WriteLine(ex);
-                        UnregisterUserToOnlineUsers(username);
+                        DesregistrarUsuarioDeUsuariosEnLinea(nombreUsuario);
                     }
                     catch (TimeoutException ex)
                     {
                         Console.WriteLine(ex);
-                        UnregisterUserToOnlineUsers(username);
+                        DesregistrarUsuarioDeUsuariosEnLinea(nombreUsuario);
                     }
                 }
             }
         }
 
-        private bool IsFriend(int currentIdPlayer, string onlineUsername)
+        private bool EsAmigo(int actualJugadorId, string nombreUsuarioEnLinea)
         {
-            AmistadDao friendRequestDataAccess = new AmistadDao();
-            ImplementacionServicio userDataAccess = new ImplementacionServicio();
-            int idOnlinePlayer = userDataAccess.ObtenerIdJugadorPorNombreUsuario(onlineUsername);
+            AmistadDao amistadDao = new AmistadDao();
+            ImplementacionServicio usuarioA = new ImplementacionServicio();
+            int idJugadorEnLinea = usuarioA.ObtenerIdJugadorPorNombreUsuario(nombreUsuarioEnLinea);
 
-            bool isFriend = friendRequestDataAccess.EsAmigo(currentIdPlayer, idOnlinePlayer);
+            bool esAmigo = amistadDao.EsAmigo(actualJugadorId, idJugadorEnLinea);
 
-            return isFriend;
+            return esAmigo;
         }
 
-        public void UnregisterUserToOnlineUsers(string username)
+        public void DesregistrarUsuarioDeUsuariosEnLinea(string nombreUsuario)
         {
-            if (onlineUsers.ContainsKey(username))
+            if (usuariosEnLinea.ContainsKey(nombreUsuario))
             {
-                onlineUsers.Remove(username);
-                amistadEnLinea.Remove(username);
+                usuariosEnLinea.Remove(nombreUsuario);
 
-                foreach (var user in onlineUsers.ToList())
+                foreach (var usuario in usuariosEnLinea.ToList())
                 {
                     try
                     {
-                        user.Value.NotifyUserLoggedOut(username);
+                        usuario.Value.NotificarUsuarioDesconectado(nombreUsuario);
                     }
                     catch (CommunicationException ex)
                     {
                         Console.WriteLine(ex);
-                        UnregisterUserToOnlineUsers(username);
+                        DesregistrarUsuarioDeUsuariosEnLinea(usuario.Key);
                     }
                     catch (TimeoutException ex)
                     {
                         Console.WriteLine(ex);
-                        UnregisterUserToOnlineUsers(username);
+                        DesregistrarUsuarioDeUsuariosEnLinea(usuario.Key);
                     }
                 }
             }
         }
-
-
     }
+
 }

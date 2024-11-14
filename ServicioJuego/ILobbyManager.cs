@@ -88,8 +88,8 @@ namespace ServicioJuego
             }
             else
             {
-                JugadorSalaEspera otherPlayer = (JugadorSalaEspera)obj;
-                return NombreUsuario == otherPlayer.NombreUsuario;
+                JugadorSalaEspera otroJugador = (JugadorSalaEspera)obj;
+                return NombreUsuario == otroJugador.NombreUsuario;
             }
         }
 

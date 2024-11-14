@@ -4,7 +4,6 @@ using System.Linq;
 using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
-
 namespace ServicioJuego
 {
 
@@ -13,21 +12,25 @@ namespace ServicioJuego
     {
 
         [OperationContract(IsOneWay = true)]
-        void RegisterUserToOnlineUsers(int idPlayer, string username);
+        void RegistrarUsuarioAUsuariosConectados(int idJugador, string nombreUsuario);
 
         [OperationContract(IsOneWay = true)]
-        void UnregisterUserToOnlineUsers(string username);
+        void DesregistrarUsuarioDeUsuariosEnLinea(string nombreUsuario);
     }
     [ServiceContract]
     public interface IGestorUsuarioCallback
     {
         [OperationContract]
-        void NotifyUserLoggedIn(string username);
+        void NotificarUsuarioConectado(string nombreUsuario);
 
         [OperationContract]
-        void NotifyUserLoggedOut(string username);
+        void NotificarUsuarioDesconectado(string nombreUsuario);
 
         [OperationContract]
-        void NotifyOnlineFriends(List<string> onlineUsernames);
+        void NotificarAmigosEnLinea(List<string> nombresUsuariosEnLinea);
+
+        // Método de ping para verificar conexión
+        [OperationContract(IsOneWay = true)]
+        void Ping();
     }
 }

@@ -33,7 +33,7 @@ namespace ServicioJuego
 
         public void EnviarSolicitudAmistad(string nombreUsuarioJugadorRemitente, string nombreUsuarioJugadorSolicitado)
         {
-            lock (lockObject)
+            lock (objetoDeBloqueo)
             {
                 if (amistadEnLinea.ContainsKey(nombreUsuarioJugadorSolicitado))
                 {
@@ -114,7 +114,7 @@ namespace ServicioJuego
         
         public void EliminarAmigo(int idJugadorActual, string nombreJugadorActual, string nombreUsuarioAmigoEliminado)
         {
-            lock (lockObject)
+            lock (objetoDeBloqueo)
             {
                 ImplementacionServicio usuarioAccesoDatos = new ImplementacionServicio();
                 AmistadDao SolicitudAmistadAccesoDatos = new AmistadDao();
