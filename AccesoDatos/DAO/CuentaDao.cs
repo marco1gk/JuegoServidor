@@ -12,11 +12,11 @@ namespace AccesoDatos.DAO
 {
     public class CuentaDao
     {
-        public bool AgregarJugadorConCuenta(Jugador jugador, Cuenta cuenta )
+        public bool AgregarJugadorConCuenta(Jugador jugador, Cuenta cuenta)
         {
             using (var contexto = new ContextoBaseDatos())
             {
-                contexto.Cuentas.Add( cuenta );
+                contexto.Cuentas.Add(cuenta);
                 contexto.Jugadores.Add(jugador);
                 cuenta.Jugador = jugador;
                 cuenta.JugadorId = jugador.JugadorId;
@@ -28,11 +28,11 @@ namespace AccesoDatos.DAO
                 }
                 catch (DbUpdateException ex)
                 {
-                    Console.WriteLine("Error al agregar"+ex  );
+                    Console.WriteLine("Error al agregar" + ex);
                     return false;
                 }
-            } 
-           
+            }
+
         }
 
 
@@ -41,7 +41,7 @@ namespace AccesoDatos.DAO
             using (var contexto = new ContextoBaseDatos())
             {
                 return contexto.Cuentas
-                    .Include(c => c.Jugador) 
+                    .Include(c => c.Jugador)
                     .FirstOrDefault(c => c.Correo == correo && c.ContraseniaHash == contraseniaHash);
             }
         }
@@ -51,7 +51,7 @@ namespace AccesoDatos.DAO
             using (var contexto = new ContextoBaseDatos())
             {
                 return contexto.Cuentas
-                    .Include(c => c.Jugador) 
+                    .Include(c => c.Jugador)
                     .FirstOrDefault(c => c.Correo == nombreUsuario);
             }
         }
@@ -126,7 +126,7 @@ namespace AccesoDatos.DAO
 
         public bool ExisteCorreo(string correo)
         {
-            using (var context = new ContextoBaseDatos()) 
+            using (var context = new ContextoBaseDatos())
             {
                 return context.Cuentas.Any(c => c.Correo == correo);
             }
@@ -134,7 +134,7 @@ namespace AccesoDatos.DAO
 
         public bool ExisteNombreUsuario(string nombreUsuario)
         {
-            using (var context = new ContextoBaseDatos()) 
+            using (var context = new ContextoBaseDatos())
             {
                 return context.Jugadores.Any(j => j.NombreUsuario == nombreUsuario);
             }

@@ -6,112 +6,115 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
+using System.Transactions;
 using Xunit;
+
+
 
 public class PruebaJugadorDao
 {
-    private readonly Mock<DbSet<Jugador>> _jugadoresMock;
-    private readonly Mock<ContextoBaseDatos> _contextoMock;
-    private readonly JugadorDao _jugadorDao;
-
-    public PruebaJugadorDao()
+    [Fact]
+    public void ObtenerJugador_DebeRetornarJugador_CuandoElIdEsValido()
     {
-        _jugadoresMock = new Mock<DbSet<Jugador>>();
-        _contextoMock = new Mock<ContextoBaseDatos>();
-        _contextoMock.Setup(c => c.Jugadores).Returns(_jugadoresMock.Object);
-        _jugadorDao = new JugadorDao();
+        using (var scope = new TransactionScope())
+        {
+            var jugador = new Jugador
+            {
+                NombreUsuario = "JugadorTest",
+                NumeroFotoPerfil = 1,
+                Cuenta = new Cuenta
+                {
+                    Correo = "jugadorTest@example.com",
+                    ContraseniaHash = "hashed_password",
+                    Salt = "random_salt"
+                }
+            };
+
+            using (var contexto = new ContextoBaseDatos())
+            {
+                contexto.Jugadores.Add(jugador);
+                contexto.SaveChanges();
+            }
+
+            var jugadorDao = new JugadorDao();
+
+            
+            var jugadorObtenido = jugadorDao.ObtenerJugador(jugador.JugadorId);
+
+            Assert.NotNull(jugadorObtenido);
+            Assert.Equal(jugador.JugadorId, jugadorObtenido.JugadorId);
+            Assert.Equal(jugador.NombreUsuario, jugadorObtenido.NombreUsuario);
+            Assert.NotNull(jugadorObtenido.Cuenta);
+            Assert.Equal(jugador.Cuenta.Correo, jugadorObtenido.Cuenta.Correo);
+        }
     }
 
     [Fact]
-    public void ObtenerJugador_DebeRetornarJugador_SiExiste()
+    public void ObtenerJugador_DebeRetornarNull_CuandoElIdEsInvalido()
     {
-        // Configuración
-        var jugadorId = 1;
-        var jugadorEsperado = new Jugador { JugadorId = jugadorId, NombreUsuario = "TestUser" };
+        using (var scope = new TransactionScope())
+        {
+            var jugadorDao = new JugadorDao();
 
-        var data = new List<Jugador> { jugadorEsperado }.AsQueryable();
-        _jugadoresMock.As<IQueryable<Jugador>>().Setup(m => m.Provider).Returns(data.Provider);
-        _jugadoresMock.As<IQueryable<Jugador>>().Setup(m => m.Expression).Returns(data.Expression);
-        _jugadoresMock.As<IQueryable<Jugador>>().Setup(m => m.ElementType).Returns(data.ElementType);
-        _jugadoresMock.As<IQueryable<Jugador>>().Setup(m => m.GetEnumerator()).Returns(data.GetEnumerator());
+            var jugadorObtenido = jugadorDao.ObtenerJugador(9999); // ID que no existe
 
-        // Ejecución
-        var resultado = _jugadorDao.ObtenerJugador(jugadorId);
-
-        // Verificación
-        Assert.NotNull(resultado);
-        Assert.Equal(jugadorEsperado.JugadorId, resultado.JugadorId);
-        Assert.Equal(jugadorEsperado.NombreUsuario, resultado.NombreUsuario);
+            Assert.Null(jugadorObtenido);
+        }
     }
 
     [Fact]
-    public void ObtenerJugador_DebeRetornarNull_SiNoExiste()
+    public void EditarNombreUsuario_DebeActualizarNombreUsuario_CuandoElIdEsValido()
     {
-        // Configuración
-        var jugadorId = 99; // ID que no existe en los datos de prueba
+        using (var scope = new TransactionScope())
+        {
+            // Arrange
+            var jugador = new Jugador
+            {
+                NombreUsuario = "JugadorAntiguo",
+                NumeroFotoPerfil = 1,
+                Cuenta = new Cuenta
+                {
+                    Correo = "jugadorAntiguo@example.com",
+                    ContraseniaHash = "hashed_password",
+                    Salt = "random_salt"
+                }
+            };
 
-        // Ejecución
-        var resultado = _jugadorDao.ObtenerJugador(jugadorId);
+            using (var contexto = new ContextoBaseDatos())
+            {
+                contexto.Jugadores.Add(jugador);
+                contexto.SaveChanges();
+            }
 
-        // Verificación
-        Assert.Null(resultado);
+            var jugadorDao = new JugadorDao();
+
+            var resultado = jugadorDao.EditarNombreUsuario(jugador.JugadorId, "JugadorNuevo");
+
+            Assert.True(resultado);
+
+            using (var contexto = new ContextoBaseDatos())
+            {
+                var jugadorActualizado = contexto.Jugadores
+                    .FirstOrDefault(j => j.JugadorId == jugador.JugadorId);
+                Assert.NotNull(jugadorActualizado);
+                Assert.Equal("JugadorNuevo", jugadorActualizado.NombreUsuario);
+            }
+        }
     }
 
     [Fact]
-    public void EditarNombreUsuario_DebeRetornarTrue_SiActualizacionEsExitosa()
+    public void EditarNombreUsuario_DebeRetornarFalse_CuandoElIdEsInvalido()
     {
-        // Configuración
-        var jugadorId = 1;
-        var jugador = new Jugador { JugadorId = jugadorId, NombreUsuario = "AntiguoNombre" };
+        using (var scope = new TransactionScope())
+        {
+            var jugadorDao = new JugadorDao();
 
-        var data = new List<Jugador> { jugador }.AsQueryable();
-        _jugadoresMock.As<IQueryable<Jugador>>().Setup(m => m.Provider).Returns(data.Provider);
-        _jugadoresMock.As<IQueryable<Jugador>>().Setup(m => m.Expression).Returns(data.Expression);
-        _jugadoresMock.As<IQueryable<Jugador>>().Setup(m => m.ElementType).Returns(data.ElementType);
-        _jugadoresMock.As<IQueryable<Jugador>>().Setup(m => m.GetEnumerator()).Returns(data.GetEnumerator());
+            var resultado = jugadorDao.EditarNombreUsuario(9999, "JugadorInvalido"); // ID que no existe
 
-        _contextoMock.Setup(c => c.SaveChanges()).Returns(1); // Simulamos que SaveChanges afecta una fila
-
-        // Ejecución
-        var resultado = _jugadorDao.EditarNombreUsuario(jugadorId, "NuevoNombre");
-
-        // Verificación
-        Assert.True(resultado);
-        Assert.Equal("NuevoNombre", jugador.NombreUsuario);
+            Assert.False(resultado);
+        }
     }
 
-    [Fact]
-    public void EditarNombreUsuario_DebeRetornarFalse_SiNoSeEncuentraJugador()
-    {
-        // Configuración
-        var jugadorId = 99; // ID que no existe en los datos de prueba
 
-        // Ejecución
-        var resultado = _jugadorDao.EditarNombreUsuario(jugadorId, "NuevoNombre");
-
-        // Verificación
-        Assert.False(resultado);
-    }
-
-    [Fact]
-    public void EditarNombreUsuario_DebeRetornarFalse_SiHayExcepcionEnSaveChanges()
-    {
-        // Configuración
-        var jugadorId = 1;
-        var jugador = new Jugador { JugadorId = jugadorId, NombreUsuario = "AntiguoNombre" };
-
-        var data = new List<Jugador> { jugador }.AsQueryable();
-        _jugadoresMock.As<IQueryable<Jugador>>().Setup(m => m.Provider).Returns(data.Provider);
-        _jugadoresMock.As<IQueryable<Jugador>>().Setup(m => m.Expression).Returns(data.Expression);
-        _jugadoresMock.As<IQueryable<Jugador>>().Setup(m => m.ElementType).Returns(data.ElementType);
-        _jugadoresMock.As<IQueryable<Jugador>>().Setup(m => m.GetEnumerator()).Returns(data.GetEnumerator());
-
-        _contextoMock.Setup(c => c.SaveChanges()).Throws(new DbUpdateException()); // Simulamos una excepción
-
-        // Ejecución
-        var resultado = _jugadorDao.EditarNombreUsuario(jugadorId, "NuevoNombre");
-
-        // Verificación
-        Assert.False(resultado);
-    }
 }
+

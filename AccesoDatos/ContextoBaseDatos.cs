@@ -20,6 +20,10 @@ namespace AccesoDatos
 
         public ContextoBaseDatos() : base ("name=ContactoBaseDatos") { }
 
+        public ContextoBaseDatos(object options)
+        {
+        }
+
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
 

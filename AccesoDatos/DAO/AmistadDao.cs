@@ -14,12 +14,21 @@ using System.Security.Principal;
 using AccesoDatos.Modelo;
 
 
+
 namespace AccesoDatos.DAO
 {
     public class AmistadDao
     {
         private const string ESTADO_AMISTAD = "Friend";
         private const string ESTADO_SOLICITUD = "Request";
+
+        private readonly ContextoBaseDatos _contexto;
+
+        public AmistadDao()
+        {
+  
+        }
+
 
         public bool VerificarAmistad(int idJugadorMandaSolicitud, int idJugadorReciveSolicitud)
         {
@@ -58,6 +67,7 @@ namespace AccesoDatos.DAO
         public int AgregarSolicitudAmistad(int idJugadorMandaSolicitud, int idJugadorReciveSolicitud)
         {
             int rowsAffected = -1;
+
 
             if (idJugadorMandaSolicitud > 0 && idJugadorReciveSolicitud > 0)
             {

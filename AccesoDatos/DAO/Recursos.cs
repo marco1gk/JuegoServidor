@@ -16,13 +16,13 @@ namespace AccesoDatos.DAO
             string codigo = new Random().Next(100000, 999999).ToString();
 
             MailMessage mail = new MailMessage();
-            mail.From = new MailAddress("hunterstrophy01@gmail.com"); 
+            mail.From = new MailAddress("hunterstrophy01@gmail.com");
             mail.To.Add(correo);
             mail.Subject = "Código de Verificación";
             mail.Body = "Tu código de verificación es: " + codigo;
 
             SmtpClient smtpClient = new SmtpClient("smtp.gmail.com", 587);
-            smtpClient.Credentials = new System.Net.NetworkCredential("hunterstrophy01@gmail.com", "azcx qzqh kzdq ifve"); 
+            smtpClient.Credentials = new System.Net.NetworkCredential("hunterstrophy01@gmail.com", "azcx qzqh kzdq ifve");
             smtpClient.EnableSsl = true;
 
             try
@@ -33,12 +33,12 @@ namespace AccesoDatos.DAO
             catch (SmtpException ex)
             {
                 Console.WriteLine("Error SMTP: " + ex.Message);
-                return null; 
+                return null;
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error al enviar el correo: " + ex.Message);
-                return null; 
+                return null;
             }
 
             return codigo;
@@ -73,7 +73,7 @@ namespace AccesoDatos.DAO
         public static bool VerificarContrasena(string contrasena, Cuenta cuenta)
         {
             var hashContrasena = HashearContrasena(contrasena, cuenta.Salt);
-            if(hashContrasena == cuenta.ContraseniaHash)
+            if (hashContrasena == cuenta.ContraseniaHash)
             {
                 return true;
             }
