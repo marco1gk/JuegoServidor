@@ -10,7 +10,7 @@ using AccesoDatos;
 
 namespace ServicioJuego
 {
-    [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Reentrant, InstanceContextMode = InstanceContextMode.PerSession)]
+   // [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Reentrant, InstanceContextMode = InstanceContextMode.PerSession)]
     public partial class ImplementacionServicio : IGestorUsuariosConectados
     {
         private static readonly object objetoDeBloqueo = new object();
