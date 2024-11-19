@@ -53,7 +53,7 @@ namespace ServicioJuego
         void NotificarAnfritionJugadorSalioSalaEspera();
 
         [OperationContract]
-        void NotificarIniciarPartida(JugadorSalaEspera[] jugadores);
+        void NotificarIniciarPartida(JugadorPartida[] jugadoresPartida);
 
         [OperationContract]
         void NotificarSalaEsperaLlena();

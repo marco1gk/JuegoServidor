@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AccesoDatos.Modelo;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.ServiceModel;
@@ -8,10 +9,10 @@ using System.Threading.Tasks;
 
 namespace ServicioJuego
 {
-     [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Reentrant, InstanceContextMode = InstanceContextMode.PerSession)]
+    //[ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Reentrant, InstanceContextMode = InstanceContextMode.PerSession)]
     public partial class ImplementacionServicio : ILobbyManager
     {
-        public static readonly Dictionary<string, List<JugadorSalaEspera>> salasEspera = new Dictionary<string, List<JugadorSalaEspera>>();
+        private static readonly Dictionary<string, List<JugadorSalaEspera>> salasEspera = new Dictionary<string, List<JugadorSalaEspera>>();
 
         public void CrearSalaEspera(JugadorSalaEspera jugador)
         {
@@ -139,18 +140,26 @@ namespace ServicioJuego
             if (salasEspera.ContainsKey(codigoSalaEspera))
             {
                 List<JugadorSalaEspera> jugadoresEnSalaEspera = salasEspera[codigoSalaEspera];
+                List<JugadorPartida> jugadoresPartida = new List<JugadorPartida>();
 
                 foreach (var jugador in jugadoresEnSalaEspera)
                 {
+                    JugadorPartida jugadorPartida = new JugadorPartida { NombreUsuario = jugador.NombreUsuario, NumeroFotoPerfil = jugador.NumeroFotoPerfil };
+                    jugadoresPartida.Add(jugadorPartida);
+                }
+                
+                foreach(var jugador in jugadoresEnSalaEspera)
+                {
                     try
                     {
-                        jugador.CallbackChannel.NotificarIniciarPartida(jugadoresEnSalaEspera.ToArray());
+                        jugador.CallbackChannel.NotificarIniciarPartida(jugadoresPartida.ToArray());
                     }
                     catch (CommunicationException ex)
                     {
                         Console.WriteLine(ex.ToString());
                         RealizarSalidaLobby(codigoSalaEspera, jugador.NombreUsuario, false);
                     }
+
                 }
 
             }

@@ -58,12 +58,12 @@
     <Compile Include="IGestorAmistad.cs" />
     <Compile Include="IGestorDeSolicitudesDeAmistad.cs" />
     <Compile Include="IGestorUsuariosConectados.cs" />
-    <Compile Include="IJuegoService.cs" />
-    <Compile Include="ImplementacionJuegoService.cs" />
     <Compile Include="ImplementacionSalaEspera.cs" />
     <Compile Include="ILobbyManager.cs" />
     <Compile Include="ImplementacionServicioAmistad.cs" />
+    <Compile Include="ImplementacionServicioPartida.cs" />
     <Compile Include="ImplementacionUsuariosLinea.cs" />
+    <Compile Include="IServicioPartida.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ImplementacionServicio.cs" />
     <Compile Include="ServicioGestorDeSolicitudesDeAmistad.cs" />
