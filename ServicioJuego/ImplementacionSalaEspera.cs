@@ -194,6 +194,17 @@ namespace ServicioJuego
             RealizarSalidaLobby(codigoSalaEspera, nombreUsuario, true);
         }
 
+        private void GestionarJugadorExpulsado(JugadorSalaEspera jugadorAEliminar)
+        {
+            try
+            {
+                jugadorAEliminar.CallbackChannel.NotificarExpulsadoSalaEspera();
+            }
+            catch (CommunicationException ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
 
         private void RealizarSalidaLobby(string codigoSalaEspera, string nombreUsuario, bool expulsado)
         {
@@ -220,7 +231,7 @@ namespace ServicioJuego
 
                 if (expulsado)
                 {
-
+                    GestionarJugadorExpulsado(jugadorAEliminar);
                 }
 
                 jugadores.Remove(jugadorAEliminar);

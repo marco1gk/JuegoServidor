@@ -1,4 +1,4 @@
-﻿using System;
+﻿    using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -32,6 +32,9 @@ namespace ServicioJuego
         [OperationContract(IsOneWay = true)]
         void IniciarPartida(string codigoSalaEspera);
 
+
+        [OperationContract]
+        void ExpulsarJugadorSalaEspera(string lobbyCode, string username);
     }
 
     [ServiceContract]
