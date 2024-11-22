@@ -159,6 +159,48 @@ namespace ServicioJuego
                 Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un callback válido.");
             }
         }
+
+        public void LanzarDado(string idPartida, string nombreUsuario)
+        {
+            if (partidas.ContainsKey(idPartida))
+            {
+                var partida = partidas[idPartida];
+                var jugadorActual = partida.Jugadores[partida.TurnoActual];
+
+                if (jugadorActual.NombreUsuario == nombreUsuario)
+                {
+                    // Generar el resultado del dado (1 a 6)
+                    Random random = new Random();
+                    int resultadoDado = random.Next(1, 7);
+
+                    // Notificar el resultado a todos los jugadores
+                    foreach (var jugador in partida.Jugadores)
+                    {
+                        if (jugador.CallbackChannel != null)
+                        {
+                            try
+                            {
+                                jugador.CallbackChannel.NotificarResultadoDado(nombreUsuario, resultadoDado);
+                                Console.WriteLine($"Resultado del dado ({resultadoDado}) notificado a {jugador.NombreUsuario}.");
+                            }
+                            catch (CommunicationException ex)
+                            {
+                                Console.WriteLine($"Error al notificar resultado del dado a {jugador.NombreUsuario}: {ex.Message}");
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"No es el turno de {nombreUsuario}. Actualmente le toca a {jugadorActual.NombreUsuario}.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Partida no encontrada.");
+            }
+        }
+
     }
 }
 

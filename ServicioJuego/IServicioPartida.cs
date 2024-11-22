@@ -22,6 +22,9 @@ namespace ServicioJuego
 
         [OperationContract(IsOneWay = true)]
         void RegistrarJugador(string nombreUsuario);
+
+        [OperationContract(IsOneWay = true)]
+        void LanzarDado(string idPartida, string nombreUsuario);
     }
 
     [ServiceContract]
@@ -38,6 +41,9 @@ namespace ServicioJuego
 
         [OperationContract]
         void NotificarPartidaCreada(string idPartida);
+
+        [OperationContract]
+        void NotificarResultadoDado(string nombreUsuario, int resultado);
     }
 
     [DataContract]

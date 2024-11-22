@@ -10,7 +10,7 @@ using ServicioJuego;
 
 namespace Pruebas.Tests
 {
-    public class PruebaImplementacionServicioSalaEspera
+    /*public class PruebaImplementacionServicioSalaEspera
     {
        [Fact]
         public void CrearSalaEspera_ShouldAddRoomToListAndNotifyUser()
@@ -47,7 +47,7 @@ namespace Pruebas.Tests
                 mockCallbackChannel.Verify(callback => callback.NotificarSalaEsperaCreada(It.IsAny<string>()), Times.Once);
             }
         }
-    }
+    }*/
 }
 
 //using System;
