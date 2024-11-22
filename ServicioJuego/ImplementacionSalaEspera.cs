@@ -12,7 +12,62 @@ namespace ServicioJuego
     [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Reentrant, InstanceContextMode = InstanceContextMode.PerSession)]
     public partial class ImplementacionServicio : ILobbyManager
     {
-        private static readonly Dictionary<string, List<JugadorSalaEspera>> salasEspera = new Dictionary<string, List<JugadorSalaEspera>>();
+        public static readonly Dictionary<string, List<JugadorSalaEspera>> salasEspera = new Dictionary<string, List<JugadorSalaEspera>>();
+        private static readonly object lockUsuarios = new object();
+
+
+        public void InvitarAmigoASala(string codigoSalaEspera, string nombreAmigo, string nombreInvitador)
+        {
+            Console.WriteLine("codigo " + codigoSalaEspera);
+            Console.WriteLine("nombreAmigo " + nombreAmigo);
+            Console.WriteLine("nombreInvitador " + nombreInvitador);
+            IGestorUsuarioCallback amigoCallback = BuscarJugadorEnLinea(nombreAmigo);
+            IGestorSalasEsperasCallBack actualUsuarioCanalCallback = OperationContext.Current.GetCallbackChannel<IGestorSalasEsperasCallBack>();
+
+            // Verifica si la sala existe
+            if (salasEspera.ContainsKey(codigoSalaEspera))
+            {
+                // Buscar al amigo en la lista de usuarios conectados
+
+
+                if (amistadEnLinea == null) { Console.WriteLine("es nula la mamada otraa vez"); }
+                if (amigoCallback != null)
+                {
+                    try
+                    {
+                        Task.Run(() =>
+                        {
+                            amigoCallback.NotificarInvitacionSala(nombreInvitador, codigoSalaEspera);
+                        });
+
+                        Console.WriteLine($"Invitación enviada a {nombreAmigo} para unirse a la sala {codigoSalaEspera}.");
+                    }
+                    catch (CommunicationException ex)
+                    {
+                        Console.WriteLine($"Error al invitar a {nombreAmigo}: {ex.Message}");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"El amigo {nombreAmigo} no está en línea o no está disponible.");
+                }
+            }
+            else
+            {
+                Console.WriteLine($"La sala con código {codigoSalaEspera} no existe.");
+            }
+        }
+
+        private IGestorUsuarioCallback BuscarJugadorEnLinea(string nombreAmigo)
+        {
+            // Usamos el diccionario de usuarios en línea
+            if (usuariosEnLinea.ContainsKey(nombreAmigo))
+            {
+                return usuariosEnLinea[nombreAmigo];
+            }
+            return null;
+        }
+
 
         public void CrearSalaEspera(JugadorSalaEspera jugador)
         {
@@ -147,8 +202,8 @@ namespace ServicioJuego
                     JugadorPartida jugadorPartida = new JugadorPartida { NombreUsuario = jugador.NombreUsuario, NumeroFotoPerfil = jugador.NumeroFotoPerfil };
                     jugadoresPartida.Add(jugadorPartida);
                 }
-                
-                foreach(var jugador in jugadoresEnSalaEspera)
+
+                foreach (var jugador in jugadoresEnSalaEspera)
                 {
                     try
                     {
@@ -349,5 +404,6 @@ namespace ServicioJuego
             }
         }
 
+        
     }
 }

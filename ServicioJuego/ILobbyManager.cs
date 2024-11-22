@@ -11,6 +11,9 @@ namespace ServicioJuego
     [ServiceContract(CallbackContract = typeof(IGestorSalasEsperasCallBack))]
     public interface ILobbyManager
     {
+        [OperationContract]
+        void InvitarAmigoASala(string codigoSalaEspera, string nombreAmigo, string nombreInvitador);
+
         [OperationContract(IsOneWay = true)]
         void CrearSalaEspera(JugadorSalaEspera jugador);
 

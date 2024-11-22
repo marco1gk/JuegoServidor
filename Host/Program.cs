@@ -16,6 +16,7 @@ namespace Host
             {
                 host.Open();
                 Console.WriteLine("El servicio esta corriendo");
+                Console.WriteLine("Servicio iniciado en net.tcp://localhost:8000/ServiceImplementation");
                 Console.ReadLine(); 
             }
 

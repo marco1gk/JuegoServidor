@@ -20,6 +20,10 @@ namespace ServicioJuego
     [ServiceContract]
     public interface IGestorUsuarioCallback
     {
+
+        [OperationContract(IsOneWay = true)]
+        void NotificarInvitacionSala(string nombreInvitador, string codigoSalaEspera);
+
         [OperationContract]
         void NotificarUsuarioConectado(string nombreUsuario);
 

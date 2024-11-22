@@ -11,6 +11,7 @@ using AccesoDatos;
 namespace ServicioJuego
 {
    // [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Reentrant, InstanceContextMode = InstanceContextMode.PerSession)]
+  // [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Reentrant, InstanceContextMode = InstanceContextMode.PerSession)]
     public partial class ImplementacionServicio : IGestorUsuariosConectados
     {
         private static readonly object objetoDeBloqueo = new object();
@@ -18,6 +19,7 @@ namespace ServicioJuego
 
         public void RegistrarUsuarioAUsuariosConectados(int jugadorId, string nombreUsuario)
         {
+            Console.WriteLine("se conectó el cabron de "+nombreUsuario);
             IGestorUsuarioCallback actualUsuarioCallbackCanal = OperationContext.Current.GetCallbackChannel<IGestorUsuarioCallback>();
             List<string> nombresUsuarioEnLinea = usuariosEnLinea.Keys.ToList();
             List<string> amigosEnLinea = new List<string>();
@@ -120,6 +122,8 @@ namespace ServicioJuego
 
         public void DesregistrarUsuarioDeUsuariosEnLinea(string nombreUsuario)
         {
+
+            Console.WriteLine("se desconecto el cabron de " + nombreUsuario);
             if (usuariosEnLinea.ContainsKey(nombreUsuario))
             {
                 usuariosEnLinea.Remove(nombreUsuario);
