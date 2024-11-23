@@ -54,6 +54,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Excepciones\HuntersTrophyExcepcion.cs" />
     <Compile Include="IGestionCuentaServicio.cs" />
     <Compile Include="IGestorAmistad.cs" />
     <Compile Include="IGestorDeSolicitudesDeAmistad.cs" />

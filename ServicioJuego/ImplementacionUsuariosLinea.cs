@@ -19,7 +19,7 @@ namespace ServicioJuego
 
         public void RegistrarUsuarioAUsuariosConectados(int jugadorId, string nombreUsuario)
         {
-            Console.WriteLine("se conectó el cabron de "+nombreUsuario);
+            Console.WriteLine("se conectó "+nombreUsuario);
             IGestorUsuarioCallback actualUsuarioCallbackCanal = OperationContext.Current.GetCallbackChannel<IGestorUsuarioCallback>();
             List<string> nombresUsuarioEnLinea = usuariosEnLinea.Keys.ToList();
             List<string> amigosEnLinea = new List<string>();

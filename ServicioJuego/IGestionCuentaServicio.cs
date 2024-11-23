@@ -1,4 +1,5 @@
 ﻿using AccesoDatos.Modelo;
+using ServicioJuego.Excepciones;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,15 +14,18 @@ namespace ServicioJuego
     {
 
         [OperationContract]
-         bool AgregarJugador(JugadorDataContract jugador);
+        [FaultContract(typeof(HuntersTrophyExcepcion))]
+        bool AgregarJugador(JugadorDataContract jugador);
 
         [OperationContract]
         bool EditarContraseña(string correo, string nuevaContraseña);
 
         [OperationContract]
+        [FaultContract(typeof(HuntersTrophyExcepcion))]
         JugadorDataContract ValidarInicioSesion(string nombreUsuario, string contraseniaHash);
 
         [OperationContract]
+        [FaultContract(typeof(HuntersTrophyExcepcion))]
         JugadorDataContract ObtenerJugador(int idJugador);
 
         [OperationContract]

@@ -1,0 +1,11 @@
+﻿C:\Users\vaoma\source\repos\JuegoServidor\Pruebas\PruebaAmistadDao.cs
+C:\Users\vaoma\source\repos\JuegoServidor\Pruebas\PruebaCuenta.cs
+C:\Users\vaoma\source\repos\JuegoServidor\Pruebas\Properties\AssemblyInfo.cs
+C:\Users\vaoma\source\repos\JuegoServidor\Pruebas\PruebaImplementaciónSalaEspera.cs
+C:\Users\vaoma\source\repos\JuegoServidor\Pruebas\PruebaJugadorDao.cs
+C:\Users\vaoma\source\repos\JuegoServidor\packages\xunit.runner.visualstudio.2.8.2\build\net462\xunit.runner.visualstudio.testadapter.dll
+C:\Users\vaoma\source\repos\JuegoServidor\packages\xunit.runner.visualstudio.2.8.2\build\net462\xunit.abstractions.dll
+C:\Users\vaoma\source\repos\JuegoServidor\packages\xunit.runner.visualstudio.2.8.2\build\net462\xunit.runner.reporters.net452.dll
+C:\Users\vaoma\source\repos\JuegoServidor\packages\xunit.runner.visualstudio.2.8.2\build\net462\xunit.runner.utility.net452.dll
+C:\Users\vaoma\source\repos\JuegoServidor\Pruebas\App.config
+C:\Users\vaoma\source\repos\JuegoServidor\Pruebas\packages.config

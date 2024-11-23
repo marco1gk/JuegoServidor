@@ -30,7 +30,7 @@ namespace ServicioJuego
                 // Buscar al amigo en la lista de usuarios conectados
 
 
-                if (amistadEnLinea == null) { Console.WriteLine("es nula la mamada otraa vez"); }
+                if (amistadEnLinea == null) { Console.WriteLine("es nula otraa vez"); }
                 if (amigoCallback != null)
                 {
                     try

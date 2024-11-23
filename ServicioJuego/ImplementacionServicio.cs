@@ -10,6 +10,8 @@ using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.Text;
 using System.Data.Entity.Core;
+using AccesoDatos.Excepciones;
+using ServicioJuego.Excepciones;
 
 namespace ServicioJuego
 {
@@ -17,20 +19,36 @@ namespace ServicioJuego
     {
         public bool AgregarJugador(JugadorDataContract jugador)
         {
-            Jugador jugadorAux = new Jugador();
-            Cuenta cuentaAux = new Cuenta();
-            CuentaDao cuentaDao = new CuentaDao();
 
-            string salt = Recursos.GenerarSalt();
-            string contraseniaHash = Recursos.HashearContrasena(jugador.ContraseniaHash, salt);
 
-            jugadorAux.NombreUsuario= jugador.NombreUsuario;
-            jugadorAux.NumeroFotoPerfil= jugador.NumeroFotoPerfil;
-            cuentaAux.Correo= jugador.Correo;
-            cuentaAux.Salt = salt;
-            cuentaAux.ContraseniaHash = contraseniaHash;
-            return cuentaDao.AgregarJugadorConCuenta(jugadorAux, cuentaAux);
-          
+            try
+            {
+                Jugador jugadorAux = new Jugador();
+                Cuenta cuentaAux = new Cuenta();
+                CuentaDao cuentaDao = new CuentaDao();
+
+                string salt = Recursos.GenerarSalt();
+                string contraseniaHash = Recursos.HashearContrasena(jugador.ContraseniaHash, salt);
+
+                jugadorAux.NombreUsuario = jugador.NombreUsuario;
+                jugadorAux.NumeroFotoPerfil = jugador.NumeroFotoPerfil;
+                cuentaAux.Correo = jugador.Correo;
+                cuentaAux.Salt = salt;
+                cuentaAux.ContraseniaHash = contraseniaHash;
+                return cuentaDao.AgregarJugadorConCuenta(jugadorAux, cuentaAux);
+            }
+            catch (ExcepcionAccesoDatos ex)
+            {
+                HuntersTrophyExcepcion respuestaExcepcion = new HuntersTrophyExcepcion
+                {
+                    Mensaje = ex.Message,
+                    StackTrace = ex.StackTrace
+                };
+
+                throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
+            }
+
+
         }
         public bool ExisteCorreo(string correo)
         {
@@ -46,30 +64,48 @@ namespace ServicioJuego
 
         public JugadorDataContract ValidarInicioSesion(string nombreUsuario, string contraseniaHash)
         {
-            CuentaDao cuentaDao = new CuentaDao();
-            var cuenta = cuentaDao.ObtenerCuentaPorNombreUsuario(nombreUsuario);
-
-            if (cuenta != null)
+           
+            try
             {
-                bool esValido = Recursos.VerificarContrasena(contraseniaHash, cuenta);
-                Console.WriteLine($"Verificando contraseña para el usuario: {nombreUsuario}");
-                Console.WriteLine($"Salt: {cuenta.Salt}");
-                Console.WriteLine($"Hash de la contraseña ingresada: {Recursos.HashearContrasena(contraseniaHash, cuenta.Salt)}");
-                if (esValido)
+                CuentaDao cuentaDao = new CuentaDao();
+                var cuenta = cuentaDao.ObtenerCuentaPorNombreUsuario(nombreUsuario);
+                if (cuenta != null)
                 {
-                    return new JugadorDataContract
+                    bool esValido = Recursos.VerificarContrasena(contraseniaHash, cuenta);
+                    Console.WriteLine($"Verificando contraseña para el usuario: {nombreUsuario}");
+                    Console.WriteLine($"Salt: {cuenta.Salt}");
+                    Console.WriteLine($"Hash de la contraseña ingresada: {Recursos.HashearContrasena(contraseniaHash, cuenta.Salt)}");
+                    if (esValido)
                     {
-                        JugadorId = cuenta.Jugador.JugadorId,
-                        NombreUsuario = cuenta.Jugador.NombreUsuario,
-                        Correo = cuenta.Correo,
-                        NumeroFotoPerfil = cuenta.Jugador.NumeroFotoPerfil
-                    };
+                        return new JugadorDataContract
+                        {
+                            JugadorId = cuenta.Jugador.JugadorId,
+                            NombreUsuario = cuenta.Jugador.NombreUsuario,
+                            Correo = cuenta.Correo,
+                            NumeroFotoPerfil = cuenta.Jugador.NumeroFotoPerfil
+                        };
+                    }
+
                 }
-                
+
             }
+            catch (ExcepcionAccesoDatos ex)
+            {
+                HuntersTrophyExcepcion respuestaExcepcion = new HuntersTrophyExcepcion
+                {
+                    Mensaje = ex.Message,
+                    StackTrace = ex.StackTrace
+                };
+
+                throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
+            }
+           
 
             return null; 
         }
+
+
+
         public bool EditarContraseña(string correo, string nuevaContrasenia)
         {
             CuentaDao cuentaDao = new CuentaDao();
@@ -94,19 +130,34 @@ namespace ServicioJuego
 
         public JugadorDataContract ObtenerJugador(int idJugador)
         {
-            JugadorDao JugadorDao = new JugadorDao();
-            Jugador jugador = JugadorDao.ObtenerJugador(idJugador);
 
-            if (jugador != null && jugador.Cuenta != null)
+            try
             {
-                return new JugadorDataContract
+                JugadorDao JugadorDao = new JugadorDao();
+                Jugador jugador = JugadorDao.ObtenerJugador(idJugador);
+
+                if (jugador != null && jugador.Cuenta != null)
                 {
-                    NombreUsuario = jugador.NombreUsuario,
-                    NumeroFotoPerfil = jugador.NumeroFotoPerfil,
-                    Correo = jugador.Cuenta.Correo,
-                    ContraseniaHash = jugador.Cuenta.ContraseniaHash
-                };
+                    return new JugadorDataContract
+                    {
+                        NombreUsuario = jugador.NombreUsuario,
+                        NumeroFotoPerfil = jugador.NumeroFotoPerfil,
+                        Correo = jugador.Cuenta.Correo,
+                        ContraseniaHash = jugador.Cuenta.ContraseniaHash
+                    };
+                }
             }
+            catch (ExcepcionAccesoDatos ex)
+            {
+                HuntersTrophyExcepcion respuestaExcepcion = new HuntersTrophyExcepcion
+                {
+                    Mensaje = ex.Message,
+                    StackTrace = ex.StackTrace
+                };
+
+                throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
+            }
+            
             return null;
         }
 

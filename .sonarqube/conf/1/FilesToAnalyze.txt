@@ -1,0 +1,15 @@
+﻿C:\Users\vaoma\source\repos\JuegoServidor\ServicioJuego\IGestionCuentaServicio.cs
+C:\Users\vaoma\source\repos\JuegoServidor\ServicioJuego\IGestorAmistad.cs
+C:\Users\vaoma\source\repos\JuegoServidor\ServicioJuego\IGestorDeSolicitudesDeAmistad.cs
+C:\Users\vaoma\source\repos\JuegoServidor\ServicioJuego\IGestorUsuariosConectados.cs
+C:\Users\vaoma\source\repos\JuegoServidor\ServicioJuego\ImplementacionSalaEspera.cs
+C:\Users\vaoma\source\repos\JuegoServidor\ServicioJuego\ILobbyManager.cs
+C:\Users\vaoma\source\repos\JuegoServidor\ServicioJuego\ImplementacionServicioAmistad.cs
+C:\Users\vaoma\source\repos\JuegoServidor\ServicioJuego\ImplementacionServicioPartida.cs
+C:\Users\vaoma\source\repos\JuegoServidor\ServicioJuego\ImplementacionUsuariosLinea.cs
+C:\Users\vaoma\source\repos\JuegoServidor\ServicioJuego\IServicioPartida.cs
+C:\Users\vaoma\source\repos\JuegoServidor\ServicioJuego\Properties\AssemblyInfo.cs
+C:\Users\vaoma\source\repos\JuegoServidor\ServicioJuego\ImplementacionServicio.cs
+C:\Users\vaoma\source\repos\JuegoServidor\ServicioJuego\ServicioGestorDeSolicitudesDeAmistad.cs
+C:\Users\vaoma\source\repos\JuegoServidor\ServicioJuego\App.config
+C:\Users\vaoma\source\repos\JuegoServidor\ServicioJuego\packages.config

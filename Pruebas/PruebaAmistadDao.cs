@@ -122,6 +122,66 @@ namespace Pruebas
         }
 
         [Fact]
+        public void VerificarAmistad_DebeRegresarTrue_CuandoAmistadEsSolicitudPendiente()
+        {
+            int jugadorId;
+            int amigoId;
+
+            using (var scope = new TransactionScope())
+            {
+                using (var contexto = new ContextoBaseDatos())
+                {
+                    var jugador = new Jugador
+                    {
+                        NombreUsuario = "Jugador1",
+                        NumeroFotoPerfil = 1,
+                        Cuenta = new Cuenta
+                        {
+                            Correo = "jugador1@example.com",
+                            ContraseniaHash = "hashed_password",
+                            Salt = "random_salt"
+                        }
+                    };
+
+                    var amigo = new Jugador
+                    {
+                        NombreUsuario = "Jugador2",
+                        NumeroFotoPerfil = 1,
+                        Cuenta = new Cuenta
+                        {
+                            Correo = "jugador2@example.com",
+                            ContraseniaHash = "hashed_password",
+                            Salt = "random_salt"
+                        }
+                    };
+
+                    contexto.Jugadores.Add(jugador);
+                    contexto.Jugadores.Add(amigo);
+                    contexto.SaveChanges();
+
+                    jugadorId = jugador.JugadorId;
+                    amigoId = amigo.JugadorId;
+
+                    var amistad = new Amistad
+                    {
+                        JugadorId = jugadorId,
+                        AmigoId = amigoId,
+                        EstadoAmistad = "Solicitud"
+                    };
+
+                    contexto.Amistades.Add(amistad);
+                    contexto.SaveChanges();
+                }
+
+                var amistadDao = new AmistadDao();
+                var resultado = amistadDao.VerificarAmistad(jugadorId, amigoId);
+
+                Assert.True(resultado);
+            }
+        }
+
+
+        [Fact]
         public void DebeAgregarSolicitudDeAmistad_CuandoIdsSonValidos()
         {
             int jugadorId;
@@ -164,16 +224,13 @@ namespace Pruebas
                     amigoId = amigo.JugadorId;
                 }
 
-                // Ejecutar el método a probar
                 var amistadDao = new AmistadDao();
                 var resultado = amistadDao.AgregarSolicitudAmistad(jugadorId, amigoId);
 
-                // Verificar que se haya agregado correctamente
-                Assert.Equal(1, resultado); // Una fila afectada significa éxito
+                Assert.Equal(1, resultado); 
 
                 using (var contexto = new ContextoBaseDatos())
                 {
-                    // Verificar que la solicitud de amistad existe en la base de datos
                     var solicitud = contexto.Amistades.FirstOrDefault(a =>
                         a.JugadorId == jugadorId &&
                         a.AmigoId == amigoId &&
@@ -187,17 +244,16 @@ namespace Pruebas
         [Fact]
         public void NoDebeAgregarSolicitudDeAmistad_CuandoIdsNoSonValidos()
         {
-            // IDs inválidos
             int idJugadorInvalido = -1;
             int idAmigoInvalido = 0;
 
-            // Ejecutar el método con IDs no válidos
             var amistadDao = new AmistadDao();
             var resultado = amistadDao.AgregarSolicitudAmistad(idJugadorInvalido, idAmigoInvalido);
 
-            // Verificar que no se agregó nada (resultado debe ser -1)
             Assert.Equal(-1, resultado);
         }
+
+
 
         [Fact]
         public void EsAmigo_DebeDevolverTrue_CuandoSonAmigos()
@@ -208,7 +264,6 @@ namespace Pruebas
             {
                 using (var contexto = new ContextoBaseDatos())
                 {
-                    // Crear jugadores
                     var jugador1 = new Jugador
                     {
                         NombreUsuario = "Jugador1",
@@ -240,7 +295,6 @@ namespace Pruebas
                     idJugador1 = jugador1.JugadorId;
                     idJugador2 = jugador2.JugadorId;
 
-                    // Crear relación de amistad
                     contexto.Amistades.Add(new Amistad
                     {
                         JugadorId = idJugador1,
@@ -254,7 +308,7 @@ namespace Pruebas
 
                 var amistadDao = new AmistadDao();
 
-                // Verificar que son amigos
+                
                 bool resultado = amistadDao.EsAmigo(idJugador1, idJugador2);
 
                 Assert.True(resultado);
@@ -270,7 +324,6 @@ namespace Pruebas
             {
                 using (var contexto = new ContextoBaseDatos())
                 {
-                    // Crear jugadores
                     var jugador1 = new Jugador
                     {
                         NombreUsuario = "Jugador1",
@@ -305,7 +358,6 @@ namespace Pruebas
 
                 var amistadDao = new AmistadDao();
 
-                // Verificar que no son amigos
                 bool resultado = amistadDao.EsAmigo(idJugador1, idJugador2);
 
                 Assert.False(resultado);
@@ -321,7 +373,6 @@ namespace Pruebas
             {
                 using (var contexto = new ContextoBaseDatos())
                 {
-                    // Crear un jugador
                     var jugador = new Jugador
                     {
                         NombreUsuario = "JugadorExistente",
@@ -342,7 +393,6 @@ namespace Pruebas
 
                 var amistadDao = new AmistadDao();
 
-                // Verificar que no es amigo de un jugador inexistente
                 bool resultado = amistadDao.EsAmigo(idJugadorExistente, -1);
 
                 Assert.False(resultado);
@@ -358,7 +408,6 @@ namespace Pruebas
             {
                 using (var contexto = new ContextoBaseDatos())
                 {
-                    // Crear jugadores
                     var jugador = new Jugador
                     {
                         NombreUsuario = "Jugador",

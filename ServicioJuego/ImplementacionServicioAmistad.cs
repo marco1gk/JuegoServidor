@@ -1,4 +1,6 @@
 ﻿using AccesoDatos.DAO;
+using AccesoDatos.Excepciones;
+using ServicioJuego.Excepciones;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,12 +20,15 @@ namespace ServicioJuego
             {
                 return AccesoDatos.ObtenerAmigos(idJugador);
             }
-            catch (Exception ex)
+            catch (ExcepcionAccesoDatos ex)
             {
-                throw new FaultException<ExcepcionServicio>(
-        new ExcepcionServicio(ex.Message, ex),
-        new FaultReason(ex.Message)
-    );
+                HuntersTrophyExcepcion respuestaExcepcion = new HuntersTrophyExcepcion
+                {
+                    Mensaje = ex.Message,
+                    StackTrace = ex.StackTrace
+                };
+
+                throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
             }
         }
 
@@ -39,12 +44,15 @@ namespace ServicioJuego
             {
                 idJugadorSolicitado = usuarioAccesoDatos.ObtenerIdJugadorPorNombreUsuario(nombreJugadorSolicitado);
             }
-            catch (Exception ex)
+            catch (ExcepcionAccesoDatos ex)
             {
-                throw new FaultException<ExcepcionServicio>(
-        new ExcepcionServicio(ex.Message, ex),
-        new FaultReason(ex.Message)
-    );
+                HuntersTrophyExcepcion respuestaExcepcion = new HuntersTrophyExcepcion
+                {
+                    Mensaje = ex.Message,
+                    StackTrace = ex.StackTrace
+                };
+
+                throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
             }
 
             if (idJugadorSolicitado < 1)
@@ -62,12 +70,15 @@ namespace ServicioJuego
                 tieneRelacion = AccesoDatosSolicitudAmistad.VerificarAmistad(idPlayerEnvia, idJugadorSolicitado);
 
             }
-            catch (Exception ex)
+            catch (ExcepcionAccesoDatos ex)
             {
-                throw new FaultException<ExcepcionServicio>(
-         new ExcepcionServicio(ex.Message, ex),
-         new FaultReason(ex.Message)
-     );
+                HuntersTrophyExcepcion respuestaExcepcion = new HuntersTrophyExcepcion
+                {
+                    Mensaje = ex.Message,
+                    StackTrace = ex.StackTrace
+                };
+
+                throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
             }
 
             if (!tieneRelacion)
@@ -94,12 +105,15 @@ namespace ServicioJuego
 
                 return columasAfectadas;
             }
-            catch (Exception ex)
+            catch (ExcepcionAccesoDatos ex)
             {
-                throw new FaultException<ExcepcionServicio>(
-           new ExcepcionServicio(ex.Message, ex),
-           new FaultReason(ex.Message)
-       );
+                HuntersTrophyExcepcion respuestaExcepcion = new HuntersTrophyExcepcion
+                {
+                    Mensaje = ex.Message,
+                    StackTrace = ex.StackTrace
+                };
+
+                throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
             }
         }
 
@@ -123,18 +137,17 @@ namespace ServicioJuego
 
                 return nombreJugadores;
             }
-            catch (Exception ex)
+            catch (ExcepcionAccesoDatos ex)
             {
-                throw new FaultException<ExcepcionServicio>(
-                     new ExcepcionServicio(ex.Message, ex),
-                     new FaultReason(ex.Message)
-                 );
+                HuntersTrophyExcepcion respuestaExcepcion = new HuntersTrophyExcepcion
+                {
+                    Mensaje = ex.Message,
+                    StackTrace = ex.StackTrace
+                };
+
+                throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
             }
         }
     }
-    public class ExcepcionServicio : Exception
-    {
-        public ExcepcionServicio(string mensaje) : base(mensaje) { }
-        public ExcepcionServicio(string message, Exception inner) : base(message, inner) { }
-    }
+
 }
