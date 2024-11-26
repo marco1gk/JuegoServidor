@@ -33,7 +33,6 @@ namespace ServicioJuego
         [OperationContract]
         void NotificarAmigosEnLinea(List<string> nombresUsuariosEnLinea);
 
-        // Método de ping para verificar conexión
         [OperationContract(IsOneWay = true)]
         void Ping();
     }

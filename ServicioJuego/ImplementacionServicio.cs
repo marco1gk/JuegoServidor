@@ -161,7 +161,6 @@ namespace ServicioJuego
             return null;
         }
 
-        //esto va en el DAO
         public int ObtenerIdJugadorPorNombreUsuario(string username)
         {
             int idPlayer = 0;
@@ -179,7 +178,16 @@ namespace ServicioJuego
                     }
                 }
             }
-           
+            catch (ExcepcionAccesoDatos ex)
+            {
+                HuntersTrophyExcepcion respuestaExcepcion = new HuntersTrophyExcepcion
+                {
+                    Mensaje = ex.Message,
+                    StackTrace = ex.StackTrace
+                };
+
+                throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
+            }
             catch (SqlException ex)
             {
                 Console.WriteLine(ex);
@@ -193,7 +201,6 @@ namespace ServicioJuego
         }
 
 
-        //esto va en el DAO
         public string ObtenerNombreUsuarioPorIdJugador(int idPlayer)
         {
             string username = string.Empty;
@@ -210,6 +217,16 @@ namespace ServicioJuego
                         username = player.NombreUsuario;
                     }
                 }
+            }
+            catch (ExcepcionAccesoDatos ex)
+            {
+                HuntersTrophyExcepcion respuestaExcepcion = new HuntersTrophyExcepcion
+                {
+                    Mensaje = ex.Message,
+                    StackTrace = ex.StackTrace
+                };
+
+                throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
             }
             catch (EntityException ex)
             {

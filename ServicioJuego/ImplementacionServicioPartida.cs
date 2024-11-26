@@ -33,7 +33,6 @@ namespace ServicioJuego
                 Console.WriteLine($"Jugador: {jugador.NombreUsuario}");
             }
 
-            // Crear la instancia de la partida
             var partida = new Partida
             {
                 IdPartida = idPartida,
@@ -169,11 +168,9 @@ namespace ServicioJuego
 
                 if (jugadorActual.NombreUsuario == nombreUsuario)
                 {
-                    // Generar el resultado del dado (1 a 6)
                     Random random = new Random();
                     int resultadoDado = random.Next(1, 7);
-
-                    // Notificar el resultado a todos los jugadores
+                    
                     foreach (var jugador in partida.Jugadores)
                     {
                         if (jugador.CallbackChannel != null)

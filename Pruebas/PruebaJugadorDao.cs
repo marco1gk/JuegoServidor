@@ -56,7 +56,7 @@ public class PruebaJugadorDao
         {
             var jugadorDao = new JugadorDao();
 
-            var jugadorObtenido = jugadorDao.ObtenerJugador(9999); // ID que no existe
+            var jugadorObtenido = jugadorDao.ObtenerJugador(9999); 
 
             Assert.Null(jugadorObtenido);
         }
@@ -67,7 +67,6 @@ public class PruebaJugadorDao
     {
         using (var scope = new TransactionScope())
         {
-            // Arrange
             var jugador = new Jugador
             {
                 NombreUsuario = "JugadorAntiguo",
@@ -109,7 +108,7 @@ public class PruebaJugadorDao
         {
             var jugadorDao = new JugadorDao();
 
-            var resultado = jugadorDao.EditarNombreUsuario(9999, "JugadorInvalido"); // ID que no existe
+            var resultado = jugadorDao.EditarNombreUsuario(9999, "JugadorInvalido"); 
 
             Assert.False(resultado);
         }

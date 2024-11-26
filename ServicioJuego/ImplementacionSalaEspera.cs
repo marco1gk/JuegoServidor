@@ -24,10 +24,8 @@ namespace ServicioJuego
             IGestorUsuarioCallback amigoCallback = BuscarJugadorEnLinea(nombreAmigo);
             IGestorSalasEsperasCallBack actualUsuarioCanalCallback = OperationContext.Current.GetCallbackChannel<IGestorSalasEsperasCallBack>();
 
-            // Verifica si la sala existe
             if (salasEspera.ContainsKey(codigoSalaEspera))
             {
-                // Buscar al amigo en la lista de usuarios conectados
 
 
                 if (amistadEnLinea == null) { Console.WriteLine("es nula otraa vez"); }
@@ -60,7 +58,6 @@ namespace ServicioJuego
 
         private IGestorUsuarioCallback BuscarJugadorEnLinea(string nombreAmigo)
         {
-            // Usamos el diccionario de usuarios en línea
             if (usuariosEnLinea.ContainsKey(nombreAmigo))
             {
                 return usuariosEnLinea[nombreAmigo];
@@ -389,7 +386,6 @@ namespace ServicioJuego
 
         public void NotificarJugadoresSalaEspera(string codigoSalaEspera, List<JugadorSalaEspera> jugadoresSalaEspera)
         {
-            // Notificación de la lista de jugadores a cada cliente.
             foreach (var jugador in jugadoresSalaEspera)
             {
                 try
@@ -399,7 +395,7 @@ namespace ServicioJuego
                 catch (CommunicationException ex)
                 {
                     Console.WriteLine($"Error notificando a {jugador.NombreUsuario}: {ex.Message}");
-                    // Aquí podrías manejar la salida del jugador si es necesario.
+             
                 }
             }
         }

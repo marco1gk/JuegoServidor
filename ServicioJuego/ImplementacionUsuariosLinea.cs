@@ -52,7 +52,6 @@ namespace ServicioJuego
 
             NotificarInicioDeSesiónAAmigos(jugadorId, nombreUsuario);
 
-            // Iniciar hilo de verificación de conexión (ping)
             Task.Run(() => VerificarConexionUsuario(nombreUsuario));
         }
 
@@ -80,7 +79,6 @@ namespace ServicioJuego
                     break;
                 }
 
-                // Esperar 30 segundos antes de verificar nuevamente
                 System.Threading.Thread.Sleep(30000);
             }
         }

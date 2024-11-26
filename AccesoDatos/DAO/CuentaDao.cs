@@ -64,7 +64,6 @@ namespace AccesoDatos.DAO
 
                 if (cuentaExistente != null)
                 {
-                    // Actualizar el hash y el salt de la contraseña
                     string nuevoSalt = Recursos.GenerarSalt();
                     string nuevaContraseniaHash = Recursos.HashearContrasena(nuevaContrasenia, nuevoSalt);
                     cuentaExistente.ContraseniaHash = nuevaContraseniaHash;

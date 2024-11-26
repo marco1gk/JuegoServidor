@@ -191,7 +191,6 @@ namespace Pruebas
             {
                 using (var contexto = new ContextoBaseDatos())
                 {
-                    // Crear dos jugadores
                     var jugador = new Jugador
                     {
                         NombreUsuario = "Jugador1",
@@ -543,7 +542,7 @@ namespace Pruebas
             {
                 using (var contexto = new ContextoBaseDatos())
                 {
-                    // Crear jugadores
+                    
                     var jugadorActual = new Jugador
                     {
                         NombreUsuario = Guid.NewGuid().ToString(),
@@ -575,7 +574,6 @@ namespace Pruebas
                     idJugadorActual = jugadorActual.JugadorId;
                     idJugadorAceptado = jugadorAceptado.JugadorId;
 
-                    // Crear solicitud de amistad (Estado "Request")
                     contexto.Amistades.Add(new Amistad
                     {
                         JugadorId = idJugadorActual,
@@ -589,10 +587,8 @@ namespace Pruebas
 
                 var amistadDao = new AmistadDao();
 
-                // Aceptar solicitud de amistad
                 int rowsAffected = amistadDao.ActualizarSolicitudAmistad_Aceptada(idJugadorActual, idJugadorAceptado);
 
-                // Verificar que el estado de la amistad se actualizó correctamente
                 using (var contexto = new ContextoBaseDatos())
                 {
                     var amistadActualizada = contexto.Amistades
@@ -600,7 +596,7 @@ namespace Pruebas
 
                     Assert.NotNull(amistadActualizada);
                     Assert.Equal("Friend", amistadActualizada.EstadoAmistad);
-                    Assert.Equal(1, rowsAffected);  // Se espera que se haya actualizado una fila
+                    Assert.Equal(1, rowsAffected);  
                 }
             }
         }
@@ -608,15 +604,13 @@ namespace Pruebas
         [Fact]
         public void ActualizarSolicitudAmistad_Aceptada_NoDebeActualizarEstado_CuandoLaSolicitudNoExiste()
         {
-            int idJugadorActual = 1; // Jugador inexistente
+            int idJugadorActual = 1;
             int idJugadorAceptado = 2;
 
             var amistadDao = new AmistadDao();
 
-            // Intentar aceptar una solicitud de amistad que no existe
             int rowsAffected = amistadDao.ActualizarSolicitudAmistad_Aceptada(idJugadorActual, idJugadorAceptado);
 
-            // Verificar que no se haya actualizado ninguna fila
             Assert.Equal(-1, rowsAffected);
         }
 
@@ -629,7 +623,6 @@ namespace Pruebas
             {
                 using (var contexto = new ContextoBaseDatos())
                 {
-                    // Crear jugadores
                     var jugadorActual = new Jugador
                     {
                         NombreUsuario = "JugadorActual",
@@ -661,12 +654,11 @@ namespace Pruebas
                     idJugadorActual = jugadorActual.JugadorId;
                     idJugadorAceptado = jugadorAceptado.JugadorId;
 
-                    // Crear amistad ya aceptada (Estado "Friend")
                     contexto.Amistades.Add(new Amistad
                     {
                         JugadorId = idJugadorActual,
                         AmigoId = idJugadorAceptado,
-                        EstadoAmistad = "Friend",  // No es "Request"
+                        EstadoAmistad = "Friend",
                         EnLinea = true
                     });
 
@@ -675,10 +667,8 @@ namespace Pruebas
 
                 var amistadDao = new AmistadDao();
 
-                // Intentar actualizar el estado de una amistad que ya está aceptada
                 int rowsAffected = amistadDao.ActualizarSolicitudAmistad_Aceptada(idJugadorActual, idJugadorAceptado);
 
-                // Verificar que no se haya actualizado ninguna fila
                 Assert.Equal(-1, rowsAffected);
             }
         }
@@ -692,7 +682,6 @@ namespace Pruebas
             {
                 using (var contexto = new ContextoBaseDatos())
                 {
-                    // Crear jugadores
                     var jugadorActual = new Jugador
                     {
                         NombreUsuario = "JugadorActual",
@@ -724,7 +713,6 @@ namespace Pruebas
                     idJugadorActual = jugadorActual.JugadorId;
                     idJugadorRechazado = jugadorRechazado.JugadorId;
 
-                    // Crear solicitud de amistad (Estado "Request")
                     contexto.Amistades.Add(new Amistad
                     {
                         JugadorId = idJugadorActual,
@@ -738,17 +726,15 @@ namespace Pruebas
 
                 var amistadDao = new AmistadDao();
 
-                // Borrar solicitud de amistad
                 int rowsAffected = amistadDao.BorrarSolicitudAmistad(idJugadorActual, idJugadorRechazado);
 
-                // Verificar que la solicitud de amistad fue eliminada
                 using (var contexto = new ContextoBaseDatos())
                 {
                     var solicitudEliminada = contexto.Amistades
                         .FirstOrDefault(fs => fs.JugadorId == idJugadorActual && fs.AmigoId == idJugadorRechazado);
 
-                    Assert.Null(solicitudEliminada);  // No debe existir la solicitud
-                    Assert.Equal(1, rowsAffected);  // Se espera que se haya eliminado una fila
+                    Assert.Null(solicitudEliminada);
+                    Assert.Equal(1, rowsAffected); 
                 }
             }
         }
@@ -756,15 +742,13 @@ namespace Pruebas
         [Fact]
         public void BorrarSolicitudAmistad_NoDebeEliminarSolicitud_CuandoLaSolicitudNoExiste()
         {
-            int idJugadorActual = 1; // Jugador inexistente
+            int idJugadorActual = 1;
             int idJugadorRechazado = 2;
 
             var amistadDao = new AmistadDao();
 
-            // Intentar eliminar una solicitud de amistad que no existe
             int rowsAffected = amistadDao.BorrarSolicitudAmistad(idJugadorActual, idJugadorRechazado);
 
-            // Verificar que no se haya eliminado ninguna fila
             Assert.Equal(-1, rowsAffected);
         }
 
@@ -777,7 +761,6 @@ namespace Pruebas
             {
                 using (var contexto = new ContextoBaseDatos())
                 {
-                    // Crear jugadores
                     var jugadorActual = new Jugador
                     {
                         NombreUsuario = "JugadorActual",
@@ -809,12 +792,11 @@ namespace Pruebas
                     idJugadorActual = jugadorActual.JugadorId;
                     idJugadorRechazado = jugadorRechazado.JugadorId;
 
-                    // Crear amistad ya aceptada (Estado "Friend")
                     contexto.Amistades.Add(new Amistad
                     {
                         JugadorId = idJugadorActual,
                         AmigoId = idJugadorRechazado,
-                        EstadoAmistad = "Friend",  // No es "Request"
+                        EstadoAmistad = "Friend", 
                         EnLinea = true
                     });
 
@@ -823,10 +805,8 @@ namespace Pruebas
 
                 var amistadDao = new AmistadDao();
 
-                // Intentar borrar una solicitud de amistad que ya está aceptada
                 int rowsAffected = amistadDao.BorrarSolicitudAmistad(idJugadorActual, idJugadorRechazado);
 
-                // Verificar que no se haya eliminado ninguna fila
                 Assert.Equal(-1, rowsAffected);
             }
         }
@@ -840,7 +820,6 @@ namespace Pruebas
             {
                 using (var contexto = new ContextoBaseDatos())
                 {
-                    // Crear jugadores
                     var jugadorActual = new Jugador
                     {
                         NombreUsuario = "JugadorActual",
@@ -872,7 +851,6 @@ namespace Pruebas
                     idJugadorActual = jugadorActual.JugadorId;
                     idJugadorAmigo = jugadorAmigo.JugadorId;
 
-                    // Crear amistad (Estado "Friend")
                     contexto.Amistades.Add(new Amistad
                     {
                         JugadorId = idJugadorActual,
@@ -886,17 +864,15 @@ namespace Pruebas
 
                 var amistadDao = new AmistadDao();
 
-                // Borrar amistad
                 int rowsAffected = amistadDao.BorrarAmistad(idJugadorActual, idJugadorAmigo);
 
-                // Verificar que la amistad fue eliminada
                 using (var contexto = new ContextoBaseDatos())
                 {
                     var amistadEliminada = contexto.Amistades
                         .FirstOrDefault(fs => fs.JugadorId == idJugadorActual && fs.AmigoId == idJugadorAmigo);
 
-                    Assert.Null(amistadEliminada);  // No debe existir la amistad
-                    Assert.Equal(1, rowsAffected);  // Se espera que se haya eliminado una fila
+                    Assert.Null(amistadEliminada);  
+                    Assert.Equal(1, rowsAffected);  
                 }
             }
         }
@@ -904,15 +880,13 @@ namespace Pruebas
         [Fact]
         public void BorrarAmistad_NoDebeEliminarAmistad_CuandoLaAmistadNoExiste()
         {
-            int idJugadorActual = 1; // Jugador inexistente
+            int idJugadorActual = 1;
             int idJugadorAmigo = 2;
 
             var amistadDao = new AmistadDao();
 
-            // Intentar eliminar una amistad que no existe
             int rowsAffected = amistadDao.BorrarAmistad(idJugadorActual, idJugadorAmigo);
 
-            // Verificar que no se haya eliminado ninguna fila
             Assert.Equal(-1, rowsAffected);
         }
 
@@ -925,7 +899,6 @@ namespace Pruebas
             {
                 using (var contexto = new ContextoBaseDatos())
                 {
-                    // Crear jugadores
                     var jugadorActual = new Jugador
                     {
                         NombreUsuario = "JugadorActual",
@@ -957,12 +930,11 @@ namespace Pruebas
                     idJugadorActual = jugadorActual.JugadorId;
                     idJugadorAmigo = jugadorAmigo.JugadorId;
 
-                    // Crear amistad con estado no "Friend" (por ejemplo, "Request")
                     contexto.Amistades.Add(new Amistad
                     {
                         JugadorId = idJugadorActual,
                         AmigoId = idJugadorAmigo,
-                        EstadoAmistad = "Request",  // No es "Friend"
+                        EstadoAmistad = "Request",
                         EnLinea = true
                     });
 
@@ -970,11 +942,9 @@ namespace Pruebas
                 }
 
                 var amistadDao = new AmistadDao();
-
-                // Intentar borrar una amistad con estado diferente a "Friend"
+            
                 int rowsAffected = amistadDao.BorrarAmistad(idJugadorActual, idJugadorAmigo);
 
-                // Verificar que no se haya eliminado ninguna fila
                 Assert.Equal(-1, rowsAffected);
             }
         }
@@ -987,7 +957,6 @@ namespace Pruebas
 
             using (var contexto = new ContextoBaseDatos())
             {
-                // Crear jugadores
                 var jugadorActual = new Jugador
                 {
                     NombreUsuario = "JugadorActual",
@@ -1031,7 +1000,6 @@ namespace Pruebas
 
                 idJugadorActual = jugadorActual.JugadorId;
 
-                // Crear amistades
                 contexto.Amistades.Add(new Amistad
                 {
                     JugadorId = idJugadorActual,
@@ -1052,11 +1020,9 @@ namespace Pruebas
             }
 
             var amistadDao = new AmistadDao();
-
-            // Obtener amigos
+        
             List<string> amigos = amistadDao.ObtenerAmigos(idJugadorActual);
 
-            // Verificar que los amigos se hayan recuperado correctamente
             Assert.Contains("Amigo1", amigos);
             Assert.Contains("Amigo2", amigos);
 
