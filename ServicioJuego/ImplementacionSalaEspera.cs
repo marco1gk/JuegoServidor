@@ -14,6 +14,10 @@ namespace ServicioJuego
     {
         public static readonly Dictionary<string, List<JugadorSalaEspera>> salasEspera = new Dictionary<string, List<JugadorSalaEspera>>();
         private static readonly object lockUsuarios = new object();
+        private static readonly Dictionary<string, object> codigosGenerados = new Dictionary<string, object>();
+
+
+
 
 
         public void InvitarAmigoASala(string codigoSalaEspera, string nombreAmigo, string nombreInvitador)
@@ -64,7 +68,10 @@ namespace ServicioJuego
             }
             return null;
         }
-
+        public List<string> ObtenerCodigosGenerados()
+        {
+            return codigosGenerados.Keys.ToList();
+        }
 
         public void CrearSalaEspera(JugadorSalaEspera jugador)
         {
@@ -74,6 +81,7 @@ namespace ServicioJuego
 
             List<JugadorSalaEspera> jugadores = new List<JugadorSalaEspera> { jugador };
             string codigoSalaEspera = GenerarCodigoSalaEspera();
+            codigosGenerados.Add(codigoSalaEspera, null);
 
             salasEspera.Add(codigoSalaEspera, jugadores);
 
@@ -95,8 +103,7 @@ namespace ServicioJuego
 
                 RealizarSalidaLobby(codigoSalaEspera, jugador.NombreUsuario, false);
             }
-            Console.WriteLine("Se creó una sala de espera");
-
+            
         }
 
         public string BuscarSalaEsperaDisponible()

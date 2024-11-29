@@ -15,7 +15,11 @@ namespace ServicioJuego
         void InvitarAmigoASala(string codigoSalaEspera, string nombreAmigo, string nombreInvitador);
 
         [OperationContract(IsOneWay = true)]
+
         void CrearSalaEspera(JugadorSalaEspera jugador);
+
+        [OperationContract]
+        List<string> ObtenerCodigosGenerados();
 
         [OperationContract(IsOneWay = true)]
         void UnirseSalaEspera(string codigoSalaEspera, JugadorSalaEspera jugador);
@@ -38,6 +42,8 @@ namespace ServicioJuego
 
         [OperationContract]
         void ExpulsarJugadorSalaEspera(string lobbyCode, string username);
+
+        
     }
 
     [ServiceContract]
