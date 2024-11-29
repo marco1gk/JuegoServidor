@@ -6,6 +6,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
+using AccesoDatos.Utilidades;
+using System.Data.Entity.Core;
+using System.Data.SqlClient;
+using System.Data.Common;
+using AccesoDatos.Excepciones;
 
 namespace AccesoDatos.DAO
 {
@@ -13,11 +18,25 @@ namespace AccesoDatos.DAO
     {
         public Jugador ObtenerJugador(int idJugador)
         {
-            using (var contexto = new ContextoBaseDatos())
+            try
             {
-                return contexto.Jugadores
-                    .Include(j => j.Cuenta)
-                    .FirstOrDefault(j => j.JugadorId == idJugador);
+                using (var contexto = new ContextoBaseDatos())
+                {
+                    var jugador = contexto.Jugadores
+                        .Include(j => j.Cuenta)
+                        .FirstOrDefault(j => j.JugadorId == idJugador);
+
+                    if (jugador == null)
+                    {
+                        throw new ExcepcionAccesoDatos ($"Jugador con ID {idJugador} no existe.");
+                    }
+
+                    return jugador;
+                }
+            }
+            catch (DbException ex)
+            {
+                throw new Exception("Ocurrió un error al acceder a la base de datos.", ex);
             }
         }
 
@@ -39,7 +58,24 @@ namespace AccesoDatos.DAO
                     }
                     catch (DbUpdateException ex)
                     {
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
                         Console.WriteLine("Error al actualizar el nombre de usuario: " + ex);
+                        return false;
+                    }
+                    catch (EntityException ex)
+                    {
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                        return false;
+                    }
+                    catch (SqlException ex)
+                    {
+
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                        return false;
+                    }
+                    catch (Exception ex)
+                    {
+                        ManejadorExcepciones.ManejarFatalExcepcion(ex);
                         return false;
                     }
                 }

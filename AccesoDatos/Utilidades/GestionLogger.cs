@@ -40,7 +40,7 @@ namespace AccesoDatos.Utilidades
             return rutaDeRegistro;
         }
 
-        public static ILogger GetLogger()
+        public static ILogger ObtenerLogger()
         {
             if (_logger == null)
             {

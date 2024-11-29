@@ -10,7 +10,7 @@ namespace ServicioJuego.Correo.Plantillas
     {
         public string RealizarCorreo(string mensaje)
         {
-            string contenidoCorreo = "Unete al juego! El código del lobby es: " + mensaje;
+            string contenidoCorreo = "El código del lobby es: " + mensaje;
             return contenidoCorreo;
         }
 

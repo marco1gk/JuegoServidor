@@ -12,6 +12,7 @@ using System.Runtime.Remoting.Contexts;
 using System.Security.Cryptography;
 using System.Security.Principal;
 using AccesoDatos.Modelo;
+using AccesoDatos.Utilidades;
 
 
 
@@ -22,14 +23,11 @@ namespace AccesoDatos.DAO
         private const string ESTADO_AMISTAD = "Friend";
         private const string ESTADO_SOLICITUD = "Request";
 
-        private readonly ContextoBaseDatos _contexto;
-
+       
         public AmistadDao()
         {
   
         }
-
-
         public bool VerificarAmistad(int idJugadorMandaSolicitud, int idJugadorReciveSolicitud)
         {
             bool tieneRelacion = false;
@@ -50,14 +48,18 @@ namespace AccesoDatos.DAO
             }
             catch (EntityException ex)
             {
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 throw new Exception(ex.Message);
             }
             catch (SqlException ex)
             {
+
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 throw new Exception(ex.Message);
             }
             catch (Exception ex)
             {
+                ManejadorExcepciones.ManejarFatalExcepcion(ex);
                 throw new Exception(ex.Message);
             }
 
@@ -66,7 +68,7 @@ namespace AccesoDatos.DAO
 
         public int AgregarSolicitudAmistad(int idJugadorMandaSolicitud, int idJugadorReciveSolicitud)
         {
-            int rowsAffected = -1;
+            int filasAfectadas = -1;
 
 
             if (idJugadorMandaSolicitud > 0 && idJugadorReciveSolicitud > 0)
@@ -78,234 +80,262 @@ namespace AccesoDatos.DAO
 
                 try
                 {
-                    using (var context = new ContextoBaseDatos())
+                    using (var contexto = new ContextoBaseDatos())
                     {
-                        context.Amistades.Add(amistad);
-                        rowsAffected = context.SaveChanges();
+                        contexto.Amistades.Add(amistad);
+                        filasAfectadas = contexto.SaveChanges();
                     }
                 }
                 catch (EntityException ex)
                 {
+                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
                     throw new Exception(ex.Message);
                 }
                 catch (SqlException ex)
                 {
+
+                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
                     throw new Exception(ex.Message);
                 }
                 catch (Exception ex)
                 {
+                    ManejadorExcepciones.ManejarFatalExcepcion(ex);
                     throw new Exception(ex.Message);
                 }
             }
 
-            return rowsAffected;
+            return filasAfectadas;
         }
 
-        public bool EsAmigo(int idPlayer, int idPlayerFriend)
+        public bool EsAmigo(int idJugador, int idJugadorAmigo)
         {
             try
             {
-                using (var context = new ContextoBaseDatos())
+                using (var contexto = new ContextoBaseDatos())
                 {
-                    var fsiendship = (from fs in context.Amistades
+                    var amistad = (from fs in contexto.Amistades
                                       where
-                                          ((fs.JugadorId == idPlayer && fs.AmigoId == idPlayerFriend)
-                                          || (fs.JugadorId == idPlayerFriend && fs.AmigoId == idPlayer))
+                                          ((fs.JugadorId == idJugador && fs.AmigoId == idJugadorAmigo)
+                                          || (fs.JugadorId == idJugadorAmigo && fs.AmigoId == idJugador))
                                           && (fs.EstadoAmistad.Equals(ESTADO_AMISTAD))
                                       select fs).ToList();
-                    bool isFriend = fsiendship.Any();
-                    return isFriend;
+                    bool esAmigo = amistad.Any();
+                    return esAmigo;
                 }
             }
             catch (EntityException ex)
             {
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 throw new Exception(ex.Message);
             }
             catch (SqlException ex)
             {
+
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 throw new Exception(ex.Message);
             }
             catch (Exception ex)
             {
+                ManejadorExcepciones.ManejarFatalExcepcion(ex);
                 throw new Exception(ex.Message);
             }
         }
 
-        public List<int> ObtenerIdJugadorSolicitantesAmistad(int idPlayer)
+        public List<int> ObtenerIdJugadorSolicitantesAmistad(int idJugador)
         {
-            List<int> playersId = new List<int>();
+            List<int> idJugadores = new List<int>();
 
             try
             {
-                using (var context = new ContextoBaseDatos())
+                using (var contexto = new ContextoBaseDatos())
                 {
-                    var playerFriendRequests = (
-                        from fs in context.Amistades
-                        where (fs.AmigoId == idPlayer && fs.EstadoAmistad.Equals(ESTADO_SOLICITUD))
+                    var solicitudesDeAmistadDelJugador = (
+                        from fs in contexto.Amistades
+                        where (fs.AmigoId == idJugador && fs.EstadoAmistad.Equals(ESTADO_SOLICITUD))
                         select fs.JugadorId
                     ).ToList();
 
-                    if (playerFriendRequests.Any())
+                    if (solicitudesDeAmistadDelJugador.Any())
                     {
-                        foreach (var friendRequester in playerFriendRequests)
+                        foreach (var solicitanteDeAmistad in solicitudesDeAmistadDelJugador)
                         {
-                            playersId.Add((int)friendRequester);
+                            idJugadores.Add((int)solicitanteDeAmistad);
                         }
                     }
-                    return playersId;
+                    return idJugadores;
                 }
             }
             catch (EntityException ex)
             {
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 throw new Exception(ex.Message);
             }
             catch (SqlException ex)
             {
+
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 throw new Exception(ex.Message);
             }
             catch (Exception ex)
             {
+                ManejadorExcepciones.ManejarFatalExcepcion(ex);
                 throw new Exception(ex.Message);
             }
         }
 
-        public int ActualizarSolicitudAmistad_Aceptada(int idCurrentPlayer, int idPlayerAccepted)
+        public int ActualizarSolicitudAmistad_Aceptada(int idJugadorActual, int idJugadorAceptado)
         {
-            int rowsAffected = -1;
+            int filasAfectadas = -1;
 
             try
             {
-                using (var context = new ContextoBaseDatos())
+                using (var contexto = new ContextoBaseDatos())
                 {
-                    var friendship = context.Amistades.FirstOrDefault(fs =>
-                        (fs.JugadorId == idPlayerAccepted && fs.AmigoId == idCurrentPlayer && fs.EstadoAmistad == ESTADO_SOLICITUD)
-                        || (fs.JugadorId == idCurrentPlayer && fs.AmigoId == idPlayerAccepted && fs.EstadoAmistad == ESTADO_SOLICITUD)
+                    var amistad = contexto.Amistades.FirstOrDefault(fs =>
+                        (fs.JugadorId == idJugadorAceptado && fs.AmigoId == idJugadorActual && fs.EstadoAmistad == ESTADO_SOLICITUD)
+                        || (fs.JugadorId == idJugadorActual && fs.AmigoId == idJugadorAceptado && fs.EstadoAmistad == ESTADO_SOLICITUD)
                     );
 
-                    if (friendship != null)
+                    if (amistad != null)
                     {
-                        friendship.EstadoAmistad = ESTADO_AMISTAD;
-                        rowsAffected = context.SaveChanges();
+                        amistad.EstadoAmistad = ESTADO_AMISTAD;
+                        filasAfectadas = contexto.SaveChanges();
                     }
                 }
             }
             catch (EntityException ex)
             {
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 throw new Exception(ex.Message);
             }
             catch (SqlException ex)
             {
+
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 throw new Exception(ex.Message);
             }
             catch (Exception ex)
             {
+                ManejadorExcepciones.ManejarFatalExcepcion(ex);
                 throw new Exception(ex.Message);
             }
 
-            return rowsAffected;
+            return filasAfectadas;
         }
 
-        public int BorrarSolicitudAmistad(int idCurrentPlayer, int idPlayerRejected)
+        public int BorrarSolicitudAmistad(int idJugadorActual, int idJugadorRechazado)
         {
-            int rowsAffected = -1;
+            int filasAfectadas = -1;
 
             try
             {
-                using (var context = new ContextoBaseDatos())
+                using (var contexto = new ContextoBaseDatos())
                 {
-                    var friendship = context.Amistades.FirstOrDefault(fs =>
-                        (fs.JugadorId == idPlayerRejected && fs.AmigoId == idCurrentPlayer && fs.EstadoAmistad == ESTADO_SOLICITUD)
-                        || (fs.JugadorId == idCurrentPlayer && fs.AmigoId == idPlayerRejected && fs.EstadoAmistad == ESTADO_SOLICITUD)
+                    var amistad = contexto.Amistades.FirstOrDefault(fs =>
+                        (fs.JugadorId == idJugadorRechazado && fs.AmigoId == idJugadorActual && fs.EstadoAmistad == ESTADO_SOLICITUD)
+                        || (fs.JugadorId == idJugadorActual && fs.AmigoId == idJugadorRechazado && fs.EstadoAmistad == ESTADO_SOLICITUD)
                     );
 
-                    if (friendship != null)
+                    if (amistad != null)
                     {
-                        context.Amistades.Remove(friendship);
-                        rowsAffected = context.SaveChanges();
+                        contexto.Amistades.Remove(amistad);
+                        filasAfectadas = contexto.SaveChanges();
                     }
                 }
             }
             catch (EntityException ex)
             {
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 throw new Exception(ex.Message);
             }
             catch (SqlException ex)
             {
+
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 throw new Exception(ex.Message);
             }
             catch (Exception ex)
             {
+                ManejadorExcepciones.ManejarFatalExcepcion(ex);
                 throw new Exception(ex.Message);
             }
 
-            return rowsAffected;
+            return filasAfectadas;
         }
 
-        public int BorrarAmistad(int idCurrentPlayer, int idPlayerFriend)
+        public int BorrarAmistad(int idJugadorActual, int idJugadorAmigo)
         {
-            int rowsAffected = -1;
+            int filasAfectadas = -1;
 
             try
             {
-                using (var context = new ContextoBaseDatos())
+                using (var contexto = new ContextoBaseDatos())
                 {
-                    var friendship = context.Amistades.FirstOrDefault(fs =>
-                        (fs.JugadorId == idPlayerFriend && fs.AmigoId == idCurrentPlayer && fs.EstadoAmistad == ESTADO_AMISTAD)
-                        || (fs.JugadorId == idCurrentPlayer && fs.AmigoId == idPlayerFriend && fs.EstadoAmistad == ESTADO_AMISTAD)
+                    var amistad = contexto.Amistades.FirstOrDefault(fs =>
+                        (fs.JugadorId == idJugadorAmigo && fs.AmigoId == idJugadorActual && fs.EstadoAmistad == ESTADO_AMISTAD)
+                        || (fs.JugadorId == idJugadorActual && fs.AmigoId == idJugadorAmigo && fs.EstadoAmistad == ESTADO_AMISTAD)
                     );
 
-                    if (friendship != null)
+                    if (amistad != null)
                     {
-                        context.Amistades.Remove(friendship);
-                        rowsAffected = context.SaveChanges();
+                        contexto.Amistades.Remove(amistad);
+                        filasAfectadas = contexto.SaveChanges();
                     }
                 }
             }
             catch (EntityException ex)
             {
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 throw new Exception(ex.Message);
             }
             catch (SqlException ex)
             {
+
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 throw new Exception(ex.Message);
             }
             catch (Exception ex)
             {
+                ManejadorExcepciones.ManejarFatalExcepcion(ex);
                 throw new Exception(ex.Message);
             }
 
-            return rowsAffected;
+            return filasAfectadas;
         }
 
-        public List<string> ObtenerAmigos(int idPlayer)
+        public List<string> ObtenerAmigos(int idJugador)
         {
             try
             {
-                using (var context = new ContextoBaseDatos())
+                using (var contexto = new ContextoBaseDatos())
                 {
-                    var friends = context.Amistades
-                    .Where(f => (f.AmigoId == idPlayer || f.JugadorId == idPlayer) && f.EstadoAmistad == ESTADO_AMISTAD)
+                    var amigos = contexto.Amistades
+                    .Where(f => (f.AmigoId == idJugador || f.JugadorId == idJugador) && f.EstadoAmistad == ESTADO_AMISTAD)
                     .SelectMany(f => new[] { f.JugadorId, f.AmigoId })
                     .Distinct()
-                    .Where(id => id != idPlayer)
-                    .Join(context.Jugadores,
+                    .Where(id => id != idJugador)
+                    .Join(contexto.Jugadores,
                           friendId => friendId,
                           player => player.JugadorId,
                           (friendId, player) => player.NombreUsuario)
                     .ToList();
-                    return friends;
+                    return amigos;
                 }
             }
             catch (EntityException ex)
             {
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 throw new Exception(ex.Message);
             }
             catch (SqlException ex)
             {
+
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 throw new Exception(ex.Message);
             }
             catch (Exception ex)
             {
+                ManejadorExcepciones.ManejarFatalExcepcion(ex);
                 throw new Exception(ex.Message);
             }
         }

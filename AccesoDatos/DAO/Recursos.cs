@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using AccesoDatos.Modelo;
+using AccesoDatos.Utilidades;
 
 namespace AccesoDatos.DAO
 {
@@ -15,15 +16,19 @@ namespace AccesoDatos.DAO
         {
             string codigo = new Random().Next(100000, 999999).ToString();
 
-            MailMessage mail = new MailMessage();
-            mail.From = new MailAddress("hunterstrophy01@gmail.com");
+            MailMessage mail = new MailMessage
+            {
+                From = new MailAddress("hunterstrophy01@gmail.com")
+            };
             mail.To.Add(correo);
             mail.Subject = "Código de Verificación";
             mail.Body = "Tu código de verificación es: " + codigo;
 
-            SmtpClient smtpClient = new SmtpClient("smtp.gmail.com", 587);
-            smtpClient.Credentials = new System.Net.NetworkCredential("hunterstrophy01@gmail.com", "azcx qzqh kzdq ifve");
-            smtpClient.EnableSsl = true;
+            SmtpClient smtpClient = new SmtpClient("smtp.gmail.com", 587)
+            {
+                Credentials = new System.Net.NetworkCredential("hunterstrophy01@gmail.com", "azcx qzqh kzdq ifve"),
+                EnableSsl = true
+            };
 
             try
             {
@@ -32,11 +37,13 @@ namespace AccesoDatos.DAO
             }
             catch (SmtpException ex)
             {
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 Console.WriteLine("Error SMTP: " + ex.Message);
                 return null;
             }
             catch (Exception ex)
             {
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 Console.WriteLine("Error al enviar el correo: " + ex.Message);
                 return null;
             }

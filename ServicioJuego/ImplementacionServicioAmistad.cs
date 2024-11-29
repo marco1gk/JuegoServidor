@@ -96,11 +96,11 @@ namespace ServicioJuego
             AmistadDao SolicitudAmistadAccesoDatos = new AmistadDao();
             try
             {
-                int idPlayerRequested = usuarioAccesoDatos.ObtenerIdJugadorPorNombreUsuario(nombreJugadorSolicitado);
+                int idJugadorSolicitado = usuarioAccesoDatos.ObtenerIdJugadorPorNombreUsuario(nombreJugadorSolicitado);
 
-                if (idPlayerRequested > 0)
+                if (idJugadorSolicitado > 0)
                 {
-                    columasAfectadas = SolicitudAmistadAccesoDatos.AgregarSolicitudAmistad(idJugadorEnvia, idPlayerRequested);
+                    columasAfectadas = SolicitudAmistadAccesoDatos.AgregarSolicitudAmistad(idJugadorEnvia, idJugadorSolicitado);
                 }
 
                 return columasAfectadas;
@@ -125,13 +125,13 @@ namespace ServicioJuego
 
             try
             {
-                List<int> playersRequestersId = solicitudAmistadAccesoDatos.ObtenerIdJugadorSolicitantesAmistad(idJugador);
+                List<int> idJugadoresSolicitantes = solicitudAmistadAccesoDatos.ObtenerIdJugadorSolicitantesAmistad(idJugador);
 
-                if (playersRequestersId != null)
+                if (idJugadoresSolicitantes != null)
                 {
-                    foreach (int idRequester in playersRequestersId)
+                    foreach (int idSolicitante in idJugadoresSolicitantes)
                     {
-                        nombreJugadores.Add(usuarioAccesoDatos.ObtenerNombreUsuarioPorIdJugador(idRequester));
+                        nombreJugadores.Add(usuarioAccesoDatos.ObtenerNombreUsuarioPorIdJugador(idSolicitante));
                     }
                 }
 

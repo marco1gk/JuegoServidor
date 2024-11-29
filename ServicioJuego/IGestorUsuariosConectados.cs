@@ -10,13 +10,13 @@ namespace ServicioJuego
     [ServiceContract(CallbackContract = typeof(IGestorUsuarioCallback))]
     public interface IGestorUsuariosConectados
     {
-
         [OperationContract(IsOneWay = true)]
         void RegistrarUsuarioAUsuariosConectados(int idJugador, string nombreUsuario);
 
         [OperationContract(IsOneWay = true)]
         void DesregistrarUsuarioDeUsuariosEnLinea(string nombreUsuario);
     }
+
     [ServiceContract]
     public interface IGestorUsuarioCallback
     {

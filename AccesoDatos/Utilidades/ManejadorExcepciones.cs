@@ -9,7 +9,7 @@ namespace AccesoDatos.Utilidades
 {
     public static class ManejadorExcepciones
     {
-        private static readonly ILogger _logger = GestionLogger.GetLogger();
+        private static readonly ILogger _logger = GestionLogger.ObtenerLogger();
 
         public static void ManejarErrorExcepcion(Exception ex)
         {

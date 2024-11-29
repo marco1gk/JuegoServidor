@@ -10,7 +10,6 @@ namespace ServicioJuego
     [ServiceContract]
     public interface IGestorInvitacion
     {
-
         [OperationContract]
         bool EnviarInvitacionCorreo(string codigoSalaEspera, string correo);
 

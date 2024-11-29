@@ -6,6 +6,9 @@ using System.Text;
 using AccesoDatos;
 using System.Threading.Tasks;
 using AccesoDatos.DAO;
+using AccesoDatos.Utilidades;
+using AccesoDatos.Excepciones;
+using ServicioJuego.Excepciones;
 
 namespace ServicioJuego
 {
@@ -13,7 +16,6 @@ namespace ServicioJuego
     {
 
         private static Dictionary<string, IGestorDeSolicitudesDeAmistadCallBack> amistadEnLinea = new Dictionary<string, IGestorDeSolicitudesDeAmistadCallBack>();
-
 
         public void AgregarADiccionarioAmistadesEnLinea(string nombreUsuarioJugadorActual)
         {
@@ -29,8 +31,6 @@ namespace ServicioJuego
             }
         }
 
-
-
         public void EnviarSolicitudAmistad(string nombreUsuarioJugadorRemitente, string nombreUsuarioJugadorSolicitado)
         {
             lock (objetoDeBloqueo)
@@ -43,12 +43,12 @@ namespace ServicioJuego
                     }
                     catch (CommunicationException ex)
                     {
-                        Console.WriteLine(ex);
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
                         EliminarDeDiccionarioAmistadesEnLinea(nombreUsuarioJugadorRemitente);
                     }
                     catch (TimeoutException ex)
                     {
-                        Console.WriteLine(ex);
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
                         EliminarDeDiccionarioAmistadesEnLinea(nombreUsuarioJugadorRemitente);
                     }
                 }
@@ -71,11 +71,15 @@ namespace ServicioJuego
                     InformarSolicitusAmistadAceptada(nombreUsuarioJugadorSolicitado, nombreUsuarioJugadorRemitente);
                 }
             }
-            catch (Exception ex)
+            catch (ExcepcionAccesoDatos ex)
             {
-                Console.WriteLine(ex);
+                HuntersTrophyExcepcion respuestaExcepcion = new HuntersTrophyExcepcion
+                {
+                    Mensaje = ex.Message,
+                    StackTrace = ex.StackTrace
+                };
 
-                
+                throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
             }
         }
 
@@ -89,7 +93,7 @@ namespace ServicioJuego
                 }
                 catch (CommunicationException ex)
                 {
-                    Console.WriteLine(ex);
+                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
                     EliminarDeDiccionarioAmistadesEnLinea(nombreUsuarioObjetivo);
                 }
             }
@@ -106,9 +110,15 @@ namespace ServicioJuego
 
                 SolicitudAmistadAccesoDatos.BorrarSolicitudAmistad(idJugadorActual, idJugadorAceptado);
             }
-            catch (Exception ex)
+            catch (ExcepcionAccesoDatos ex)
             {
-                Console.WriteLine(ex);
+                HuntersTrophyExcepcion respuestaExcepcion = new HuntersTrophyExcepcion
+                {
+                    Mensaje = ex.Message,
+                    StackTrace = ex.StackTrace
+                };
+
+                throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
             }
         }
         
@@ -121,18 +131,24 @@ namespace ServicioJuego
 
                 try
                 {
-                    int idPlayerFriend = usuarioAccesoDatos.ObtenerIdJugadorPorNombreUsuario(nombreUsuarioAmigoEliminado);
-                    int rowsAffected = SolicitudAmistadAccesoDatos.BorrarAmistad(idJugadorActual, idPlayerFriend);
+                    int idJugadorAmigo = usuarioAccesoDatos.ObtenerIdJugadorPorNombreUsuario(nombreUsuarioAmigoEliminado);
+                    int filasAfectadas = SolicitudAmistadAccesoDatos.BorrarAmistad(idJugadorActual, idJugadorAmigo);
 
-                    if (rowsAffected > 0)
+                    if (filasAfectadas > 0)
                     {
                         InformarAmigoEliminado(nombreJugadorActual, nombreUsuarioAmigoEliminado);
                         InformarAmigoEliminado(nombreUsuarioAmigoEliminado, nombreJugadorActual);
                     }
                 }
-                catch (Exception ex)
+                catch (ExcepcionAccesoDatos ex)
                 {
-                    Console.WriteLine(ex);
+                    HuntersTrophyExcepcion respuestaExcepcion = new HuntersTrophyExcepcion
+                    {
+                        Mensaje = ex.Message,
+                        StackTrace = ex.StackTrace
+                    };
+
+                    throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
                 }
             }
         }
@@ -147,7 +163,7 @@ namespace ServicioJuego
                 }
                 catch (CommunicationException ex)
                 {
-                    Console.WriteLine(ex);
+                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
                     EliminarDeDiccionarioAmistadesEnLinea(nombreUsuarioObjetivo);
                 }
             }

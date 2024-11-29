@@ -7,6 +7,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Data.Entity;
 using System.Net.Mail;
+using AccesoDatos.Utilidades;
+using System.Data.Entity.Core;
+using System.Data.SqlClient;
+using AccesoDatos.Excepciones;
 
 namespace AccesoDatos.DAO
 {
@@ -28,7 +32,24 @@ namespace AccesoDatos.DAO
                 }
                 catch (DbUpdateException ex)
                 {
+                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
                     Console.WriteLine("Error al agregar" + ex);
+                    return false;
+                }
+                catch (EntityException ex)
+                {
+                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                    return false;
+                }
+                catch (SqlException ex)
+                {
+
+                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                    return false;
+                }
+                catch (Exception ex)
+                {
+                    ManejadorExcepciones.ManejarFatalExcepcion(ex);
                     return false;
                 }
             }
@@ -38,23 +59,77 @@ namespace AccesoDatos.DAO
 
         public Cuenta ValidarInicioSesion(string correo, string contraseniaHash)
         {
-            using (var contexto = new ContextoBaseDatos())
+            try
             {
-                return contexto.Cuentas
-                    .Include(c => c.Jugador)
-                    .FirstOrDefault(c => c.Correo == correo && c.ContraseniaHash == contraseniaHash);
+                using (var contexto = new ContextoBaseDatos())
+                {
+                    var cuenta = contexto.Cuentas
+                        .Include(c => c.Jugador)
+                        .FirstOrDefault(c => c.Correo == correo && c.ContraseniaHash == contraseniaHash);
+
+                    if (cuenta == null)
+                    {
+                        throw new ExcepcionAccesoDatos($"No se encontró una cuenta con el correo: {correo} o la contraseña es incorrecta.");
+                    }
+
+                    return cuenta;
+                }
+            }
+            catch (SqlException ex)
+            {
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                throw new ExcepcionAccesoDatos("Error en la base de datos: " + ex.Message);
+            }
+            catch (EntityException ex)
+            {
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                throw new ExcepcionAccesoDatos("Error con Entity Framework: " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.ManejarFatalExcepcion(ex);
+                throw new ExcepcionAccesoDatos("Error inesperado al validar el inicio de sesión: " + ex.Message);
             }
         }
 
+
         public Cuenta ObtenerCuentaPorNombreUsuario(string nombreUsuario)
         {
-            using (var contexto = new ContextoBaseDatos())
+            try
             {
-                return contexto.Cuentas
-                    .Include(c => c.Jugador)
-                    .FirstOrDefault(c => c.Correo == nombreUsuario);
+                using (var contexto = new ContextoBaseDatos())
+                {
+                    var cuenta = contexto.Cuentas
+                        .Include(c => c.Jugador)
+                        .FirstOrDefault(c => c.Correo == nombreUsuario);
+
+                    if (cuenta == null)
+                    {
+                        throw new ExcepcionAccesoDatos($"No se encontró una cuenta con el correo: {nombreUsuario}");
+                    }
+
+                    return cuenta;
+                }
+            }
+            catch (SqlException ex)
+            {
+
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                throw new ExcepcionAccesoDatos("Error en la base de datos: " + ex.Message);
+            }
+            catch (EntityException ex)
+            {
+
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                throw new ExcepcionAccesoDatos("Error en Entity Framework: " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.ManejarFatalExcepcion(ex);
+                throw new ExcepcionAccesoDatos("Error inesperado al obtener la cuenta: " + ex.Message);
             }
         }
+
 
         public bool EditarContraseñaPorCorreo(string correo, string nuevaContrasenia)
         {
@@ -76,7 +151,26 @@ namespace AccesoDatos.DAO
                     }
                     catch (DbUpdateException ex)
                     {
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
                         Console.WriteLine("Error al editar la contraseña: " + ex);
+                        return false;
+                    }
+                    catch (SqlException ex)
+                    {
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                        Console.WriteLine("Error de base de datos: " + ex.Message);
+                        return false;
+                    }
+                    catch (EntityException ex)
+                    {
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                        Console.WriteLine("Error de Entity Framework: " + ex.Message);
+                        return false;
+                    }
+                    catch (Exception ex)
+                    {
+                        ManejadorExcepciones.ManejarFatalExcepcion(ex);
+                        Console.WriteLine("Error inesperado: " + ex.Message);
                         return false;
                     }
                 }
@@ -91,10 +185,32 @@ namespace AccesoDatos.DAO
 
         public bool ExistenciaCorreo(string correo)
         {
-            using (var contexto = new ContextoBaseDatos())
+            try
             {
-                return contexto.Cuentas.Any(cuenta => cuenta.Correo == correo);
+                using (var contexto = new ContextoBaseDatos())
+                {
+                    return contexto.Cuentas.Any(cuenta => cuenta.Correo == correo);
+                }
             }
+            catch (SqlException ex)
+            {
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                Console.WriteLine("Error de base de datos: " + ex.Message);
+                return false;
+            }
+            catch (EntityException ex)
+            {
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                Console.WriteLine("Error de Entity Framework: " + ex.Message);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.ManejarFatalExcepcion(ex);
+                Console.WriteLine("Error inesperado: " + ex.Message);
+                return false;
+            }
+
         }
 
         public bool EditarCorreo(int idCuenta, string nuevoCorreo)
@@ -115,7 +231,26 @@ namespace AccesoDatos.DAO
                     }
                     catch (DbUpdateException ex)
                     {
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
                         Console.WriteLine("Error al actualizar el correo: " + ex);
+                        return false;
+                    }
+                    catch (SqlException ex)
+                    {
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                        Console.WriteLine("Error de base de datos: " + ex.Message);
+                        return false;
+                    }
+                    catch (EntityException ex)
+                    {
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                        Console.WriteLine("Error de Entity Framework: " + ex.Message);
+                        return false;
+                    }
+                    catch (Exception ex)
+                    {
+                        ManejadorExcepciones.ManejarFatalExcepcion(ex);
+                        Console.WriteLine("Error inesperado: " + ex.Message);
                         return false;
                     }
                 }
@@ -125,20 +260,63 @@ namespace AccesoDatos.DAO
 
         public bool ExisteCorreo(string correo)
         {
-            using (var context = new ContextoBaseDatos())
+            try
             {
-                return context.Cuentas.Any(c => c.Correo == correo);
+                using (var contexto = new ContextoBaseDatos())
+                {
+                    return contexto.Cuentas.Any(c => c.Correo == correo);
+                }
             }
+            catch (SqlException ex)
+            {
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                Console.WriteLine("Error de base de datos: " + ex.Message);
+                return false;
+            }
+            catch (EntityException ex)
+            {
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                Console.WriteLine("Error de Entity Framework: " + ex.Message);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.ManejarFatalExcepcion(ex);
+                Console.WriteLine("Error inesperado: " + ex.Message);
+                return false;
+            }
+
         }
 
+       
         public bool ExisteNombreUsuario(string nombreUsuario)
         {
-            using (var context = new ContextoBaseDatos())
+            try
             {
-                return context.Jugadores.Any(j => j.NombreUsuario == nombreUsuario);
+                using (var contexto = new ContextoBaseDatos())
+                {
+                    return contexto.Jugadores.Any(j => j.NombreUsuario == nombreUsuario);
+                }
+            }
+            catch (SqlException ex)
+            {
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                Console.WriteLine("Error de base de datos: " + ex.Message);
+                return false; 
+            }
+            catch (EntityException ex)
+            {
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                Console.WriteLine("Error de Entity Framework: " + ex.Message);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.ManejarFatalExcepcion(ex);
+                Console.WriteLine("Error inesperado: " + ex.Message);
+                return false;
             }
         }
-
 
     }
 

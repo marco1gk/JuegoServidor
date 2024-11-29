@@ -48,20 +48,17 @@ namespace ServicioJuego.Correo
             }
             catch (SmtpException ex)
             {
+                ManejadorExcepciones.ManejarErrorExcepcion(ex); 
                 Console.WriteLine("Error SMTP: " + ex.Message);
                 return false;
             }
             catch (Exception ex)
             {
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 Console.WriteLine("Error general: " + ex.Message);
                 return false;
             }
         }
-
-
-
-
-
 
     }
 }

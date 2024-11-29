@@ -8,7 +8,6 @@ namespace ServicioJuego.Correo.Plantillas
 {
     public interface IPlantillaCorreo
     {
-
         string RealizarCorreo(string mensaje);
     }
 }

@@ -201,20 +201,20 @@ namespace ServicioJuego
         }
 
 
-        public string ObtenerNombreUsuarioPorIdJugador(int idPlayer)
+        public string ObtenerNombreUsuarioPorIdJugador(int idJugador)
         {
-            string username = string.Empty;
+            string nombreUsuario = string.Empty;
 
             try
             {
-                using (var context = new ContextoBaseDatos())
+                using (var contexto = new ContextoBaseDatos())
                 {
-                    var player = context.Jugadores
-                        .FirstOrDefault(p => p.JugadorId == idPlayer);
+                    var jugador = contexto.Jugadores
+                        .FirstOrDefault(p => p.JugadorId == idJugador);
 
-                    if (player != null)
+                    if (jugador != null)
                     {
-                        username = player.NombreUsuario;
+                        nombreUsuario = jugador.NombreUsuario;
                     }
                 }
             }
@@ -241,7 +241,7 @@ namespace ServicioJuego
                 Console.WriteLine(ex);
             }
 
-            return username;
+            return nombreUsuario;
         }
 
         public bool EditarNombreUsuario(int idJugador, string nuevoNombreUsuario)

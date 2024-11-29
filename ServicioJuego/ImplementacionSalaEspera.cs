@@ -1,4 +1,5 @@
 ﻿using AccesoDatos.Modelo;
+using AccesoDatos.Utilidades;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,23 +17,13 @@ namespace ServicioJuego
         private static readonly object lockUsuarios = new object();
         private static readonly Dictionary<string, object> codigosGenerados = new Dictionary<string, object>();
 
-
-
-
-
         public void InvitarAmigoASala(string codigoSalaEspera, string nombreAmigo, string nombreInvitador)
         {
-            Console.WriteLine("codigo " + codigoSalaEspera);
-            Console.WriteLine("nombreAmigo " + nombreAmigo);
-            Console.WriteLine("nombreInvitador " + nombreInvitador);
             IGestorUsuarioCallback amigoCallback = BuscarJugadorEnLinea(nombreAmigo);
             IGestorSalasEsperasCallBack actualUsuarioCanalCallback = OperationContext.Current.GetCallbackChannel<IGestorSalasEsperasCallBack>();
 
             if (salasEspera.ContainsKey(codigoSalaEspera))
             {
-
-
-                if (amistadEnLinea == null) { Console.WriteLine("es nula otraa vez"); }
                 if (amigoCallback != null)
                 {
                     try
@@ -46,6 +37,7 @@ namespace ServicioJuego
                     }
                     catch (CommunicationException ex)
                     {
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
                         Console.WriteLine($"Error al invitar a {nombreAmigo}: {ex.Message}");
                     }
                 }
@@ -73,9 +65,9 @@ namespace ServicioJuego
             return codigosGenerados.Keys.ToList();
         }
 
+
         public void CrearSalaEspera(JugadorSalaEspera jugador)
         {
-
             IGestorSalasEsperasCallBack actualUsuarioCanalCallback = OperationContext.Current.GetCallbackChannel<IGestorSalasEsperasCallBack>();
             jugador.CallbackChannel = actualUsuarioCanalCallback;
 
@@ -92,15 +84,12 @@ namespace ServicioJuego
             catch (CommunicationException ex)
 
             {
-
-                Console.WriteLine(ex.ToString());
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 RealizarSalidaLobby(codigoSalaEspera, jugador.NombreUsuario, false);
             }
             catch (TimeoutException ex)
             {
-
-                Console.WriteLine(ex.ToString());
-
+                ManejadorExcepciones.ManejarFatalExcepcion(ex);
                 RealizarSalidaLobby(codigoSalaEspera, jugador.NombreUsuario, false);
             }
             
@@ -132,8 +121,7 @@ namespace ServicioJuego
                 }
                 catch (CommunicationException ex)
                 {
-
-                    Console.WriteLine(ex.ToString());
+                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
                     RealizarSalidaLobby(codigoSalaEspera, anfitrion.NombreUsuario, false);
                 }
             }
@@ -172,7 +160,11 @@ namespace ServicioJuego
             }
             catch (CommunicationException ex)
             {
-                Console.WriteLine(ex.ToString());
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.ManejarFatalExcepcion(ex);
             }
         }
 
@@ -189,11 +181,16 @@ namespace ServicioJuego
                 }
                 catch (CommunicationException ex)
                 {
+
+                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
                     Console.WriteLine(ex.ToString());
+                }
+                catch (Exception ex)
+                {
+                    ManejadorExcepciones.ManejarFatalExcepcion(ex);
                 }
             }
         }
-
         public void IniciarPartida(string codigoSalaEspera)
         {
             if (salasEspera.ContainsKey(codigoSalaEspera))
@@ -215,15 +212,18 @@ namespace ServicioJuego
                     }
                     catch (CommunicationException ex)
                     {
-                        Console.WriteLine(ex.ToString());
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
                         RealizarSalidaLobby(codigoSalaEspera, jugador.NombreUsuario, false);
+                    }
+                    catch (Exception ex)
+                    {
+                        ManejadorExcepciones.ManejarFatalExcepcion(ex);
                     }
 
                 }
 
             }
         }
-
         private void NotificarJugadorIngresoSalaEspera(List<JugadorSalaEspera> jugadoresSalaEspera, JugadorSalaEspera jugadorIngresando, int numeroJugadoresSalaEspera, string codigoSalaEspera)
         {
             foreach (var jugador in jugadoresSalaEspera.ToList())
@@ -234,9 +234,12 @@ namespace ServicioJuego
                 }
                 catch (CommunicationException ex)
                 {
-
-                    Console.WriteLine(ex.ToString());
+                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
                     RealizarSalidaLobby(codigoSalaEspera, jugador.NombreUsuario, false);
+                }
+                catch (Exception ex)
+                {
+                    ManejadorExcepciones.ManejarFatalExcepcion(ex);
                 }
             }
         }
@@ -260,8 +263,13 @@ namespace ServicioJuego
                 jugadorAEliminar.CallbackChannel.NotificarExpulsadoSalaEspera();
             }
             catch (CommunicationException ex)
-            {
+            { 
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 Console.WriteLine(ex);
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.ManejarFatalExcepcion(ex);
             }
         }
 
@@ -305,8 +313,6 @@ namespace ServicioJuego
             }
         }
 
-
-
         private void NotificarJugadorSalioSalaEspera(List<JugadorSalaEspera> jugadores, string nombreUsuario, int indiceJugadorEliminado, string codigoSalaEspera, bool esExplusaldo)
         {
             int hostIndex = 0;
@@ -326,8 +332,12 @@ namespace ServicioJuego
                 }
                 catch (CommunicationException ex)
                 {
-                    Console.WriteLine(ex.ToString());
+                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
                     RealizarSalidaLobby(codigoSalaEspera, nombreUsuario, esExplusaldo);
+                }
+                catch (Exception ex)
+                {
+                    ManejadorExcepciones.ManejarFatalExcepcion(ex);
                 }
             }
         }
@@ -386,7 +396,12 @@ namespace ServicioJuego
                 }
                 catch (CommunicationException ex)
                 {
+                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
                     Console.WriteLine($"Error al enviar mensaje a {jugador.NombreUsuario}: {ex.Message}");
+                }
+                catch (Exception ex)
+                {
+                    ManejadorExcepciones.ManejarFatalExcepcion(ex);
                 }
             }
         }
@@ -401,8 +416,10 @@ namespace ServicioJuego
                 }
                 catch (CommunicationException ex)
                 {
+                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
                     Console.WriteLine($"Error notificando a {jugador.NombreUsuario}: {ex.Message}");
-             
+                }catch(Exception ex) {
+                    ManejadorExcepciones.ManejarFatalExcepcion(ex);
                 }
             }
         }

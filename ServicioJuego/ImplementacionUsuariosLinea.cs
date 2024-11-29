@@ -6,12 +6,13 @@ using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
 using AccesoDatos;
+using AccesoDatos.Utilidades;
 
 
 namespace ServicioJuego
 {
    // [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Reentrant, InstanceContextMode = InstanceContextMode.PerSession)]
-  // [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Reentrant, InstanceContextMode = InstanceContextMode.PerSession)]
+ 
     public partial class ImplementacionServicio : IGestorUsuariosConectados
     {
         private static readonly object objetoDeBloqueo = new object();
@@ -43,11 +44,13 @@ namespace ServicioJuego
             }
             catch (CommunicationException ex)
             {
-                Console.WriteLine(ex);
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                DesregistrarUsuarioDeUsuariosEnLinea(nombreUsuario);
             }
             catch (TimeoutException ex)
             {
-                Console.WriteLine(ex);
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                DesregistrarUsuarioDeUsuariosEnLinea(nombreUsuario);
             }
 
             NotificarInicioDeSesiónAAmigos(jugadorId, nombreUsuario);
@@ -95,12 +98,12 @@ namespace ServicioJuego
                     }
                     catch (CommunicationException ex)
                     {
-                        Console.WriteLine(ex);
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
                         DesregistrarUsuarioDeUsuariosEnLinea(nombreUsuario);
                     }
                     catch (TimeoutException ex)
                     {
-                        Console.WriteLine(ex);
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
                         DesregistrarUsuarioDeUsuariosEnLinea(nombreUsuario);
                     }
                 }
@@ -134,12 +137,12 @@ namespace ServicioJuego
                     }
                     catch (CommunicationException ex)
                     {
-                        Console.WriteLine(ex);
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
                         DesregistrarUsuarioDeUsuariosEnLinea(usuario.Key);
                     }
                     catch (TimeoutException ex)
                     {
-                        Console.WriteLine(ex);
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
                         DesregistrarUsuarioDeUsuariosEnLinea(usuario.Key);
                     }
                 }

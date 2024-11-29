@@ -18,6 +18,5 @@ namespace ServicioJuego.Excepciones
         [DataMember]
         public string StackTrace{ get; set; }
 
-
     }
 }
