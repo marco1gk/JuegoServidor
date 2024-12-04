@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Microsoft.SqlServer.Server;
+using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.ServiceModel;
@@ -25,6 +27,39 @@ namespace ServicioJuego
 
         [OperationContract(IsOneWay = true)]
         void LanzarDado(string idPartida, string nombreUsuario);
+
+        [OperationContract(IsOneWay = true)]
+        void RepartirCartas(string idPartida);
+
+        [OperationContract(IsOneWay = true)]
+        void TomarCartaDeMazo(string idPartida, string nombreUsuario, int idCarta);
+
+        [OperationContract(IsOneWay = true)]
+        void AgregarCartaACartasEnMano(string nombreUsuario, Carta carta, string idPartida);
+
+        [OperationContract(IsOneWay = true)]
+        void TomarFichaMesa(string idPartida, int idFicha);
+
+        [OperationContract(IsOneWay = true)]
+        void UtilizarCarta(string idPartida, int idCarta, string nombreJugador);
+
+        [OperationContract(IsOneWay = true)]
+        void AgregarCartaADescarte(Carta carta, List<JugadorPartida> jugadores);
+
+        [OperationContract(IsOneWay = true)]
+        void DevolverFichaAMesa(int idFicha, string idPartida);
+
+        [OperationContract(IsOneWay = true)]
+        void AgregarCartaAEscondite(string nombreUsuario, int idCarta, string idPartida);
+
+        [OperationContract]
+        int NumeroCartasEnMano(string nombreUsuario, string idPartida);
+
+        [OperationContract(IsOneWay = true)]
+        void RobarCartaAJugador(string nombreUsuario, string idPartida);
+
+        [OperationContract(IsOneWay = true)]
+        void RobarCarta(string nombreJugadorObjetivoRobo, string idPartida);
     }
 
     [ServiceContract]
@@ -44,6 +79,41 @@ namespace ServicioJuego
 
         [OperationContract]
         void NotificarResultadoDado(string nombreUsuario, int resultado);
+
+        [OperationContract]
+        void NotificarCartasEnMano(List<Carta> cartasRepartidas);
+
+        [OperationContract]
+        void NotificarCartasEnMazo(List<Carta> cartasEnMazo);
+
+        [OperationContract]
+        void NotificarCartaTomadaMazo(int idCarta);
+
+        [OperationContract]
+        void NotificarCartaAgregadaAMano(Carta carta);
+
+        [OperationContract]
+        void NotificarFichaTomadaMesa(string nombreUsuario, int idFicha);
+
+        [OperationContract]
+        void NotificarCartaUtilizada(int idCarta);
+
+        [OperationContract]
+        void NotificarCartaAgregadaADescarte(Carta carta);
+
+        [OperationContract]
+        void NotificarFichaDevuelta(int idFicha, string nombreJugadorTurnoActual);
+
+        [OperationContract]
+        void NotificarCartaAgregadaAEscondite(int idCarta);
+
+        [OperationContract]
+        void NotificarIntentoRoboCarta(string nombreUsuario);
+
+        [OperationContract]
+        void NotificarCartaRobada(Carta cartaRobada, string nombreJugadorObjetivoRobo, string nombreJugadorTurnoActual);
+
+        
     }
 
     [DataContract]
@@ -74,16 +144,52 @@ namespace ServicioJuego
             return NombreUsuario.GetHashCode();
         }
 
-        [DataContract]
-        public class Partida
+    }
+
+    [DataContract]
+    public class Partida
+    {
+        [DataMember]
+        public string IdPartida { get; set; }
+        [DataMember]
+        public List<JugadorPartida> Jugadores { get; set; }
+        [DataMember]
+        public int TurnoActual { get; set; }
+    }
+
+    [DataContract]
+    public class Carta
+    {
+        [DataMember]
+        public int IdCarta { get; set; }
+
+        [DataMember]
+        public string Tipo { get; set; }
+
+        [DataMember]
+        public string RutaImagen { get; set; }
+
+        [DataMember]
+        public double PosicionX { get; set; }
+
+        [DataMember]
+        public double PosicionY { get; set; }
+
+        [DataMember]
+        public bool Asignada { get; set; }
+
+        public Carta(string tipo, int idCarta, string rutaImagen)
         {
-            [DataMember]
-            public string IdPartida { get; set; }
-            [DataMember]
-            public List<JugadorPartida> Jugadores { get; set; }
-            [DataMember]
-            public int TurnoActual { get; set; }
+            IdCarta = idCarta;
+            Tipo = tipo;
+            RutaImagen = rutaImagen;
+            PosicionX = 0;
+            PosicionY = 0;
+            Asignada = false;
         }
+
+        // Asegúrate de incluir también un constructor sin parámetros para la serialización:
+        public Carta() { }
 
     }
 
