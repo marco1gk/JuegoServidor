@@ -1,4 +1,5 @@
 ﻿C:\Users\vaoma\source\repos\JuegoServidor\Host\Program.cs
 C:\Users\vaoma\source\repos\JuegoServidor\Host\Properties\AssemblyInfo.cs
+C:\Users\vaoma\source\repos\JuegoServidor\Host\ILLink\ILLink.Descriptors.LibraryBuild.xml
 C:\Users\vaoma\source\repos\JuegoServidor\Host\App.config
 C:\Users\vaoma\source\repos\JuegoServidor\Host\packages.config

@@ -3,6 +3,7 @@ C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\DAO\AmistadDao.cs
 C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\DAO\CuentaDao.cs
 C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\DAO\JugadorDao.cs
 C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\DAO\Recursos.cs
+C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\Excepciones\ExcepcionAccesoDatos.cs
 C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\Migrations\202410192226316_MigracionInicial.cs
 C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\Migrations\202410192226316_MigracionInicial.Designer.cs
 C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\Migrations\202410192235299_MigracionInicial1.cs
@@ -24,6 +25,9 @@ C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\Modelo\Amistad.cs
 C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\Modelo\Cuenta.cs
 C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\Modelo\Jugador.cs
 C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\Properties\AssemblyInfo.cs
+C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\Utilidades\GestionLogger.cs
+C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\Utilidades\ManejadorExcepciones.cs
+C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\ILLink\ILLink.Descriptors.LibraryBuild.xml
 C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\Migrations\202410192226316_MigracionInicial.resx
 C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\Migrations\202410192235299_MigracionInicial1.resx
 C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\Migrations\202410202236079_arreglarTablas.resx
