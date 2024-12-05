@@ -5,7 +5,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel.Design;
 using System.Linq;
 using System.ServiceModel;
-using static ServicioJuego.JugadorPartida;
+//using static ServicioJuego.JugadorPartida;
 
 namespace ServicioJuego
 {
