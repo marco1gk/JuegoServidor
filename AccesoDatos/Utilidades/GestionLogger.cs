@@ -12,7 +12,7 @@ namespace AccesoDatos.Utilidades
 {
     public static class GestionLogger
     {
-        private static ILogger _logger;
+        private static ILogger logger;
 
         private static void ConfiguararLogger(string rutaDelArchivoDeRegistro)
         {
@@ -42,20 +42,20 @@ namespace AccesoDatos.Utilidades
 
         public static ILogger ObtenerLogger()
         {
-            if (_logger == null)
+            if (logger == null)
             {
                 string rutaDeRegistro = ConstruirRutaDelArchivoDeRegistro();
                 ConfiguararLogger(rutaDeRegistro);
             }
-            _logger = Log.Logger;
-            return _logger;
+            logger = Log.Logger;
+            return logger;
         }
 
         public static void CerrarYVaciar()
         {
-            (_logger as IDisposable)?.Dispose();
+            (logger as IDisposable)?.Dispose();
             Log.CloseAndFlush();
-            _logger = null;
+            logger = null;
         }
 
     }

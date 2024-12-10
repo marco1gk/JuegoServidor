@@ -11,7 +11,6 @@ using AccesoDatos.Utilidades;
 
 namespace ServicioJuego
 {
-   // [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Reentrant, InstanceContextMode = InstanceContextMode.PerSession)]
  
     public partial class ImplementacionServicio : IGestorUsuariosConectados
     {

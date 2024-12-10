@@ -212,7 +212,7 @@ namespace ServicioJuego
                     }
                     catch (CommunicationException ex)
                     {
-                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);  
                         RealizarSalidaLobby(codigoSalaEspera, jugador.NombreUsuario, false);
                     }
                     catch (Exception ex)

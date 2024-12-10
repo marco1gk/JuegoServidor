@@ -20,13 +20,10 @@ namespace ServicioJuego
 
         private void InicializarMazo(string idPartida)
         {
-            // Lista temporal para crear todas las cartas como instancias separadas
             var cartasTemporales = new List<Carta>();
 
-            // Contador para los IDs de las cartas
             int idCounter = 1;
 
-            // Agregar cartas al mazo asignando IDs únicos
             cartasTemporales.AddRange(Enumerable.Repeat(0, 3)
                                                  .Select(_ => new Carta("Carta1", idCounter++, "/Recursos/ElementosPartida/ImagenesPartida/Cartas/Carta1.png")));
 
@@ -50,7 +47,7 @@ namespace ServicioJuego
             cartasTemporales.AddRange(Enumerable.Repeat(0, 2)
                                                  .Select(_ => new Carta("Carta8", idCounter++, "/Recursos/ElementosPartida/ImagenesPartida/Cartas/Carta8.png")));
 
-            // Asignar el mazo completo
+    
             CartasEnMazo = cartasTemporales;
         }
 
@@ -59,7 +56,7 @@ namespace ServicioJuego
             Random random = new Random();
             for (int i = CartasEnMazo.Count - 1; i > 0; i--)
             {
-                int j = random.Next(i + 1); // Elegir un índice aleatorio entre 0 e i
+                int j = random.Next(i + 1); 
                 var temp = CartasEnMazo[i];
                 CartasEnMazo[i] = CartasEnMazo[j];
                 CartasEnMazo[j] = temp;
