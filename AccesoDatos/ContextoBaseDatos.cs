@@ -16,7 +16,9 @@ namespace AccesoDatos
         public virtual DbSet<Cuenta> Cuentas { get; set; }
         public virtual DbSet<Jugador> Jugadores { get; set; }
 
-        public DbSet<Amistad> Amistades { get; set; }
+        public virtual DbSet<Amistad> Amistades { get; set; }
+
+        public virtual DbSet<Estadisticas> Estadisticas { get; set; }   
 
         public ContextoBaseDatos() : base ("name=ContactoBaseDatos") { }
 
@@ -50,6 +52,14 @@ namespace AccesoDatos
                 .WithMany()
                 .HasForeignKey(amistad => amistad.JugadorId)
                 .WillCascadeOnDelete(false);
+
+            modelBuilder.Entity<Estadisticas>()
+                .ToTable("Estadisticas")
+                .HasRequired(est => est.Jugador) 
+                .WithMany()
+                .HasForeignKey(est => est.IdJugador)
+                .WillCascadeOnDelete(false);
+
 
             base.OnModelCreating(modelBuilder);
         }

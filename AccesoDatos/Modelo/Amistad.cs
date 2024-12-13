@@ -13,7 +13,7 @@ namespace AccesoDatos.Modelo
 
         [Key]
         public int AmistadId { get; set; }
-         public Nullable<int> JugadorId { get; set; }
+        public Nullable<int> JugadorId { get; set; }
     
         public Nullable<int> AmigoId { get; set; }
 

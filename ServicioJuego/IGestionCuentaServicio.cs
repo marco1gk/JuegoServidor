@@ -49,6 +49,9 @@ namespace ServicioJuego
         [OperationContract]
         bool VerificarContrasena(string contraseniaIngresada, string correo);
 
+        [OperationContract]
+        bool ValidarUsuarioEnLinea(string nombreUsuario);
+
 
 
     }

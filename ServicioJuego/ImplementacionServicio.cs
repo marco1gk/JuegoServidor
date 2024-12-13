@@ -17,10 +17,20 @@ namespace ServicioJuego
 {
     public partial class ImplementacionServicio : IGestionCuentaServicio
     {
+        public bool ValidarUsuarioEnLinea(string nombreUsuario)
+        {
+            Console.WriteLine("se busca a "+nombreUsuario);
+            bool esEnLinea = true;
+
+            if (!usuariosEnLinea.ContainsKey(nombreUsuario))
+            {
+                esEnLinea = false;
+            }
+
+            return esEnLinea;
+        }
         public bool AgregarJugador(JugadorDataContract jugador)
         {
-
-
             try
             {
                 Jugador jugadorAux = new Jugador();
