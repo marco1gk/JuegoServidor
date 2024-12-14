@@ -991,7 +991,6 @@ namespace ServicioJuego
 
             var partida = partidas[idPartida];
 
-            // 1. Vaciar las manos de los jugadores y agregar las cartas a descarte
             foreach (var jugador in partida.Jugadores)
             {
                 if (CartasEnMano.ContainsKey(jugador.NombreUsuario))
@@ -1001,22 +1000,21 @@ namespace ServicioJuego
                 }
             }
 
-            // 2. Calcular puntajes de los escondites
             var puntajes = CalcularPuntaje(partida.Jugadores);
 
-            // 3. Determinar el ganador
             var ganador = puntajes.OrderByDescending(p => p.Value).FirstOrDefault();
 
-            // 4. Notificar a todos los jugadores los resultados
             foreach (var jugador in partida.Jugadores)
             {
-                if (_callbacks.TryGetValue(jugador.NombreUsuario, out var callback))
+                if (jugador.CallbackChannel != null)
                 {
-                    callback.NotificarResultadosJuego(puntajes, ganador.Key, ganador.Value);
+                    jugador.CallbackChannel.NotificarResultadosJuego(puntajes, ganador.Key, ganador.Value);
+                }
+                else
+                {
+                    Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un canal de callback válido.");
                 }
             }
-
-            // 5. Limpiar datos de la partida
             partidas.Remove(idPartida);
             CartasEnMano.Clear();
             CartasEnEscondite.Clear();
@@ -1025,36 +1023,31 @@ namespace ServicioJuego
 
         private Dictionary<string, int> CalcularPuntaje(List<JugadorPartida> jugadores)
         {
-            // Diccionario para almacenar el puntaje total de cada jugador
             Dictionary<string, int> puntajes = jugadores.ToDictionary(j => j.NombreUsuario, j => 0);
 
-            // Definir la tabla de puntos por posición para cada tipo de carta
             var tablaPuntos = new Dictionary<string, int[]>
-    {
-        { "Carta1", new[] { 3, 0, 0 } },
-        { "Carta2", new[] { 4, 2, 0 } },
-        { "Carta3", new[] { 5, 3, 1 } },
-        { "Carta4", new[] { 6, 2, 1 } },
-        { "Carta5", new[] { 7, 0, 0 } }
-    };
 
-            // Iterar por cada tipo de carta
+            {
+                { "Carta1", new[] { 3, 0, 0 } },
+                { "Carta2", new[] { 4, 2, 0 } },
+                { "Carta3", new[] { 5, 3, 1 } },
+                { "Carta4", new[] { 6, 2, 1 } },
+                { "Carta5", new[] { 7, 0, 0 } }
+            };
+
             foreach (var tipoCarta in tablaPuntos.Keys)
             {
-                // Crear una lista con los jugadores y la cantidad de cartas de ese tipo
                 var conteoPorJugador = jugadores
                     .Select(j => new { JugadorPartida = j, Cantidad = CartasEnEscondite[j.NombreUsuario].Count(c => c.Tipo == tipoCarta) })
-                    .OrderByDescending(x => x.Cantidad) // Ordenar por cantidad de cartas
-                    .ThenBy(x => x.JugadorPartida.NombreUsuario)     // Desempatar por nombre
+                    .OrderByDescending(x => x.Cantidad)
+                    .ThenBy(x => x.JugadorPartida.NombreUsuario)
                     .ToList();
 
-                // Asignar puntos según las posiciones (1º, 2º, 3º)
                 for (int i = 0; i < conteoPorJugador.Count && i < 3; i++)
                 {
                     var jugador = conteoPorJugador[i].JugadorPartida;
                     int cantidad = conteoPorJugador[i].Cantidad;
 
-                    // Solo asignar puntos si el jugador tiene al menos una carta de ese tipo
                     if (cantidad > 0)
                     {
                         puntajes[jugador.NombreUsuario] += tablaPuntos[tipoCarta][i];
