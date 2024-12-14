@@ -17,13 +17,21 @@ namespace ServicioJuego
         private static List<Carta> CartasDescarte = new List<Carta>();
         private static readonly Dictionary<string, List<Carta>> CartasEnEscondite = new Dictionary<string, List<Carta>>();
         private static readonly Dictionary<string, List<Carta>> CartasEnMano = new Dictionary<string, List<Carta>>();
+        private static int jugadoresConCartaRevelada = 0;
+        private static int jugadoresGuardaronCarta = 0;
+        private static int jugadoresNoGuardaronCarta = 0;
+        private Carta cartaParteTrasera = new Carta("ParteTraseraCarta", 55, "/Recursos/ElementosPartida/ImagenesPartida/Cartas/Carta_Mazo.png");
+
 
         private void InicializarMazo(string idPartida)
         {
+            // Lista temporal para crear todas las cartas como instancias separadas
             var cartasTemporales = new List<Carta>();
 
+            // Contador para los IDs de las cartas
             int idCounter = 1;
 
+            // Agregar cartas al mazo asignando IDs únicos
             cartasTemporales.AddRange(Enumerable.Repeat(0, 3)
                                                  .Select(_ => new Carta("Carta1", idCounter++, "/Recursos/ElementosPartida/ImagenesPartida/Cartas/Carta1.png")));
 
@@ -46,22 +54,69 @@ namespace ServicioJuego
 
             cartasTemporales.AddRange(Enumerable.Repeat(0, 2)
                                                  .Select(_ => new Carta("Carta8", idCounter++, "/Recursos/ElementosPartida/ImagenesPartida/Cartas/Carta8.png")));
+            
+            cartasTemporales.Add(cartaParteTrasera);
 
-    
+            // Asignar el mazo completo
             CartasEnMazo = cartasTemporales;
         }
+
+        /*private void InicializarMazo(string idPartida)
+        {
+            // Lista temporal para crear todas las cartas como instancias separadas
+            var cartasTemporales = new List<Carta>();
+
+            // Contador para los IDs de las cartas
+            int idCounter = 1;
+
+            // Agregar cartas al mazo asignando IDs únicos
+            cartasTemporales.AddRange(Enumerable.Repeat(0, 3)
+                                                 .Select(_ => new Carta("Carta1", idCounter++, "/Recursos/ElementosPartida/ImagenesPartida/Cartas/Carta1.png")));
+
+            cartasTemporales.AddRange(Enumerable.Repeat(0, 3)
+                                                 .Select(_ => new Carta("Carta2", idCounter++, "/Recursos/ElementosPartida/ImagenesPartida/Cartas/Carta2.png")));
+            cartasTemporales.AddRange(Enumerable.Repeat(0, 3)
+                                                 .Select(_ => new Carta("Carta3", idCounter++, "/Recursos/ElementosPartida/ImagenesPartida/Cartas/Carta3.png")));
+
+            cartasTemporales.AddRange(Enumerable.Repeat(0, 3)
+                                                 .Select(_ => new Carta("Carta4", idCounter++, "/Recursos/ElementosPartida/ImagenesPartida/Cartas/Carta4.png")));
+
+            cartasTemporales.AddRange(Enumerable.Repeat(0, 3)
+                                                 .Select(_ => new Carta("Carta5", idCounter++, "/Recursos/ElementosPartida/ImagenesPartida/Cartas/Carta5.png")));
+
+            cartasTemporales.AddRange(Enumerable.Repeat(0, 1)
+                                                 .Select(_ => new Carta("Carta6", idCounter++, "/Recursos/ElementosPartida/ImagenesPartida/Cartas/Carta6.png")));
+
+            cartasTemporales.AddRange(Enumerable.Repeat(0, 1)
+                                                 .Select(_ => new Carta("Carta7", idCounter++, "/Recursos/ElementosPartida/ImagenesPartida/Cartas/Carta7.png")));
+
+            cartasTemporales.AddRange(Enumerable.Repeat(0, 1)
+                                                 .Select(_ => new Carta("Carta8", idCounter++, "/Recursos/ElementosPartida/ImagenesPartida/Cartas/Carta8.png")));
+
+            cartasTemporales.Add(cartaParteTrasera);
+
+            // Asignar el mazo completo
+            CartasEnMazo = cartasTemporales;
+        }*/
 
         private void BarajarMazo(string idPartida)
         {
             Random random = new Random();
-            for (int i = CartasEnMazo.Count - 1; i > 0; i--)
+            var cartasSinParteTrasera = CartasEnMazo.Take(CartasEnMazo.Count - 1).ToList();
+            var cartaParteTrasera = CartasEnMazo.Last();
+
+            for (int i = cartasSinParteTrasera.Count - 1; i > 0; i--)
             {
-                int j = random.Next(i + 1); 
-                var temp = CartasEnMazo[i];
-                CartasEnMazo[i] = CartasEnMazo[j];
-                CartasEnMazo[j] = temp;
+                int j = random.Next(i + 1);
+                var temp = cartasSinParteTrasera[i];
+                cartasSinParteTrasera[i] = cartasSinParteTrasera[j];
+                cartasSinParteTrasera[j] = temp;
             }
+
+            CartasEnMazo = cartasSinParteTrasera;
+            CartasEnMazo.Add(cartaParteTrasera); // Mantener la carta trasera al final
         }
+
 
         private List<Carta> RepartirCartas(int cantidad)
         {
@@ -490,6 +545,7 @@ namespace ServicioJuego
                     CartasEnEscondite[jugador.NombreUsuario] = new List<Carta>();
                 }
                 CartasEnEscondite[jugador.NombreUsuario].Add(carta);
+                CartasEnMano[jugador.NombreUsuario].Remove(carta);
 
                 if(jugador.CallbackChannel != null)
                 {
@@ -518,27 +574,42 @@ namespace ServicioJuego
             return numeroCartasEnMano;
         }
 
-        public void RobarCartaAJugador(string nombreUsuario, string idPartida)
+        public void RobarCartaAJugador(string nombreDefensor, string idPartida, bool cartaDuplicacionActiva)
         {
             var partida = partidas[idPartida];
             var jugadores = partida.Jugadores;
-            var jugadorObjetivoRobo = jugadores.FirstOrDefault(c => c.NombreUsuario == nombreUsuario);
-
-            if(jugadorObjetivoRobo != null)
+            var jugadorObjetivoRobo = jugadores.FirstOrDefault(c => c.NombreUsuario == nombreDefensor);
+            var jugadorAtacante = jugadores[partida.TurnoActual]; // Quien inició el ataque originalmente.
+            int cartasARobar = 1;
+            if (cartaDuplicacionActiva)
             {
-                var cartasBloquoRobo = CartasEnMano[nombreUsuario].Where(c => c.Tipo == "Carta7" || c.Tipo == "Carta8").ToList();
+                cartasARobar = 2;
+            }
 
-                if(cartasBloquoRobo.Count == 0)
+            if (jugadorObjetivoRobo != null)
+            {
+                var cartasBloqueoRobo = CartasEnMano[nombreDefensor].Where(c => c.Tipo == "Carta7" || c.Tipo == "Carta8").ToList();
+
+                if (cartasBloqueoRobo.Count == 0)
                 {
-                    RobarCarta(jugadorObjetivoRobo.NombreUsuario, partida.IdPartida);
+                    for (int i = 0; i < cartasARobar; i++)
+                    {
+                        RobarCarta(partida.IdPartida, nombreDefensor);
+                    }
                 }
                 else
                 {
+                    partida.RoboEnProgreso = new RoboContexto
+                    {
+                        Atacante = jugadorAtacante,
+                        Defensor = jugadorObjetivoRobo
+                    };
+
                     foreach (var jugador in jugadores)
                     {
                         if (jugador.CallbackChannel != null)
                         {
-                            jugador.CallbackChannel.NotificarIntentoRoboCarta(nombreUsuario);
+                            jugador.CallbackChannel.NotificarIntentoRoboCarta(nombreDefensor);
                         }
                         else
                         {
@@ -546,7 +617,6 @@ namespace ServicioJuego
                         }
                     }
                 }
-                
             }
             else
             {
@@ -554,30 +624,448 @@ namespace ServicioJuego
             }
         }
 
-        public void RobarCarta(string nombreJugadorObjetivoRobo, string idPartida)
+
+        public void RobarCarta(string idPartida, string nombreDefensor)
         {
             var partida = partidas[idPartida];
-            var jugadores = partida.Jugadores;
-            var jugadorObjetivoRobo = jugadores.FirstOrDefault(j => j.NombreUsuario == nombreJugadorObjetivoRobo);
-            var jugadorTurnoActual = jugadores[partida.TurnoActual];
-            List<Carta> cartasJugadorObjetivoRobo;
-            cartasJugadorObjetivoRobo = CartasEnMano[jugadorObjetivoRobo.NombreUsuario];
-            var cartaRobada = cartasJugadorObjetivoRobo[new Random().Next(cartasJugadorObjetivoRobo.Count)];
-            CartasEnMano[jugadorObjetivoRobo.NombreUsuario].Remove(cartaRobada);
-            CartasEnMano[jugadorTurnoActual.NombreUsuario].Add(cartaRobada);
-
-            foreach(var jugador in jugadores)
+            if (partida.RoboEnProgreso != null)
             {
-                if(jugador.CallbackChannel != null)
+                var atacante = partida.RoboEnProgreso.Atacante;
+                var defensor = partida.RoboEnProgreso.Defensor;
+
+                if (CartasEnMano[defensor.NombreUsuario].Count > 0)
                 {
-                    jugador.CallbackChannel.NotificarCartaRobada(cartaRobada, jugadorObjetivoRobo.NombreUsuario, jugadorTurnoActual.NombreUsuario);
+                    var cartaRobada = CartasEnMano[defensor.NombreUsuario][new Random().Next(CartasEnMano[defensor.NombreUsuario].Count)];
+                    CartasEnMano[defensor.NombreUsuario].Remove(cartaRobada);
+                    CartasEnMano[atacante.NombreUsuario].Add(cartaRobada);
+
+                    foreach (var jugador in partida.Jugadores)
+                    {
+                        if (jugador.CallbackChannel != null)
+                        {
+                            jugador.CallbackChannel.NotificarCartaRobada(cartaRobada, defensor.NombreUsuario, atacante.NombreUsuario);
+                        }
+                    }
                 }
-                else
+
+                // Finaliza el contexto del robo.
+                partida.RoboEnProgreso = null;
+            }
+            else
+            {
+                var jugadorObjetivoRobo = partida.Jugadores.FirstOrDefault(j => j.NombreUsuario == nombreDefensor);
+                var jugadorTurnoActual = partida.Jugadores[partida.TurnoActual];
+                var cartaRobada = CartasEnMano[jugadorObjetivoRobo.NombreUsuario][new Random().Next(CartasEnMano[jugadorObjetivoRobo.NombreUsuario].Count)];
+                CartasEnMano[jugadorObjetivoRobo.NombreUsuario].Remove(cartaRobada);
+                CartasEnMano[jugadorTurnoActual.NombreUsuario].Add(cartaRobada);
+
+                foreach (var jugador in partida.Jugadores)
                 {
-                    Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un callback válido.");
+                    if (jugador.CallbackChannel != null)
+                    {
+                        jugador.CallbackChannel.NotificarCartaRobada(cartaRobada, jugadorObjetivoRobo.NombreUsuario, jugadorTurnoActual.NombreUsuario);
+                    }
+                }
+
+            }
+        }
+
+        public void UtilizarCartaDefensiva(string idPartida, string nombreDefensor)
+        {
+            var partida = partidas[idPartida];
+            if (partida.RoboEnProgreso != null)
+            {
+                var atacanteAnterior = partida.RoboEnProgreso.Atacante;
+                partida.RoboEnProgreso.Atacante = partida.RoboEnProgreso.Defensor;
+                partida.RoboEnProgreso.Defensor = atacanteAnterior;
+
+                foreach (var jugador in partida.Jugadores)
+                {
+                    if (jugador.CallbackChannel != null)
+                    {
+                        jugador.CallbackChannel.NotificarIntentoRoboCarta(partida.RoboEnProgreso.Defensor.NombreUsuario);
+                    }
                 }
             }
         }
+
+        public void RobarCartaEsconditeAJugador(string nombreDefensor, string idPartida, bool cartaDuplicacionActiva)
+        {
+            var partida = partidas[idPartida];
+            var jugadores = partida.Jugadores;
+            var jugadorObjetivoRobo = jugadores.FirstOrDefault(c => c.NombreUsuario == nombreDefensor);
+            var jugadorAtacante = jugadores[partida.TurnoActual]; // Quien inició el ataque originalmente.
+            int cartasARobar = 1;
+            if (cartaDuplicacionActiva)
+            {
+                cartasARobar = 2;
+            }
+
+            if (jugadorObjetivoRobo != null)
+            {
+                var cartasBloqueoRobo = CartasEnMano[nombreDefensor].Where(c => c.Tipo == "Carta7" || c.Tipo == "Carta8").ToList();
+
+                if (cartasBloqueoRobo.Count == 0)
+                {
+                    for(int i = 0; i < cartasARobar; i ++)
+                    {
+                        RobarCartaEscondite(partida.IdPartida, nombreDefensor);
+                    }
+                    
+                }
+                else
+                {
+                    partida.RoboEnProgreso = new RoboContexto
+                    {
+                        Atacante = jugadorAtacante,
+                        Defensor = jugadorObjetivoRobo
+                    };
+
+                    foreach (var jugador in jugadores)
+                    {
+                        if (jugador.CallbackChannel != null)
+                        {
+                            jugador.CallbackChannel.NotificarIntentoRoboCartaEscondite(nombreDefensor);
+                        }
+                        else
+                        {
+                            Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un callback válido.");
+                        }
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("Jugador de objetivo de robo no encontrado");
+            }
+        }
+
+
+        public void RobarCartaEscondite(string idPartida, string nombreDefensor)
+        {
+            var partida = partidas[idPartida];
+            if (partida.RoboEnProgreso != null)
+            {
+                var atacante = partida.RoboEnProgreso.Atacante;
+                var defensor = partida.RoboEnProgreso.Defensor;
+
+                if (CartasEnEscondite[defensor.NombreUsuario].Count > 0)
+                {
+                    var cartaRobada = CartasEnEscondite[defensor.NombreUsuario][new Random().Next(CartasEnEscondite[defensor.NombreUsuario].Count)];
+                    CartasEnEscondite[defensor.NombreUsuario].Remove(cartaRobada);
+                    CartasEnMano[atacante.NombreUsuario].Add(cartaRobada);
+
+                    foreach (var jugador in partida.Jugadores)
+                    {
+                        if (jugador.CallbackChannel != null)
+                        {
+                            jugador.CallbackChannel.NotificarCartaEsconditeRobada(cartaRobada, defensor.NombreUsuario, atacante.NombreUsuario);
+                        }
+                    }
+                }
+
+                // Finaliza el contexto del robo.
+                partida.RoboEnProgreso = null;
+            }
+            else
+            {
+                var jugadorObjetivoRobo = partida.Jugadores.FirstOrDefault(j => j.NombreUsuario == nombreDefensor);
+                var jugadorTurnoActual = partida.Jugadores[partida.TurnoActual];
+                var cartaRobada = CartasEnEscondite[jugadorObjetivoRobo.NombreUsuario][new Random().Next(CartasEnEscondite[jugadorObjetivoRobo.NombreUsuario].Count)];
+                CartasEnEscondite[jugadorObjetivoRobo.NombreUsuario].Remove(cartaRobada);
+                CartasEnMano[jugadorTurnoActual.NombreUsuario].Add(cartaRobada);
+
+                foreach (var jugador in partida.Jugadores)
+                {
+                    if (jugador.CallbackChannel != null)
+                    {
+                        jugador.CallbackChannel.NotificarCartaEsconditeRobada(cartaRobada, jugadorObjetivoRobo.NombreUsuario, jugadorTurnoActual.NombreUsuario);
+                    }
+                }
+
+            }
+        }
+
+        public void TomarCartaDeDescarte(string idPartida, string nombreUsuario, int idCarta)
+        {
+            if (partidas.ContainsKey(idPartida))
+            {
+                var cartaTomadaDescarte = CartasDescarte.FirstOrDefault(c => c.IdCarta == idCarta);
+                if (cartaTomadaDescarte != null)
+                {
+                    CartasDescarte.Remove(cartaTomadaDescarte);
+                    AgregarCartaACartasEnMano(nombreUsuario, cartaTomadaDescarte, idPartida);
+                    var jugadores = partidas[idPartida].Jugadores;
+
+                    foreach (var jugador in jugadores)
+                    {
+                        if (jugador.CallbackChannel != null)
+                        {
+                            try
+                            {
+                                jugador.CallbackChannel.NotificarCartaTomadaDescarte(cartaTomadaDescarte.IdCarta);
+                            }
+                            catch (CommunicationException ex)
+                            {
+                                Console.WriteLine($"Error al notificar resultado del dado a {jugador.NombreUsuario}: {ex.Message}");
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un callback válido.");
+                        }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("La carta no se encontro");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Partida no encontrada");
+            }
+        }
+
+        public void ObligarATirarDado(string idPartida)
+        {
+            if (partidas.ContainsKey(idPartida))
+            {
+                var partida = partidas[idPartida];
+                var jugadorEnTurno = partida.Jugadores[partida.TurnoActual];
+                // Notificar al jugador que debe tirar el dado
+                if (jugadorEnTurno.CallbackChannel != null)
+                {
+                    jugadorEnTurno.CallbackChannel.NotificarTiroDadoForzado(jugadorEnTurno.NombreUsuario);
+                }
+                else
+                {
+                    Console.WriteLine($"El jugador {jugadorEnTurno.NombreUsuario} no tiene un canal de callback válido.");
+                }
+
+            }
+            else
+            {
+                Console.WriteLine("Partida no encontrada.");
+            }
+        }
+
+        public void PreguntarGuardarCartaEnEscondite(string idPartida)
+        {
+            if (partidas.ContainsKey(idPartida))
+            {
+                var jugadores = partidas[idPartida].Jugadores;
+                var jugadorTurnoActual = jugadores[partidas[idPartida].TurnoActual];
+                var cartaRevelada = CartasEnMazo.Last();
+                
+                foreach( var jugador in jugadores)
+                {
+                    if(jugador.NombreUsuario != jugadorTurnoActual.NombreUsuario)
+                    {
+                        Console.WriteLine($"La carta que se revelo fue de tipo: {cartaRevelada.Tipo}");
+                        if (CartasEnMano[jugador.NombreUsuario].Any(c => c.Tipo == cartaRevelada.Tipo))
+                        {
+                            jugadoresConCartaRevelada++;
+                            if(jugador.CallbackChannel != null)
+                            {
+                                jugador.CallbackChannel.NotificarPreguntaJugadores(jugadorTurnoActual.NombreUsuario);
+                            }
+                            else
+                            {
+                                Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un canal de callback válido.");
+                            }
+                        }
+                        else
+                        {
+                            if(jugadorTurnoActual.CallbackChannel != null)
+                            {
+                                jugadorTurnoActual.CallbackChannel.NotificarNumeroJugadoresGuardaronCarta(0);
+                            }
+                            else
+                            {
+                                Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un canal de callback válido.");
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("Partida no encontrada");
+            }
+        }
+
+        public void EnviarDecision(string idPartida, bool decision)
+        {
+            Console.WriteLine($"Jugadores con carta revelada: {jugadoresConCartaRevelada}");
+            if (partidas.ContainsKey(idPartida))
+            {
+                var partida = partidas[idPartida];
+                var jugadores = partida.Jugadores;
+                var jugadorTurnoActual = jugadores[partida.TurnoActual];
+                if (decision)
+                {
+                    jugadoresGuardaronCarta++;
+                }
+                else
+                {
+                    jugadoresNoGuardaronCarta++;
+                }
+                Console.WriteLine($"Jugadores que guardaron carta: {jugadoresGuardaronCarta}");
+                Console.WriteLine($"Jugadores que no guardaron carta: {jugadoresNoGuardaronCarta}");
+                if (jugadoresGuardaronCarta + jugadoresNoGuardaronCarta == jugadoresConCartaRevelada)
+                {
+                    if(jugadorTurnoActual.CallbackChannel != null)
+                    {
+                        jugadorTurnoActual.CallbackChannel.NotificarNumeroJugadoresGuardaronCarta(jugadoresGuardaronCarta);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"El jugador {jugadorTurnoActual.NombreUsuario} no tiene un canal de callback válido.");
+                    }
+                    jugadoresConCartaRevelada = 0;
+                    jugadoresGuardaronCarta = 0;
+                    jugadoresNoGuardaronCarta = 0;
+                }
+            }
+            else
+            {
+                Console.WriteLine("Partida no encontrada");
+            }
+        }
+
+        public void RevelarCartaMazo(string idPartida)
+        {
+            if (partidas.ContainsKey(idPartida))
+            {
+                CartasEnMazo.Remove(CartasEnMazo.Last());
+                var partida = partidas[idPartida];
+                var jugadores = partida.Jugadores;
+                foreach(var jugador in jugadores)
+                {
+                    if(jugador.CallbackChannel != null)
+                    {
+                        jugador.CallbackChannel.NotificarMazoRevelado();
+                    }
+                    else
+                    {
+                        Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un canal de callback válido.");
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("Partida no encontrada");
+            }
+        }
+
+        public void OcultarCartaMazo(string idPartida)
+        {
+            if (partidas.ContainsKey(idPartida))
+            {
+                CartasEnMazo.Add(cartaParteTrasera);
+                var partida = partidas[idPartida];
+                var jugadores = partida.Jugadores;
+                foreach (var jugador in jugadores)
+                {
+                    if (jugador.CallbackChannel != null)
+                    {
+                        jugador.CallbackChannel.NotificarMazoOculto(cartaParteTrasera);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un canal de callback válido.");
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("Partida no encontrada");
+            }
+        }
+
+        public void FinalizarJuego(string idPartida)
+        {
+            if (!partidas.ContainsKey(idPartida))
+                return;
+
+            var partida = partidas[idPartida];
+
+            // 1. Vaciar las manos de los jugadores y agregar las cartas a descarte
+            foreach (var jugador in partida.Jugadores)
+            {
+                if (CartasEnMano.ContainsKey(jugador.NombreUsuario))
+                {
+                    CartasDescarte.AddRange(CartasEnMano[jugador.NombreUsuario]);
+                    CartasEnMano[jugador.NombreUsuario].Clear();
+                }
+            }
+
+            // 2. Calcular puntajes de los escondites
+            var puntajes = CalcularPuntaje(partida.Jugadores);
+
+            // 3. Determinar el ganador
+            var ganador = puntajes.OrderByDescending(p => p.Value).FirstOrDefault();
+
+            // 4. Notificar a todos los jugadores los resultados
+            foreach (var jugador in partida.Jugadores)
+            {
+                if (_callbacks.TryGetValue(jugador.NombreUsuario, out var callback))
+                {
+                    callback.NotificarResultadosJuego(puntajes, ganador.Key, ganador.Value);
+                }
+            }
+
+            // 5. Limpiar datos de la partida
+            partidas.Remove(idPartida);
+            CartasEnMano.Clear();
+            CartasEnEscondite.Clear();
+            CartasDescarte.Clear();
+        }
+
+        private Dictionary<string, int> CalcularPuntaje(List<JugadorPartida> jugadores)
+        {
+            // Diccionario para almacenar el puntaje total de cada jugador
+            Dictionary<string, int> puntajes = jugadores.ToDictionary(j => j.NombreUsuario, j => 0);
+
+            // Definir la tabla de puntos por posición para cada tipo de carta
+            var tablaPuntos = new Dictionary<string, int[]>
+    {
+        { "Carta1", new[] { 3, 0, 0 } },
+        { "Carta2", new[] { 4, 2, 0 } },
+        { "Carta3", new[] { 5, 3, 1 } },
+        { "Carta4", new[] { 6, 2, 1 } },
+        { "Carta5", new[] { 7, 0, 0 } }
+    };
+
+            // Iterar por cada tipo de carta
+            foreach (var tipoCarta in tablaPuntos.Keys)
+            {
+                // Crear una lista con los jugadores y la cantidad de cartas de ese tipo
+                var conteoPorJugador = jugadores
+                    .Select(j => new { JugadorPartida = j, Cantidad = CartasEnEscondite[j.NombreUsuario].Count(c => c.Tipo == tipoCarta) })
+                    .OrderByDescending(x => x.Cantidad) // Ordenar por cantidad de cartas
+                    .ThenBy(x => x.JugadorPartida.NombreUsuario)     // Desempatar por nombre
+                    .ToList();
+
+                // Asignar puntos según las posiciones (1º, 2º, 3º)
+                for (int i = 0; i < conteoPorJugador.Count && i < 3; i++)
+                {
+                    var jugador = conteoPorJugador[i].JugadorPartida;
+                    int cantidad = conteoPorJugador[i].Cantidad;
+
+                    // Solo asignar puntos si el jugador tiene al menos una carta de ese tipo
+                    if (cantidad > 0)
+                    {
+                        puntajes[jugador.NombreUsuario] += tablaPuntos[tipoCarta][i];
+                    }
+                }
+            }
+
+            return puntajes;
+        }
+
+
 
     }
 }

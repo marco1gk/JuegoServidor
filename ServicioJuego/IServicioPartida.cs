@@ -1,4 +1,5 @@
-﻿using Microsoft.SqlServer.Server;
+﻿using AccesoDatos.Modelo;
+using Microsoft.SqlServer.Server;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -56,10 +57,41 @@ namespace ServicioJuego
         int NumeroCartasEnMano(string nombreUsuario, string idPartida);
 
         [OperationContract(IsOneWay = true)]
-        void RobarCartaAJugador(string nombreUsuario, string idPartida);
+        void RobarCartaAJugador(string nombreDefensor, string idPartida, bool cartaDuplicacionActiva);
 
         [OperationContract(IsOneWay = true)]
-        void RobarCarta(string nombreJugadorObjetivoRobo, string idPartida);
+        void RobarCarta(string idPartida, string nombreDefensor);
+
+        [OperationContract(IsOneWay = true)]
+        void UtilizarCartaDefensiva(string idPartida, string nombreDefensor);
+
+        [OperationContract(IsOneWay = true)]
+        void RobarCartaEsconditeAJugador(string nombreDefensor, string idPartida, bool cartaDuplicacionActiva);
+
+        [OperationContract(IsOneWay = true)]
+        void RobarCartaEscondite(string idPartida, string nombreDefensor);
+
+        [OperationContract(IsOneWay = true)]
+        void TomarCartaDeDescarte(string idPartida, string nombreJugador, int idCarta);
+
+        [OperationContract(IsOneWay = true)]
+        void ObligarATirarDado(string idPartida);
+
+        [OperationContract(IsOneWay = true)]
+        void PreguntarGuardarCartaEnEscondite(string idPartida);
+
+        [OperationContract(IsOneWay = true)]
+        void EnviarDecision(string idPartida, bool decision);
+
+        [OperationContract(IsOneWay = true)]
+        void RevelarCartaMazo(string idPartida);
+
+        [OperationContract(IsOneWay = true)]
+        void OcultarCartaMazo(string idPartida);
+
+        [OperationContract(IsOneWay = true)]
+        void FinalizarJuego(string idPartida);
+      
     }
 
     [ServiceContract]
@@ -113,7 +145,34 @@ namespace ServicioJuego
         [OperationContract]
         void NotificarCartaRobada(Carta cartaRobada, string nombreJugadorObjetivoRobo, string nombreJugadorTurnoActual);
 
-        
+        [OperationContract]
+        void NotificarIntentoRoboCartaEscondite(string nombreUsuario);
+
+        [OperationContract]
+        void NotificarCartaEsconditeRobada(Carta cartaRobada, string nombreJugadorObjetivoRobo, string nombreJugadorTurnoActual);
+
+        [OperationContract]
+        void NotificarCartaTomadaDescarte(int idCarta);
+
+        [OperationContract]
+        void NotificarTiroDadoForzado(string jugadorEnTurno);
+
+        [OperationContract]
+        void NotificarPreguntaJugadores(string jugadorTurnoActual);
+
+        [OperationContract]
+        void NotificarNumeroJugadoresGuardaronCarta(int numeroJugadores);
+
+        [OperationContract]
+        void NotificarMazoRevelado();
+
+        [OperationContract]
+        void NotificarMazoOculto(Carta cartaParteTrasera);
+
+        [OperationContract]
+        void NotificarResultadosJuego(Dictionary<string, int> puntajes, string ganador, int puntajeGanador);
+
+
     }
 
     [DataContract]
@@ -155,6 +214,9 @@ namespace ServicioJuego
         public List<JugadorPartida> Jugadores { get; set; }
         [DataMember]
         public int TurnoActual { get; set; }
+
+        [DataMember]
+        public RoboContexto RoboEnProgreso { get; set; }
     }
 
     [DataContract]
@@ -191,6 +253,12 @@ namespace ServicioJuego
         // Asegúrate de incluir también un constructor sin parámetros para la serialización:
         public Carta() { }
 
+    }
+
+    public class RoboContexto
+    {
+        public JugadorPartida Atacante { get; set; }
+        public JugadorPartida Defensor { get; set; }
     }
 
 }
