@@ -114,8 +114,6 @@ namespace ServicioJuego
             return null; 
         }
 
-
-
         public bool EditarContraseña(string correo, string nuevaContrasenia)
         {
             CuentaDao cuentaDao = new CuentaDao();
