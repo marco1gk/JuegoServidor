@@ -92,10 +92,18 @@ namespace ServicioJuego
         [OperationContract(IsOneWay = true)]
         void FinalizarJuego(string idPartida);
 
-        [OperationContract]
-        void RegistrarJugadorInvitado(JugadorPartida invitado);
+        [OperationContract(IsOneWay = true)]
+        void DejarTirarDado(string idPartida);
 
+        [OperationContract(IsOneWay = true)]
+        void EstablecerModoSeleccionCartaJugadorEnTurno(string idPartida, int idModoSeleccion);
 
+        [OperationContract(IsOneWay = true)]
+        void EstablecerModoSeleccionCartaJugador(string idPartida, int idModoSeleccionar);
+
+        [OperationContract(IsOneWay = true)]
+        void EstablecerModoSeleccionarCartaJugadores(string idPartida, int idModoSeleccionar, List<string> nombresJugadores);
+      
     }
 
     [ServiceContract]
@@ -176,7 +184,12 @@ namespace ServicioJuego
         [OperationContract]
         void NotificarResultadosJuego(Dictionary<string, int> puntajes, string ganador, int puntajeGanador);
 
-       
+        [OperationContract]
+        void NotificarPararTirarDado();
+
+        [OperationContract]
+        void NotificarModoSeleccionCarta(int idModoSeleccion);
+
     }
 
     [DataContract]
@@ -189,9 +202,6 @@ namespace ServicioJuego
         public int NumeroFotoPerfil { get; set; }
         public IServicioPartidaCallback CallbackChannel { get; set; }
 
-
-        [DataMember]
-        public bool EsInvitado { get; set; }
         public override bool Equals(object obj)
         {
             if (obj == null || GetType() != obj.GetType())
@@ -236,7 +246,7 @@ namespace ServicioJuego
         public string Tipo { get; set; }
 
         [DataMember]
-        public string RutaImagen { get; set; }
+        public int IdRutaImagen { get; set; }
 
         [DataMember]
         public double PosicionX { get; set; }
@@ -244,17 +254,14 @@ namespace ServicioJuego
         [DataMember]
         public double PosicionY { get; set; }
 
-        [DataMember]
-        public bool Asignada { get; set; }
 
-        public Carta(string tipo, int idCarta, string rutaImagen)
+        public Carta(string tipo, int idCarta, int idRutaImagen)
         {
             IdCarta = idCarta;
             Tipo = tipo;
-            RutaImagen = rutaImagen;
+            IdRutaImagen = idRutaImagen;
             PosicionX = 0;
             PosicionY = 0;
-            Asignada = false;
         }
 
         // Asegúrate de incluir también un constructor sin parámetros para la serialización:
