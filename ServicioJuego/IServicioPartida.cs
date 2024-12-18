@@ -103,7 +103,10 @@ namespace ServicioJuego
 
         [OperationContract(IsOneWay = true)]
         void EstablecerModoSeleccionarCartaJugadores(string idPartida, int idModoSeleccionar, List<string> nombresJugadores);
-      
+
+        [OperationContract]
+        void RegistrarJugadorInvitado(JugadorPartida invitado);
+
     }
 
     [ServiceContract]
@@ -201,6 +204,9 @@ namespace ServicioJuego
         [DataMember]
         public int NumeroFotoPerfil { get; set; }
         public IServicioPartidaCallback CallbackChannel { get; set; }
+
+        [DataMember]
+        public bool EsInvitado { get; set; }
 
         public override bool Equals(object obj)
         {
