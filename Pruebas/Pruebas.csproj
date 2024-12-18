@@ -170,7 +170,7 @@
     <Compile Include="PruebaAmistadDao.cs" />
     <Compile Include="PruebaCuenta.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="PruebaImplementaciónSalaEspera.cs" />
+    <Compile Include="PruebaEstadistica.cs" />
     <Compile Include="PruebaJugadorDao.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -58,14 +58,16 @@
     <Compile Include="Correo\Plantillas\IPlantillaCorreo.cs" />
     <Compile Include="Correo\Plantillas\PlantillaInvitacionSalaEspera.cs" />
     <Compile Include="Excepciones\HuntersTrophyExcepcion.cs" />
+    <Compile Include="IEstadisticasServicio.cs" />
     <Compile Include="IGestionCuentaServicio.cs" />
     <Compile Include="IGestorAmistad.cs" />
     <Compile Include="IGestorDeSolicitudesDeAmistad.cs" />
     <Compile Include="IGestorInvitacion.cs" />
     <Compile Include="IGestorUsuariosConectados.cs" />
     <Compile Include="ImplementacionSalaEspera.cs" />
-    <Compile Include="ILobbyManager.cs" />
+    <Compile Include="ISalaEsperaServicio.cs" />
     <Compile Include="ImplementacionServicioAmistad.cs" />
+    <Compile Include="ImplementacionServicioEstadisticas.cs" />
     <Compile Include="ImplementacionServicioInvitacion.cs" />
     <Compile Include="ImplementacionServicioPartida.cs" />
     <Compile Include="ImplementacionUsuariosLinea.cs" />

@@ -18,6 +18,9 @@ namespace ServicioJuego
         bool AgregarJugador(JugadorDataContract jugador);
 
         [OperationContract]
+        string ObtenerNombreUsuarioPorIdJugador(int idJugador);
+
+        [OperationContract]
         bool EditarContraseña(string correo, string nuevaContraseña);
 
         [OperationContract]
@@ -52,6 +55,9 @@ namespace ServicioJuego
         [OperationContract]
         bool ValidarUsuarioEnLinea(string nombreUsuario);
 
+        [OperationContract]
+        int ObtenerIdJugadorPorNombreUsuario(string nombreUsuario);
+
 
 
     }
@@ -74,6 +80,9 @@ namespace ServicioJuego
 
         [DataMember]
         public string ContraseniaHash { get; set; }
+
+        [DataMember]
+        public bool EsInvitado { get; set; }    
     }
 
 }

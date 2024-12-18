@@ -91,7 +91,11 @@ namespace ServicioJuego
 
         [OperationContract(IsOneWay = true)]
         void FinalizarJuego(string idPartida);
-      
+
+        [OperationContract]
+        void RegistrarJugadorInvitado(JugadorPartida invitado);
+
+
     }
 
     [ServiceContract]
@@ -172,7 +176,7 @@ namespace ServicioJuego
         [OperationContract]
         void NotificarResultadosJuego(Dictionary<string, int> puntajes, string ganador, int puntajeGanador);
 
-
+       
     }
 
     [DataContract]
@@ -185,6 +189,9 @@ namespace ServicioJuego
         public int NumeroFotoPerfil { get; set; }
         public IServicioPartidaCallback CallbackChannel { get; set; }
 
+
+        [DataMember]
+        public bool EsInvitado { get; set; }
         public override bool Equals(object obj)
         {
             if (obj == null || GetType() != obj.GetType())

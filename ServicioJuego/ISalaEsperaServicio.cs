@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace ServicioJuego
 {
     [ServiceContract(CallbackContract = typeof(IGestorSalasEsperasCallBack))]
-    public interface ILobbyManager
+    public interface ISalaEsperaServicio
     {
         [OperationContract]
         void InvitarAmigoASala(string codigoSalaEspera, string nombreAmigo, string nombreInvitador);
@@ -90,6 +90,8 @@ namespace ServicioJuego
         [DataMember]
         public int NumeroFotoPerfil { get; set; }
 
+        [DataMember]
+        public bool EsInvitado { get; set; }
 
         public IGestorSalasEsperasCallBack CallbackChannel { get; set; }
 

@@ -82,6 +82,7 @@
     <Compile Include="ContextoBaseDatos.cs" />
     <Compile Include="DAO\AmistadDao.cs" />
     <Compile Include="DAO\CuentaDao.cs" />
+    <Compile Include="DAO\EstadisticasDao.cs" />
     <Compile Include="DAO\JugadorDao.cs" />
     <Compile Include="DAO\Recursos.cs" />
     <Compile Include="Excepciones\ExcepcionAccesoDatos.cs" />

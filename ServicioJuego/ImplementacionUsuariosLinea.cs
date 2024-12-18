@@ -122,8 +122,6 @@ namespace ServicioJuego
 
         public void DesregistrarUsuarioDeUsuariosEnLinea(string nombreUsuario)
         {
-
-            Console.WriteLine("se desconecto el cabron de " + nombreUsuario);
             if (usuariosEnLinea.ContainsKey(nombreUsuario))
             {
                 usuariosEnLinea.Remove(nombreUsuario);

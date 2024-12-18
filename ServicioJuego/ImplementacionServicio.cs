@@ -17,6 +17,81 @@ namespace ServicioJuego
 {
     public partial class ImplementacionServicio : IGestionCuentaServicio
     {
+        public string ObtenerNombreUsuarioPorIdJugador(int idJugador)
+        {
+            string nombreUsuario = string.Empty;
+
+            try
+            {
+                using (var contexto = new ContextoBaseDatos())
+                {
+                    var jugador = contexto.Jugadores
+                        .FirstOrDefault(p => p.JugadorId == idJugador);
+
+                    if (jugador != null)
+                    {
+                        nombreUsuario = jugador.NombreUsuario;
+                    }
+                }
+            }
+            catch (ExcepcionAccesoDatos ex)
+            {
+                HuntersTrophyExcepcion respuestaExcepcion = new HuntersTrophyExcepcion
+                {
+                    Mensaje = ex.Message,
+                    StackTrace = ex.StackTrace
+                };
+
+                throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
+            }
+            catch (EntityException ex)
+            {
+                Console.WriteLine(ex);
+            }
+            catch (SqlException ex)
+            {
+                Console.WriteLine(ex);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+
+            return nombreUsuario;
+        }
+        public JugadorDataContract ObtenerJugador(int idJugador)
+        {
+
+            try
+            {
+                JugadorDao JugadorDao = new JugadorDao();
+                Jugador jugador = JugadorDao.ObtenerJugador(idJugador);
+
+                if (jugador != null && jugador.Cuenta != null)
+                {
+                    return new JugadorDataContract
+                    {
+                        NombreUsuario = jugador.NombreUsuario,
+                        NumeroFotoPerfil = jugador.NumeroFotoPerfil,
+                        Correo = jugador.Cuenta.Correo,
+                        ContraseniaHash = jugador.Cuenta.ContraseniaHash
+                    };
+                }
+            }
+            catch (ExcepcionAccesoDatos ex)
+            {
+                HuntersTrophyExcepcion respuestaExcepcion = new HuntersTrophyExcepcion
+                {
+                    Mensaje = ex.Message,
+                    StackTrace = ex.StackTrace
+                };
+
+                throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
+            }
+
+            return null;
+        }
+
         public bool ValidarUsuarioEnLinea(string nombreUsuario)
         {
             Console.WriteLine("se busca a "+nombreUsuario);
@@ -136,40 +211,8 @@ namespace ServicioJuego
         
         }
 
-        public JugadorDataContract ObtenerJugador(int idJugador)
-        {
-
-            try
-            {
-                JugadorDao JugadorDao = new JugadorDao();
-                Jugador jugador = JugadorDao.ObtenerJugador(idJugador);
-
-                if (jugador != null && jugador.Cuenta != null)
-                {
-                    return new JugadorDataContract
-                    {
-                        NombreUsuario = jugador.NombreUsuario,
-                        NumeroFotoPerfil = jugador.NumeroFotoPerfil,
-                        Correo = jugador.Cuenta.Correo,
-                        ContraseniaHash = jugador.Cuenta.ContraseniaHash
-                    };
-                }
-            }
-            catch (ExcepcionAccesoDatos ex)
-            {
-                HuntersTrophyExcepcion respuestaExcepcion = new HuntersTrophyExcepcion
-                {
-                    Mensaje = ex.Message,
-                    StackTrace = ex.StackTrace
-                };
-
-                throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
-            }
-            
-            return null;
-        }
-
-        public int ObtenerIdJugadorPorNombreUsuario(string username)
+       
+        public int ObtenerIdJugadorPorNombreUsuario(string nombreUsuario)
         {
             int idPlayer = 0;
 
@@ -178,7 +221,7 @@ namespace ServicioJuego
                 using (var context = new ContextoBaseDatos())
                 {
                     var player = context.Jugadores
-                        .FirstOrDefault(p => p.NombreUsuario == username);
+                        .FirstOrDefault(p => p.NombreUsuario == nombreUsuario);
 
                     if (player != null)
                     {
@@ -209,48 +252,7 @@ namespace ServicioJuego
         }
 
 
-        public string ObtenerNombreUsuarioPorIdJugador(int idJugador)
-        {
-            string nombreUsuario = string.Empty;
-
-            try
-            {
-                using (var contexto = new ContextoBaseDatos())
-                {
-                    var jugador = contexto.Jugadores
-                        .FirstOrDefault(p => p.JugadorId == idJugador);
-
-                    if (jugador != null)
-                    {
-                        nombreUsuario = jugador.NombreUsuario;
-                    }
-                }
-            }
-            catch (ExcepcionAccesoDatos ex)
-            {
-                HuntersTrophyExcepcion respuestaExcepcion = new HuntersTrophyExcepcion
-                {
-                    Mensaje = ex.Message,
-                    StackTrace = ex.StackTrace
-                };
-
-                throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
-            }
-            catch (EntityException ex)
-            {
-                Console.WriteLine(ex);
-            }
-            catch (SqlException ex)
-            {
-                Console.WriteLine(ex);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-            }
-
-            return nombreUsuario;
-        }
+   
 
         public bool EditarNombreUsuario(int idJugador, string nuevoNombreUsuario)
         {
