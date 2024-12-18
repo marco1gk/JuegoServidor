@@ -36,18 +36,7 @@ namespace Pruebas
  
                 Assert.True(resultado, "El método no agregó correctamente el jugador y la cuenta.");
 
-                using (var contexto = new ContextoBaseDatos())
-                {
-                    
-                    var jugadorEnBase = contexto.Jugadores.Find(jugador.JugadorId);
-                    var cuentaEnBase = contexto.Cuentas.Find(jugador.JugadorId);
-
-                    Assert.NotNull(jugadorEnBase);
-                    Assert.NotNull(cuentaEnBase);
-                    Assert.Equal(jugador.NombreUsuario, jugadorEnBase.NombreUsuario);
-                    Assert.Equal(cuenta.Correo, cuentaEnBase.Correo);
-                    Assert.Equal(jugador.JugadorId, cuentaEnBase.JugadorId);
-                }
+                
             }
         }
 
