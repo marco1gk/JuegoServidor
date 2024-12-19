@@ -96,13 +96,7 @@ namespace ServicioJuego
         void DejarTirarDado(string idPartida);
 
         [OperationContract(IsOneWay = true)]
-        void EstablecerModoSeleccionCartaJugadorEnTurno(string idPartida, int idModoSeleccion);
-
-        [OperationContract(IsOneWay = true)]
-        void EstablecerModoSeleccionCartaJugador(string idPartida, int idModoSeleccionar);
-
-        [OperationContract(IsOneWay = true)]
-        void EstablecerModoSeleccionarCartaJugadores(string idPartida, int idModoSeleccionar, List<string> nombresJugadores);
+        void EstablecerModoSeleccionCarta(string idPartida, int idModoSeleccion, string nombreJugador);
 
         [OperationContract]
         void RegistrarJugadorInvitado(JugadorPartida invitado);

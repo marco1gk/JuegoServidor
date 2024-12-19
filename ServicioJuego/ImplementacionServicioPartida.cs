@@ -71,7 +71,7 @@ namespace ServicioJuego
 
             // Agregar cartas al mazo asignando IDs únicos
             cartasTemporales.AddRange(Enumerable.Repeat(0, 3)
-                                                 .Select(_ => new Carta("Carta1", idCounter++, "/Recursos/ElementosPartida/ImagenesPartida/Cartas/Carta1.png")));
+                                                 .Select(_ => new Carta("Carta1", idCounter++,     )));
 
             cartasTemporales.AddRange(Enumerable.Repeat(0, 3)
                                                  .Select(_ => new Carta("Carta2", idCounter++, "/Recursos/ElementosPartida/ImagenesPartida/Cartas/Carta2.png")));
@@ -1221,51 +1221,13 @@ namespace ServicioJuego
             }
         }
 
-        public void EstablecerModoSeleccionCartaJugadorEnTurno(string idPartida, int idModoSeleccion)
+        public void EstablecerModoSeleccionCarta(string idPartida, int idModoSeleccion, string nombreJugador)
         {
             var partida = partidas[idPartida];
             var jugadores = partida.Jugadores;
-            var jugadorTurnoActual = jugadores[partida.TurnoActual];
+            var jugador = jugadores.FirstOrDefault(j => j.NombreUsuario == nombreJugador);
 
-            foreach(var jugador in jugadores)
-            {
-                jugadorTurnoActual.CallbackChannel.NotificarModoSeleccionCarta(idModoSeleccion);
-            }
-        }
-
-        public void EstablecerModoSeleccionCartaJugador(string idPartida, int idModoSeleccion)
-        {
-            var partida = partidas[idPartida];
-            var jugadores = partida.Jugadores;
-            var jugadorTurnoActual = jugadores[partida.TurnoActual];
-            foreach (var jugador in jugadores)
-            {
-                if(jugador.NombreUsuario != jugadorTurnoActual.NombreUsuario)
-                {
-                    jugador.CallbackChannel.NotificarModoSeleccionCarta(idModoSeleccion);
-                }
-            }
-        }
-
-        public void EstablecerModoSeleccionarCartaJugadores(string idPartida, int idModoSeleccion, List<string> nombresJugadores)
-        {
-            var partida = partidas[idPartida];
-            var jugadores = partida.Jugadores;
-            var jugadorTurnoActual = jugadores[partida.TurnoActual];
-            foreach (var jugador in jugadores)
-            {
-                foreach(var nombreJugador in nombresJugadores)
-                {
-                    if(jugador.NombreUsuario == nombreJugador)
-                    {
-                        if (jugador.NombreUsuario != jugadorTurnoActual.NombreUsuario)
-                        {
-                            jugador.CallbackChannel.NotificarModoSeleccionCarta(idModoSeleccion);
-                        }
-                    }
-                }
-                
-            }
+            jugador.CallbackChannel.NotificarModoSeleccionCarta(idModoSeleccion);
         }
     }
 }
