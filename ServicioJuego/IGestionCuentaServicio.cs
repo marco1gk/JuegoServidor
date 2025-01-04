@@ -56,6 +56,7 @@ namespace ServicioJuego
         bool ValidarUsuarioEnLinea(string nombreUsuario);
 
         [OperationContract]
+        [FaultContract(typeof(HuntersTrophyExcepcion))]
         int ObtenerIdJugadorPorNombreUsuario(string nombreUsuario);
 
 

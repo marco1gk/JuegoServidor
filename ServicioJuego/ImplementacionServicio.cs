@@ -120,7 +120,21 @@ namespace ServicioJuego
                 cuentaAux.Correo = jugador.Correo;
                 cuentaAux.Salt = salt;
                 cuentaAux.ContraseniaHash = contraseniaHash;
+
+                // Intentar agregar el jugador y la cuenta
                 return cuentaDao.AgregarJugadorConCuenta(jugadorAux, cuentaAux);
+            }
+            catch (SqlException ex) when (ex.Number == 18456) // Error específico de login fallido
+            {
+                // Crear una excepción personalizada para el cliente
+                HuntersTrophyExcepcion respuestaExcepcion = new HuntersTrophyExcepcion
+                {
+                    Mensaje = "No se pudo conectar a la base de datos. Verifique las credenciales.",
+                    StackTrace = ex.StackTrace
+                };
+
+                // Lanzar la excepción personalizada sin revelar detalles del error técnico
+                throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
             }
             catch (ExcepcionAccesoDatos ex)
             {
@@ -130,11 +144,22 @@ namespace ServicioJuego
                     StackTrace = ex.StackTrace
                 };
 
+                // Lanzar la excepción personalizada
                 throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
             }
+            catch (Exception ex)
+            {
+                HuntersTrophyExcepcion respuestaExcepcion = new HuntersTrophyExcepcion
+                {
+                    Mensaje = "Ocurrió un error inesperado. Por favor, intente más tarde.",
+                    StackTrace = ex.StackTrace
+                };
 
-
+                // Lanzar una excepción genérica para cualquier otro error inesperado
+                throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
+            }
         }
+
         public bool ExisteCorreo(string correo)
         {
             CuentaDao cuentaDao = new CuentaDao();
@@ -211,48 +236,26 @@ namespace ServicioJuego
         
         }
 
-       
-        public int ObtenerIdJugadorPorNombreUsuario(string nombreUsuario)
-        {
-            int idPlayer = 0;
 
+        public int ObtenerIdJugadorPorNombreUsuario(string username)
+        {
+            CuentaDao dataAccess = new CuentaDao();
             try
             {
-                using (var context = new ContextoBaseDatos())
-                {
-                    var player = context.Jugadores
-                        .FirstOrDefault(p => p.NombreUsuario == nombreUsuario);
-
-                    if (player != null)
-                    {
-                        idPlayer = player.JugadorId;
-                    }
-                }
+                return dataAccess.ObtenerIdJugadorPorNombreUsuario(username);
             }
             catch (ExcepcionAccesoDatos ex)
             {
-                HuntersTrophyExcepcion respuestaExcepcion = new HuntersTrophyExcepcion
+                HuntersTrophyExcepcion exceptionResponse = new HuntersTrophyExcepcion
                 {
                     Mensaje = ex.Message,
                     StackTrace = ex.StackTrace
                 };
 
-                throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
+                throw new FaultException<HuntersTrophyExcepcion>(exceptionResponse, new FaultReason(exceptionResponse.Mensaje));
             }
-            catch (SqlException ex)
-            {
-                Console.WriteLine(ex);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-            }
-
-            return idPlayer;
         }
 
-
-   
 
         public bool EditarNombreUsuario(int idJugador, string nuevoNombreUsuario)
         {

@@ -20,40 +20,71 @@ namespace AccesoDatos.DAO
         {
             using (var contexto = new ContextoBaseDatos())
             {
-                contexto.Cuentas.Add(cuenta);
+                try
+                {
+                    contexto.Cuentas.Add(cuenta);
                 contexto.Jugadores.Add(jugador);
                 cuenta.Jugador = jugador;
                 cuenta.JugadorId = jugador.JugadorId;
-                try
-                {
+                
                     int filasAlteradas = contexto.SaveChanges();
                     return filasAlteradas == 2;
 
                 }
-                catch (DbUpdateException ex)
-                {
-                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                    Console.WriteLine("Error al agregar" + ex);
-                    return false;
-                }
                 catch (EntityException ex)
                 {
                     ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                    return false;
+                    throw new ExcepcionAccesoDatos(ex.Message);
                 }
                 catch (SqlException ex)
                 {
 
                     ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                    return false;
+                    throw new ExcepcionAccesoDatos(ex.Message);
                 }
                 catch (Exception ex)
                 {
                     ManejadorExcepciones.ManejarFatalExcepcion(ex);
-                    return false;
+                    throw new ExcepcionAccesoDatos(ex.Message);
                 }
             }
 
+        }
+
+        public int ObtenerIdJugadorPorNombreUsuario(string nombreUsuario)
+        {
+            int jugadorId = 0;
+
+            try
+            {
+                using (var contexto = new ContextoBaseDatos())
+                {
+                    var jugador = contexto.Jugadores
+                        .FirstOrDefault(p => p.NombreUsuario == nombreUsuario);
+
+                    if (jugador != null)
+                    {
+                        jugadorId = jugador.JugadorId;
+                    }
+                }
+            }
+            catch (EntityException ex)
+            {
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                throw new ExcepcionAccesoDatos(ex.Message);
+            }
+            catch (SqlException ex)
+            {
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                throw new ExcepcionAccesoDatos(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.ManejarFatalExcepcion(ex);
+                throw new ExcepcionAccesoDatos(ex.Message);
+            }
+
+            return jugadorId;
         }
 
 

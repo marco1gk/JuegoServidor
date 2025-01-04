@@ -2,14 +2,16 @@
 C:\Users\vaoma\source\repos\JuegoServidor\ServicioJuego\Correo\Plantillas\IPlantillaCorreo.cs
 C:\Users\vaoma\source\repos\JuegoServidor\ServicioJuego\Correo\Plantillas\PlantillaInvitacionSalaEspera.cs
 C:\Users\vaoma\source\repos\JuegoServidor\ServicioJuego\Excepciones\HuntersTrophyExcepcion.cs
+C:\Users\vaoma\source\repos\JuegoServidor\ServicioJuego\IEstadisticasServicio.cs
 C:\Users\vaoma\source\repos\JuegoServidor\ServicioJuego\IGestionCuentaServicio.cs
 C:\Users\vaoma\source\repos\JuegoServidor\ServicioJuego\IGestorAmistad.cs
 C:\Users\vaoma\source\repos\JuegoServidor\ServicioJuego\IGestorDeSolicitudesDeAmistad.cs
 C:\Users\vaoma\source\repos\JuegoServidor\ServicioJuego\IGestorInvitacion.cs
 C:\Users\vaoma\source\repos\JuegoServidor\ServicioJuego\IGestorUsuariosConectados.cs
 C:\Users\vaoma\source\repos\JuegoServidor\ServicioJuego\ImplementacionSalaEspera.cs
-C:\Users\vaoma\source\repos\JuegoServidor\ServicioJuego\ILobbyManager.cs
+C:\Users\vaoma\source\repos\JuegoServidor\ServicioJuego\ISalaEsperaServicio.cs
 C:\Users\vaoma\source\repos\JuegoServidor\ServicioJuego\ImplementacionServicioAmistad.cs
+C:\Users\vaoma\source\repos\JuegoServidor\ServicioJuego\ImplementacionServicioEstadisticas.cs
 C:\Users\vaoma\source\repos\JuegoServidor\ServicioJuego\ImplementacionServicioInvitacion.cs
 C:\Users\vaoma\source\repos\JuegoServidor\ServicioJuego\ImplementacionServicioPartida.cs
 C:\Users\vaoma\source\repos\JuegoServidor\ServicioJuego\ImplementacionUsuariosLinea.cs

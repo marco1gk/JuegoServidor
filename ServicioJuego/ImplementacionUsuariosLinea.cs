@@ -81,7 +81,7 @@ namespace ServicioJuego
                     break;
                 }
 
-                System.Threading.Thread.Sleep(30000);
+                System.Threading.Thread.Sleep(10000); // Intervalo reducido a 10 segundos
             }
         }
 
@@ -145,6 +145,44 @@ namespace ServicioJuego
                 }
             }
         }
+
+
+        public bool ReconectarUsuario(int idJugador, string nombreUsuario)
+        {
+            lock (objetoDeBloqueo)
+            {
+                if (usuariosEnLinea.ContainsKey(nombreUsuario))
+                {
+                    // Actualiza el canal de comunicación para la reconexión
+                    usuariosEnLinea[nombreUsuario] = OperationContext.Current.GetCallbackChannel<IGestorUsuarioCallback>();
+
+                    Console.WriteLine($"Usuario {nombreUsuario} se ha reconectado.");
+
+                    // Sincroniza el estado del juego al usuario reconectado
+                    Dictionary<string, string> estadoJuego = ObtenerEstadoActualDelJuego(); // Este método depende de tu lógica del juego
+                    usuariosEnLinea[nombreUsuario].SincronizarEstado(estadoJuego);
+
+                    return true;
+                }
+                else
+                {
+                    Console.WriteLine($"No se pudo reconectar al usuario {nombreUsuario}. No estaba registrado.");
+                    return false;
+                }
+            }
+        }
+
+        private Dictionary<string, string> ObtenerEstadoActualDelJuego()
+        {
+            // Ejemplo de cómo podrías estructurar el estado del juego
+            return new Dictionary<string, string>
+    {
+        { "jugador1", "posición: 10, puntuación: 150" },
+        { "jugador2", "posición: 5, puntuación: 200" }
+    };
+        }
+
+
     }
 
 }

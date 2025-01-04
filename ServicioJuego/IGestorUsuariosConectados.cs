@@ -15,6 +15,9 @@ namespace ServicioJuego
 
         [OperationContract(IsOneWay = true)]
         void DesregistrarUsuarioDeUsuariosEnLinea(string nombreUsuario);
+
+        [OperationContract]
+        bool ReconectarUsuario(int idJugador, string nombreUsuario);
     }
 
     [ServiceContract]
@@ -35,5 +38,7 @@ namespace ServicioJuego
 
         [OperationContract(IsOneWay = true)]
         void Ping();
+        [OperationContract(IsOneWay = true)]
+        void SincronizarEstado(Dictionary<string, string> estadoJuego);
     }
 }

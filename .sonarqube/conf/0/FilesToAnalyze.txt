@@ -1,6 +1,7 @@
 ﻿C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\ContextoBaseDatos.cs
 C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\DAO\AmistadDao.cs
 C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\DAO\CuentaDao.cs
+C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\DAO\EstadisticasDao.cs
 C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\DAO\JugadorDao.cs
 C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\DAO\Recursos.cs
 C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\Excepciones\ExcepcionAccesoDatos.cs
@@ -20,9 +21,12 @@ C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\Migrations\202410301116496
 C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\Migrations\202410301116496_atributoNuevoo.Designer.cs
 C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\Migrations\202410301332375_relacion.cs
 C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\Migrations\202410301332375_relacion.Designer.cs
+C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\Migrations\202412120700129_añadirEstadisticas.cs
+C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\Migrations\202412120700129_añadirEstadisticas.Designer.cs
 C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\Migrations\Configuration.cs
 C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\Modelo\Amistad.cs
 C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\Modelo\Cuenta.cs
+C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\Modelo\Estadisticas.cs
 C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\Modelo\Jugador.cs
 C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\Properties\AssemblyInfo.cs
 C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\Utilidades\GestionLogger.cs
@@ -36,6 +40,7 @@ C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\Migrations\202410300457071
 C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\Migrations\202410301115243_atributoNuevo.resx
 C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\Migrations\202410301116496_atributoNuevoo.resx
 C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\Migrations\202410301332375_relacion.resx
+C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\Migrations\202412120700129_añadirEstadisticas.resx
 C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\App.config
 C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\Modelo\App.config
 C:\Users\vaoma\source\repos\JuegoServidor\AccesoDatos\packages.config
