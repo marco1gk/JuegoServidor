@@ -14,20 +14,20 @@ namespace ServicioJuego
          [OperationContract]
         [FaultContract(typeof(HuntersTrophyExcepcion))]
         
-        List<string> ObtenerListaNombresUsuariosAmigos(int idPlayer);
+        List<string> ObtenerListaNombresUsuariosAmigos(int idJugador);
 
         [OperationContract]
         [FaultContract(typeof(HuntersTrophyExcepcion))]
 
-        bool ValidarEnvioSolicitudAmistad(int idPlayerSender, string usernamePlayerRequested);
+        bool ValidarEnvioSolicitudAmistad(int idJugadorEnviador, string nombreUsuarioSolicitado);
 
         [OperationContract]
         [FaultContract(typeof(HuntersTrophyExcepcion))]
 
-        int AgregarSolicitudAmistad(int idPlayerSender, string usernamePlayerRequested);
+        int AgregarSolicitudAmistad(int idJugadorEnvia, string nombreUsuarioSolicitado);
 
         [OperationContract]
         [FaultContract(typeof(HuntersTrophyExcepcion))]
-        List<string> ObtenerNombresUsuariosSolicitantes(int idPlayer);
+        List<string> ObtenerNombresUsuariosSolicitantes(int idJugador);
     }
 }

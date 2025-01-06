@@ -41,9 +41,11 @@ namespace ServicioJuego
 
 
         [OperationContract]
-        void ExpulsarJugadorSalaEspera(string lobbyCode, string username);
+        void ExpulsarJugadorSalaEspera(string codigoSalaEspera, string username);
 
         
+
+
     }
 
     [ServiceContract]

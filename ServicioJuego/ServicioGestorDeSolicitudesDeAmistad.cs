@@ -17,17 +17,17 @@ namespace ServicioJuego
 
         private static Dictionary<string, IGestorDeSolicitudesDeAmistadCallBack> amistadEnLinea = new Dictionary<string, IGestorDeSolicitudesDeAmistadCallBack>();
 
-        public void AgregarADiccionarioAmistadesEnLinea(string nombreUsuarioJugadorActual)
+        public void AgregarADiccionarioAmistadesEnLinea(string nombreUsuarioDeActualJugador)
         {
             IGestorDeSolicitudesDeAmistadCallBack canalDeDevoluciónUsuarioActual = OperationContext.Current.GetCallbackChannel<IGestorDeSolicitudesDeAmistadCallBack>();
 
-            if (!amistadEnLinea.ContainsKey(nombreUsuarioJugadorActual))
+            if (!amistadEnLinea.ContainsKey(nombreUsuarioDeActualJugador))
             {
-                amistadEnLinea.Add(nombreUsuarioJugadorActual, canalDeDevoluciónUsuarioActual);
+                amistadEnLinea.Add(nombreUsuarioDeActualJugador, canalDeDevoluciónUsuarioActual);
             }
             else
             {
-                amistadEnLinea[nombreUsuarioJugadorActual] = canalDeDevoluciónUsuarioActual;
+                amistadEnLinea[nombreUsuarioDeActualJugador] = canalDeDevoluciónUsuarioActual;
             }
         }
 
@@ -122,7 +122,7 @@ namespace ServicioJuego
             }
         }
         
-        public void EliminarAmigo(int idJugadorActual, string nombreJugadorActual, string nombreUsuarioAmigoEliminado)
+        public void EliminarAmigo(int idJugadorActual, string nombreUsuarioDeActualJugador, string nombreUsuarioAmigoEliminado)
         {
             lock (objetoDeBloqueo)
             {
@@ -136,8 +136,8 @@ namespace ServicioJuego
 
                     if (filasAfectadas > 0)
                     {
-                        InformarAmigoEliminado(nombreJugadorActual, nombreUsuarioAmigoEliminado);
-                        InformarAmigoEliminado(nombreUsuarioAmigoEliminado, nombreJugadorActual);
+                        InformarAmigoEliminado(nombreUsuarioDeActualJugador, nombreUsuarioAmigoEliminado);
+                        InformarAmigoEliminado(nombreUsuarioAmigoEliminado, nombreUsuarioDeActualJugador);
                     }
                 }
                 catch (ExcepcionAccesoDatos ex)

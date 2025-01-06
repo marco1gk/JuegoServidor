@@ -94,7 +94,6 @@ namespace ServicioJuego
 
         public bool ValidarUsuarioEnLinea(string nombreUsuario)
         {
-            Console.WriteLine("se busca a "+nombreUsuario);
             bool esEnLinea = true;
 
             if (!usuariosEnLinea.ContainsKey(nombreUsuario))
@@ -121,19 +120,16 @@ namespace ServicioJuego
                 cuentaAux.Salt = salt;
                 cuentaAux.ContraseniaHash = contraseniaHash;
 
-                // Intentar agregar el jugador y la cuenta
                 return cuentaDao.AgregarJugadorConCuenta(jugadorAux, cuentaAux);
             }
-            catch (SqlException ex) when (ex.Number == 18456) // Error específico de login fallido
+            catch (SqlException ex) when (ex.Number == 18456) 
             {
-                // Crear una excepción personalizada para el cliente
                 HuntersTrophyExcepcion respuestaExcepcion = new HuntersTrophyExcepcion
                 {
                     Mensaje = "No se pudo conectar a la base de datos. Verifique las credenciales.",
                     StackTrace = ex.StackTrace
                 };
 
-                // Lanzar la excepción personalizada sin revelar detalles del error técnico
                 throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
             }
             catch (ExcepcionAccesoDatos ex)
@@ -144,7 +140,6 @@ namespace ServicioJuego
                     StackTrace = ex.StackTrace
                 };
 
-                // Lanzar la excepción personalizada
                 throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
             }
             catch (Exception ex)
@@ -155,7 +150,6 @@ namespace ServicioJuego
                     StackTrace = ex.StackTrace
                 };
 
-                // Lanzar una excepción genérica para cualquier otro error inesperado
                 throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
             }
         }
@@ -214,10 +208,10 @@ namespace ServicioJuego
             return null; 
         }
 
-        public bool EditarContraseña(string correo, string nuevaContrasenia)
+        public bool EditarContraseña(string correo, string nuevaContraseña)
         {
             CuentaDao cuentaDao = new CuentaDao();
-            return cuentaDao.EditarContraseñaPorCorreo(correo, nuevaContrasenia);
+            return cuentaDao.EditarContraseñaPorCorreo(correo, nuevaContraseña);
         }
 
         public bool VerificarContrasena(string contraseniaIngresada, string correo)
@@ -237,12 +231,12 @@ namespace ServicioJuego
         }
 
 
-        public int ObtenerIdJugadorPorNombreUsuario(string username)
+        public int ObtenerIdJugadorPorNombreUsuario(string nombreUsuario)
         {
             CuentaDao dataAccess = new CuentaDao();
             try
             {
-                return dataAccess.ObtenerIdJugadorPorNombreUsuario(username);
+                return dataAccess.ObtenerIdJugadorPorNombreUsuario(nombreUsuario);
             }
             catch (ExcepcionAccesoDatos ex)
             {

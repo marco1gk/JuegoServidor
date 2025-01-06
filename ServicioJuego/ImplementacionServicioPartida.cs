@@ -5,7 +5,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel.Design;
 using System.Linq;
 using System.ServiceModel;
-//using static ServicioJuego.JugadorPartida;
 
 namespace ServicioJuego
 {
@@ -22,9 +21,24 @@ namespace ServicioJuego
         private static int jugadoresNoGuardaronCarta = 0;
         private Carta cartaParteTrasera = new Carta("ParteTraseraCarta", 55, 9);
 
+        public static void ImprimirCallbacks()
+        {
+            if (_callbacks.Count == 0)
+            {
+                Console.WriteLine("El diccionario _callbacks está vacío.");
+                return;
+            }
+
+            Console.WriteLine("Contenido del diccionario _callbacks:");
+            foreach (var entry in _callbacks)
+            {
+                Console.WriteLine($"Jugador: {entry.Key} - Callback registrado: {entry.Value != null}");
+            }
+        }
 
         private void InicializarMazo(string idPartida)
         {
+            ImprimirCallbacks();
             // Lista temporal para crear todas las cartas como instancias separadas
             var cartasTemporales = new List<Carta>();
 
@@ -61,46 +75,10 @@ namespace ServicioJuego
             CartasEnMazo = cartasTemporales;
         }
 
-        /*private void InicializarMazo(string idPartida)
-        {
-            // Lista temporal para crear todas las cartas como instancias separadas
-            var cartasTemporales = new List<Carta>();
-
-            // Contador para los IDs de las cartas
-            int idCounter = 1;
-
-            // Agregar cartas al mazo asignando IDs únicos
-            cartasTemporales.AddRange(Enumerable.Repeat(0, 3)
-                                                 .Select(_ => new Carta("Carta1", idCounter++,     )));
-
-            cartasTemporales.AddRange(Enumerable.Repeat(0, 3)
-                                                 .Select(_ => new Carta("Carta2", idCounter++, "/Recursos/ElementosPartida/ImagenesPartida/Cartas/Carta2.png")));
-            cartasTemporales.AddRange(Enumerable.Repeat(0, 3)
-                                                 .Select(_ => new Carta("Carta3", idCounter++, "/Recursos/ElementosPartida/ImagenesPartida/Cartas/Carta3.png")));
-
-            cartasTemporales.AddRange(Enumerable.Repeat(0, 3)
-                                                 .Select(_ => new Carta("Carta4", idCounter++, "/Recursos/ElementosPartida/ImagenesPartida/Cartas/Carta4.png")));
-
-            cartasTemporales.AddRange(Enumerable.Repeat(0, 3)
-                                                 .Select(_ => new Carta("Carta5", idCounter++, "/Recursos/ElementosPartida/ImagenesPartida/Cartas/Carta5.png")));
-
-            cartasTemporales.AddRange(Enumerable.Repeat(0, 1)
-                                                 .Select(_ => new Carta("Carta6", idCounter++, "/Recursos/ElementosPartida/ImagenesPartida/Cartas/Carta6.png")));
-
-            cartasTemporales.AddRange(Enumerable.Repeat(0, 1)
-                                                 .Select(_ => new Carta("Carta7", idCounter++, "/Recursos/ElementosPartida/ImagenesPartida/Cartas/Carta7.png")));
-
-            cartasTemporales.AddRange(Enumerable.Repeat(0, 1)
-                                                 .Select(_ => new Carta("Carta8", idCounter++, "/Recursos/ElementosPartida/ImagenesPartida/Cartas/Carta8.png")));
-
-            cartasTemporales.Add(cartaParteTrasera);
-
-            // Asignar el mazo completo
-            CartasEnMazo = cartasTemporales;
-        }*/
-
+        
         private void BarajarMazo(string idPartida)
         {
+            ImprimirCallbacks();
             Random random = new Random();
             var cartasSinParteTrasera = CartasEnMazo.Take(CartasEnMazo.Count - 1).ToList();
             var cartaParteTrasera = CartasEnMazo.Last();
@@ -120,6 +98,7 @@ namespace ServicioJuego
 
         private List<Carta> RepartirCartas(int cantidad)
         {
+            ImprimirCallbacks();
             var cartasRepartidas = CartasEnMazo.Take(cantidad).ToList();
             CartasEnMazo = CartasEnMazo.Skip(cantidad).ToList();
             return cartasRepartidas;
@@ -127,6 +106,7 @@ namespace ServicioJuego
 
         private void AsignarCartasAJugadores(string idPartida)
         {
+            ImprimirCallbacks();
             if (partidas.ContainsKey(idPartida))
             {
                 var partida = partidas[idPartida];
@@ -154,6 +134,7 @@ namespace ServicioJuego
 
         public void RepartirCartas(string idPartida)
         {
+            ImprimirCallbacks();
             InicializarMazo(idPartida);
             BarajarMazo(idPartida);
             AsignarCartasAJugadores(idPartida);
@@ -184,71 +165,47 @@ namespace ServicioJuego
                 Console.WriteLine("La partida no se encontro");
             }
         }
-        /*public void RegistrarJugador(string nombreUsuario)
-        {
-            var callback = OperationContext.Current.GetCallbackChannel<IServicioPartidaCallback>();
-
-            if (!_callbacks.ContainsKey(nombreUsuario))
-            {
-                _callbacks[nombreUsuario] = callback;
-                Console.WriteLine($"Callback registrado de: {nombreUsuario}");
-            }
-            else
-            {
-                Console.WriteLine($"El jugador {nombreUsuario} ya está registrado.");
-            }
-        }*/
 
         public void RegistrarJugador(string nombreUsuario)
         {
             var callback = OperationContext.Current.GetCallbackChannel<IServicioPartidaCallback>();
 
-            if (!_callbacks.ContainsKey(nombreUsuario))
+            if (callback != null)
             {
-                _callbacks[nombreUsuario] = callback;
-                Console.WriteLine($"Callback registrado de: {nombreUsuario}");
-            }
-            else
-            {
-                Console.WriteLine($"El jugador {nombreUsuario} ya está registrado. Actualizando el callback.");
-                _callbacks[nombreUsuario] = callback; // Actualiza el callback si ya existe
-            }
-        }
-        /*public void CrearPartida(List<JugadorPartida> jugadores, string idPartida)
-        {
-            Console.WriteLine("Jugadores recibidos en el servidor: ");
-            foreach (var jugador in jugadores)
-            {
-                Console.WriteLine($"Jugador: {jugador.NombreUsuario}");
-            }
-
-            var partida = new Partida
-            {
-                IdPartida = idPartida,
-                Jugadores = jugadores,
-                TurnoActual = 0
-            };
-
-            partidas.Add(idPartida, partida);
-            Console.WriteLine("Partida creada correctamente.");
-
-            foreach (var jugador in jugadores)
-            {
-                if (_callbacks.TryGetValue(jugador.NombreUsuario, out var callback))
+                if (!_callbacks.ContainsKey(nombreUsuario))
                 {
-                    jugador.CallbackChannel = callback;
-
-                    NotificarPartidaCreada(jugador, idPartida);
+                    _callbacks[nombreUsuario] = callback;
+                    Console.WriteLine($"Callback registrado de: {nombreUsuario}");
                 }
                 else
                 {
-                    Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un canal de callback registrado.");
+                    Console.WriteLine($"El jugador {nombreUsuario} ya está registrado. Actualizando el callback.");
+                    _callbacks[nombreUsuario] = callback; // Actualiza el callback si ya existe
                 }
             }
-        }*/
+            else
+            {
+                Console.WriteLine($"Error al obtener el canal de callback para {nombreUsuario}. No se pudo registrar.");
+            }
+
+            Console.WriteLine($"Estado actual de _callbacks después de registrar {nombreUsuario}:");
+            foreach (var key in _callbacks.Keys)
+            {
+                Console.WriteLine($"Jugador registrado: {key}");
+            }
+        }
 
         public void CrearPartida(List<JugadorPartida> jugadores, string idPartida)
         {
+            foreach (var jugador in jugadores)
+            {
+                if (!_callbacks.ContainsKey(jugador.NombreUsuario))
+                {
+                    Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un callback registrado. Registrando ahora...");
+                    RegistrarJugador(jugador.NombreUsuario);
+                }
+            }
+            ImprimirCallbacks();
             Console.WriteLine("Jugadores recibidos en el servidor: ");
 
             foreach (var jugador in jugadores)
@@ -299,7 +256,7 @@ namespace ServicioJuego
                     }
                 }
             }
-
+            ImprimirCallbacks();
             Console.WriteLine("Proceso de creación de la partida finalizado.");
         }
 
@@ -327,11 +284,16 @@ namespace ServicioJuego
 
         private void NotificarPartidaCreada(JugadorPartida jugador, string idPartida)
         {
-            if (jugador.CallbackChannel != null)
+            Console.WriteLine("aqui esta notificar partida creada " + jugador.NombreUsuario + " " + idPartida);
+
+            // Acceder al canal de comunicación del jugador
+            var callbackChannel = OperationContext.Current.GetCallbackChannel<IServicioPartidaCallback>();
+
+            if (callbackChannel != null && callbackChannel is IClientChannel clientChannel && clientChannel.State == CommunicationState.Opened)
             {
                 try
                 {
-                    jugador.CallbackChannel.NotificarPartidaCreada(idPartida);
+                    callbackChannel.NotificarPartidaCreada(idPartida);
                     Console.WriteLine($"Notificación de partida creada enviada a {jugador.NombreUsuario}");
                 }
                 catch (CommunicationException ex)
@@ -341,9 +303,10 @@ namespace ServicioJuego
             }
             else
             {
-                Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un callback válido.");
+                Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un canal válido o está desconectado.");
             }
         }
+
 
         public void EmpezarTurno(string idPartida)
         {
@@ -497,21 +460,31 @@ namespace ServicioJuego
             if (CartasEnMano.ContainsKey(nombreUsuario))
             {
                 CartasEnMano[nombreUsuario].Add(carta);
+
                 var jugador = partidas[idPartida].Jugadores.FirstOrDefault(j => j.NombreUsuario == nombreUsuario);
-                if(jugador.CallbackChannel != null)
+
+                if (jugador != null)
                 {
-                    jugador.CallbackChannel.NotificarCartaAgregadaAMano(carta);
+                    if (jugador.CallbackChannel != null)
+                    {
+                        jugador.CallbackChannel.NotificarCartaAgregadaAMano(carta);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un callback válido.");
+                    }
                 }
                 else
                 {
-                    Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un callback válido.");
+                    Console.WriteLine($"No se encontró un jugador con el nombre de usuario {nombreUsuario} en la partida {idPartida}.");
                 }
             }
             else
             {
-                Console.WriteLine("El jugador no esta en la partida.");
+                Console.WriteLine($"El jugador {nombreUsuario} no está en la partida o no tiene cartas en mano registradas.");
             }
         }
+
 
         public void TomarFichaMesa(string idPartida, int idFicha)
         {

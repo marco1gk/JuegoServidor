@@ -32,62 +32,7 @@ namespace ServicioJuego
             }
         }
 
-        public bool ValidarEnvioSolicitudAmistad(int idPlayerEnvia, string nombreJugadorSolicitado)
-        {
-            bool SolicitudAmistadValida = false;
-            int idJugadorSolicitado = 0;
-            bool tieneRelacion = false;
-            ImplementacionServicio usuarioAccesoDatos = new ImplementacionServicio();
-            AmistadDao AccesoDatosSolicitudAmistad = new AmistadDao();
-
-            try
-            {
-                idJugadorSolicitado = usuarioAccesoDatos.ObtenerIdJugadorPorNombreUsuario(nombreJugadorSolicitado);
-            }
-            catch (ExcepcionAccesoDatos ex)
-            {
-                HuntersTrophyExcepcion respuestaExcepcion = new HuntersTrophyExcepcion
-                {
-                    Mensaje = ex.Message,
-                    StackTrace = ex.StackTrace
-                };
-
-                throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
-            }
-
-            if (idJugadorSolicitado < 1)
-            {
-                return false;
-            }
-
-            if (idPlayerEnvia == idJugadorSolicitado)
-            {
-                return false;
-            }
-
-            try
-            {
-                tieneRelacion = AccesoDatosSolicitudAmistad.VerificarAmistad(idPlayerEnvia, idJugadorSolicitado);
-
-            }
-            catch (ExcepcionAccesoDatos ex)
-            {
-                HuntersTrophyExcepcion respuestaExcepcion = new HuntersTrophyExcepcion
-                {
-                    Mensaje = ex.Message,
-                    StackTrace = ex.StackTrace
-                };
-
-                throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
-            }
-
-            if (!tieneRelacion)
-            {
-                SolicitudAmistadValida = true;
-            }
-
-            return SolicitudAmistadValida;
-        }
+    
 
         public int AgregarSolicitudAmistad(int idJugadorEnvia, string nombreJugadorSolicitado)
         {
@@ -115,6 +60,63 @@ namespace ServicioJuego
 
                 throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
             }
+        }
+
+        public bool ValidarEnvioSolicitudAmistad(int idJugadorEnvia, string nombreJugadorSolicitado)
+        {
+            bool SolicitudAmistadValida = false;
+            int idJugadorSolicitado = 0;
+            bool tieneRelacion = false;
+            ImplementacionServicio usuarioAccesoDatos = new ImplementacionServicio();
+            AmistadDao AccesoDatosSolicitudAmistad = new AmistadDao();
+
+            try
+            {
+                idJugadorSolicitado = usuarioAccesoDatos.ObtenerIdJugadorPorNombreUsuario(nombreJugadorSolicitado);
+            }
+            catch (ExcepcionAccesoDatos ex)
+            {
+                HuntersTrophyExcepcion respuestaExcepcion = new HuntersTrophyExcepcion
+                {
+                    Mensaje = ex.Message,
+                    StackTrace = ex.StackTrace
+                };
+
+                throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
+            }
+
+            if (idJugadorSolicitado < 1)
+            {
+                return false;
+            }
+
+            if (idJugadorEnvia == idJugadorSolicitado)
+            {
+                return false;
+            }
+
+            try
+            {
+                tieneRelacion = AccesoDatosSolicitudAmistad.VerificarAmistad(idJugadorEnvia, idJugadorSolicitado);
+
+            }
+            catch (ExcepcionAccesoDatos ex)
+            {
+                HuntersTrophyExcepcion respuestaExcepcion = new HuntersTrophyExcepcion
+                {
+                    Mensaje = ex.Message,
+                    StackTrace = ex.StackTrace
+                };
+
+                throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
+            }
+
+            if (!tieneRelacion)
+            {
+                SolicitudAmistadValida = true;
+            }
+
+            return SolicitudAmistadValida;
         }
 
         public List<string> ObtenerNombresUsuariosSolicitantes(int idJugador)

@@ -145,36 +145,36 @@ namespace Pruebas
 
 
 
-        //[Fact]
-        //public void ValidarInicioSesion_DebeRetornarNull_CuandoContraseniaEsIncorrecta()
-        //{
-        //    using (var scope = new TransactionScope())
-        //    {
-        //        var cuentaValida = new Cuenta
-        //        {
-        //            Correo = "usuario@example.com",
-        //            ContraseniaHash = "hashed_password",
-        //            Salt = "random_salt",
-        //            Jugador = new Jugador
-        //            {
-        //                NombreUsuario = "UsuarioValido",
-        //                NumeroFotoPerfil = 1
-        //            }
-        //        };
+        [Fact]
+        public void ValidarInicioSesion_DebeRetornarNull_CuandoContraseniaEsIncorrecta()
+        {
+            using (var scope = new TransactionScope())
+            {
+                var cuentaValida = new Cuenta
+                {
+                    Correo = "usuario@example.com",
+                    ContraseniaHash = "hashed_password",
+                    Salt = "random_salt",
+                    Jugador = new Jugador
+                    {
+                        NombreUsuario = "UsuarioValido",
+                        NumeroFotoPerfil = 1
+                    }
+                };
 
-        //        using (var contexto = new ContextoBaseDatos())
-        //        {
-        //            contexto.Cuentas.Add(cuentaValida);
-        //            contexto.SaveChanges();
-        //        }
+                using (var contexto = new ContextoBaseDatos())
+                {
+                    contexto.Cuentas.Add(cuentaValida);
+                    contexto.SaveChanges();
+                }
 
-        //        var cuentaDao = new CuentaDao();
+                var cuentaDao = new CuentaDao();
 
-        //        var resultado = cuentaDao.ValidarInicioSesion("usuario@example.com", "incorrect_password");
+                var resultado = cuentaDao.ValidarInicioSesion("usuario@example.com", "incorrect_password");
 
-        //        Assert.Null(resultado);
-        //    }
-        //}
+                Assert.Null(resultado);
+            }
+        }
 
 
         [Fact]
@@ -210,18 +210,18 @@ namespace Pruebas
             }
         }
 
-        //[Fact]
-        //public void ObtenerCuentaPorNombreUsuario_DebeRetornarNull_CuandoNoExiste()
-        //{
-        //    using (var scope = new TransactionScope())
-        //    {
-        //        var cuentaDao = new CuentaDao();
+        [Fact]
+        public void ObtenerCuentaPorNombreUsuario_DebeRetornarNull_CuandoNoExiste()
+        {
+            using (var scope = new TransactionScope())
+            {
+                var cuentaDao = new CuentaDao();
 
-        //        var resultado = cuentaDao.ObtenerCuentaPorNombreUsuario("noexiste@example.com");
+                var resultado = cuentaDao.ObtenerCuentaPorNombreUsuario("noexiste@example.com");
 
-        //        Assert.Null(resultado);
-        //    }
-        //}
+                Assert.Null(resultado);
+            }
+        }
 
 
         [Fact]
@@ -418,6 +418,94 @@ namespace Pruebas
                 var cuentaDao = new CuentaDao();
 
                 var resultado = cuentaDao.ExisteNombreUsuario("NombreUsuarioInexistente");
+
+                Assert.False(resultado);
+            }
+        }
+
+        [Fact]
+        public void AgregarJugadorConCuenta_DebeLanzarExcepcion_CuandoJugadorOCuentaEsNulo()
+        {
+            var cuentaDao = new CuentaDao();
+
+            Assert.Throws<ArgumentNullException>(() => cuentaDao.AgregarJugadorConCuenta(null, null));
+        }
+
+
+        [Fact]
+        public void ValidarInicioSesion_DebeLanzarExcepcion_CuandoContraseñaEsIncorrecta()
+        {
+            using (var scope = new TransactionScope())
+            {
+                var cuentaValida = new Cuenta
+                {
+                    Correo = "usuario@example.com",
+                    ContraseniaHash = "hashed_password",
+                    Salt = "random_salt",
+                    Jugador = new Jugador
+                    {
+                        NombreUsuario = "UsuarioValido",
+                        NumeroFotoPerfil = 1
+                    }
+                };
+
+                using (var contexto = new ContextoBaseDatos())
+                {
+                    contexto.Cuentas.Add(cuentaValida);
+                    contexto.SaveChanges();
+                }
+
+                var cuentaDao = new CuentaDao();
+
+                var exception = Assert.Throws<ExcepcionAccesoDatos>(() => cuentaDao.ValidarInicioSesion("usuario@example.com", "wrong_password"));
+                Assert.Contains("No se encontró una cuenta con el correo: usuario@example.com", exception.Message);
+            }
+        }
+
+        [Fact]
+        public void ObtenerCuentaPorNombreUsuario_DebeLanzarExcepcion_CuandoCuentaTieneCamposNulos()
+        {
+            using (var scope = new TransactionScope())
+            {
+                var cuentaValida = new Cuenta
+                {
+                    Correo = "usuario@example.com",
+                    ContraseniaHash = "hashed_password",
+                    Salt = "random_salt",
+                    Jugador = null  // Jugador nulo
+                };
+
+                using (var contexto = new ContextoBaseDatos())
+                {
+                    contexto.Cuentas.Add(cuentaValida);
+                    contexto.SaveChanges();
+                }
+
+                var cuentaDao = new CuentaDao();
+
+                Assert.Throws<ExcepcionAccesoDatos>(() => cuentaDao.ObtenerCuentaPorNombreUsuario("usuario@example.com"));
+            }
+        }
+
+        [Fact]
+        public void ExistenciaCorreo_DebeRetornarFalse_CuandoLaBaseDeDatosEstaVacia()
+        {
+            using (var scope = new TransactionScope())
+            {
+                var cuentaDao = new CuentaDao();
+                var resultado = cuentaDao.ExistenciaCorreo("noexiste@example.com");
+
+                Assert.False(resultado);
+            }
+        }
+
+        [Fact]
+        public void ExisteNombreUsuario_DebeRetornarFalse_CuandoNoHayJugadores()
+        {
+            using (var scope = new TransactionScope())
+            {
+                var cuentaDao = new CuentaDao();
+                var resultado = cuentaDao.ExisteNombreUsuario("JugadorInexistente");
 
                 Assert.False(resultado);
             }

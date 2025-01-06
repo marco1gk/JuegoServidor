@@ -24,7 +24,7 @@ namespace AccesoDatos.Utilidades
 
         private static string ConstruirRutaDelArchivoDeRegistro()
         {
-            const string formatoFecha = "dd-MM-yyyy";
+            const string formatoFecha = "dd-MM-AAAA";
             const string idArchivoNombre = "Log";
             const string caracterSeparador = "_";
             const string extensionArchivo = ".txt";

@@ -28,8 +28,8 @@ namespace ServicioJuego
                     Estadisticas estadisticasGlobales = new Estadisticas
                     {
                         IdEstadisticas = puntuacion.IdEstadisticas,
-                        IdJugador = (int)puntuacion.IdJugador,
-                        NumeroVictorias = (int)puntuacion.NumeroVictorias
+                        IdJugador = puntuacion.IdJugador,
+                        NumeroVictorias = puntuacion.NumeroVictorias
                     };
 
                     estadisiticasGlobales.Add(estadisticasGlobales);

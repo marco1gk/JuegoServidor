@@ -13,15 +13,15 @@ namespace ServicioJuego
     [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Reentrant, InstanceContextMode = InstanceContextMode.PerSession)]
     public partial class ImplementacionServicio : ISalaEsperaServicio
     {
-        public static readonly Dictionary<string, List<JugadorSalaEspera>> salasEspera = new Dictionary<string, List<JugadorSalaEspera>>();
+        private static readonly Dictionary<string, List<JugadorSalaEspera>> salasEspera = new Dictionary<string, List<JugadorSalaEspera>>();
         private static readonly object lockUsuarios = new object();
         private static readonly Dictionary<string, object> codigosGenerados = new Dictionary<string, object>();
 
+       
         public void InvitarAmigoASala(string codigoSalaEspera, string nombreAmigo, string nombreInvitador)
         {
             IGestorUsuarioCallback amigoCallback = BuscarJugadorEnLinea(nombreAmigo);
-            IGestorSalasEsperasCallBack actualUsuarioCanalCallback = OperationContext.Current.GetCallbackChannel<IGestorSalasEsperasCallBack>();
-
+        
             if (salasEspera.ContainsKey(codigoSalaEspera))
             {
                 if (amigoCallback != null)
@@ -52,7 +52,7 @@ namespace ServicioJuego
             }
         }
 
-        private IGestorUsuarioCallback BuscarJugadorEnLinea(string nombreAmigo)
+        private static IGestorUsuarioCallback BuscarJugadorEnLinea(string nombreAmigo)
         {
             if (usuariosEnLinea.ContainsKey(nombreAmigo))
             {
@@ -77,28 +77,25 @@ namespace ServicioJuego
 
             if (codigoSalaEspera == null)
             {
-                Console.WriteLine("No se pudo encontrar el lobby del jugador que envía el mensaje.");
                 return;
             }
 
-            string nombreUsuarioReceptor = salasEspera[codigoSalaEspera]
-                .Where(jugador => jugador.CallbackChannel == canalUsuarioActualCallback)
-                .Select(jugador => jugador.NombreUsuario)
-                .FirstOrDefault();
+            JugadorSalaEspera jugadorActual = salasEspera[codigoSalaEspera]
+                .FirstOrDefault(player => player.CallbackChannel == canalUsuarioActualCallback);
 
-            if (nombreUsuarioReceptor == null)
+            if (jugadorActual == null)
             {
-                Console.WriteLine("No se pudo encontrar al jugador que envía el mensaje.");
                 return;
             }
+
+            string nombreUsuario = jugadorActual.NombreUsuario;
 
             List<JugadorSalaEspera> jugadoresSalaEspera = salasEspera[codigoSalaEspera];
             foreach (var jugador in jugadoresSalaEspera)
             {
                 try
                 {
-
-                    jugador.CallbackChannel.RecibirMensaje(nombreUsuarioReceptor, mensaje);
+                    jugador.CallbackChannel.RecibirMensaje(nombreUsuario, mensaje);
                 }
                 catch (CommunicationException ex)
                 {
@@ -110,7 +107,10 @@ namespace ServicioJuego
                     ManejadorExcepciones.ManejarFatalExcepcion(ex);
                 }
             }
+
+            Console.WriteLine($"[{nombreUsuario}] envió un mensaje en la sala {codigoSalaEspera}: {mensaje}");
         }
+
 
         public void CrearSalaEspera(JugadorSalaEspera jugador)
         {
@@ -188,20 +188,30 @@ namespace ServicioJuego
 
                     if (numeroJugadoresEnSala < maximoJugadores)
                     {
-                        jugador.CallbackChannel.NotificarJugadoresEnSalaEspera(codigoSalaEspera, jugadoresEnSala);
-                        NotificarJugadorIngresoSalaEspera(jugadoresEnSala, jugador, numeroJugadoresEnSala, codigoSalaEspera);
-                        jugadoresEnSala.Add(jugador);
-                        NotificarPuedeIniciarJuegoSiEsAnfitrión(jugadoresEnSala);
+                        if (jugadoresEnSala.Any(j => j.NombreUsuario == jugador.NombreUsuario))
+                        {
+                            JugadorSalaEspera jugadorExistente = jugadoresEnSala.First(j => j.NombreUsuario == jugador.NombreUsuario);
+                            if (jugadorExistente.CallbackChannel != currentUserCallbackChannel)
+                            {
+                                jugadorExistente.CallbackChannel = currentUserCallbackChannel;
+                                Console.WriteLine($"Canal de callback actualizado para el jugador {jugador.NombreUsuario}.");
+                            }
+                        }
+                        else
+                        {
+                            jugadoresEnSala.Add(jugador);
+                            Console.WriteLine($"Jugador {jugador.NombreUsuario} se unió a la sala {codigoSalaEspera}.");
+                        }
                         NotificarJugadoresSalaEspera(codigoSalaEspera, jugadoresEnSala);
                     }
                     else
                     {
-                        jugador.CallbackChannel.NotificarSalaEsperaLlena();
+                        currentUserCallbackChannel.NotificarSalaEsperaLlena();
                     }
                 }
                 else
                 {
-                    jugador.CallbackChannel.NotificarSalaEsperaNoExiste();
+                    currentUserCallbackChannel.NotificarSalaEsperaNoExiste();
                 }
             }
             catch (CommunicationException ex)
@@ -214,31 +224,10 @@ namespace ServicioJuego
             }
         }
 
-        private void NotificarPuedeIniciarJuegoSiEsAnfitrión(List<JugadorSalaEspera> jugadoresEnSalaEspera)
-        {
-            bool puedeIniciar = jugadoresEnSalaEspera.Count >= 2;
-            JugadorSalaEspera anfitrion = jugadoresEnSalaEspera[0];
-
-            foreach (var jugador in jugadoresEnSalaEspera)
-            {
-                try
-                {
-                    jugador.CallbackChannel.NotificarPuedeIniciarPartida(jugador.Equals(anfitrion) && puedeIniciar);
-                }
-                catch (CommunicationException ex)
-                {
-
-                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                    Console.WriteLine(ex.ToString());
-                }
-                catch (Exception ex)
-                {
-                    ManejadorExcepciones.ManejarFatalExcepcion(ex);
-                }
-            }
-        }
         public void IniciarPartida(string codigoSalaEspera)
         {
+            Console.WriteLine($"Intentando iniciar partida para la sala con código: {codigoSalaEspera}");
+
             if (salasEspera.ContainsKey(codigoSalaEspera))
             {
                 List<JugadorSalaEspera> jugadoresEnSalaEspera = salasEspera[codigoSalaEspera];
@@ -246,30 +235,125 @@ namespace ServicioJuego
 
                 foreach (var jugador in jugadoresEnSalaEspera)
                 {
-                    JugadorPartida jugadorPartida = new JugadorPartida { NombreUsuario = jugador.NombreUsuario, NumeroFotoPerfil = jugador.NumeroFotoPerfil };
-                    jugadoresPartida.Add(jugadorPartida);
+                    jugadoresPartida.Add(new JugadorPartida
+                    {
+                        NombreUsuario = jugador.NombreUsuario,
+                        NumeroFotoPerfil = jugador.NumeroFotoPerfil
+                    });
                 }
+
+                List<JugadorSalaEspera> jugadoresConError = new List<JugadorSalaEspera>();
 
                 foreach (var jugador in jugadoresEnSalaEspera)
                 {
-                    try
+                    bool reconectar = false;
+                    int intentosMaximos = 3;
+                    int intentos = 0;
+
+                    Console.WriteLine($"Iniciando intentos para el jugador {jugador.NombreUsuario}.");
+
+                    while (intentos < intentosMaximos && !reconectar)
                     {
-                        jugador.CallbackChannel.NotificarIniciarPartida(jugadoresPartida.ToArray());
-                    }
-                    catch (CommunicationException ex)
-                    {
-                        ManejadorExcepciones.ManejarErrorExcepcion(ex);  
-                        RealizarSalidaLobby(codigoSalaEspera, jugador.NombreUsuario, false);
-                    }
-                    catch (Exception ex)
-                    {
-                        ManejadorExcepciones.ManejarFatalExcepcion(ex);
+                        try
+                        {
+                            Console.WriteLine($"Verificando el estado del canal para el jugador {jugador.NombreUsuario}.");
+                            IClientChannel canalCliente = jugador.CallbackChannel as IClientChannel;
+
+                            if (canalCliente != null)
+                            {
+                                Console.WriteLine($"Canal para el jugador {jugador.NombreUsuario} tiene el estado {canalCliente.State}.");
+
+                                if (canalCliente.State == CommunicationState.Faulted)
+                                {
+                                    Console.WriteLine($"El canal para {jugador.NombreUsuario} está en estado Faulted.");
+
+                                    if (canalCliente.State != CommunicationState.Closed && canalCliente.State != CommunicationState.Closing)
+                                    {
+                                        Console.WriteLine($"Cerrando canal para {jugador.NombreUsuario} debido a error de comunicación.");
+                                        canalCliente.Close();
+                                    }
+
+                                    IGestorSalasEsperasCallBack nuevoCanal = OperationContext.Current.GetCallbackChannel<IGestorSalasEsperasCallBack>();
+                                    jugador.CallbackChannel = nuevoCanal;
+                                    Console.WriteLine($"Nuevo canal creado para {jugador.NombreUsuario}.");
+                                }
+                                else if (canalCliente.State == CommunicationState.Closed)
+                                {
+                                    Console.WriteLine($"El canal para {jugador.NombreUsuario} está cerrado. Intentando restaurar el canal.");
+
+                                    canalCliente.Close();
+
+                                    IGestorSalasEsperasCallBack nuevoCanal = OperationContext.Current.GetCallbackChannel<IGestorSalasEsperasCallBack>();
+                                    jugador.CallbackChannel = nuevoCanal;
+                                    Console.WriteLine($"Nuevo canal creado para {jugador.NombreUsuario}.");
+                                }
+                            }
+                            else
+                            {
+                                Console.WriteLine($"El canal del jugador {jugador.NombreUsuario} no es IClientChannel.");
+                            }
+
+                            Console.WriteLine($"Notificando al jugador {jugador.NombreUsuario} para iniciar la partida.");
+                            jugador.CallbackChannel.NotificarIniciarPartida(jugadoresPartida.ToArray());
+                            reconectar = true;
+
+                            Console.WriteLine($"Jugador {jugador.NombreUsuario} ha sido notificado correctamente.");
+                        }
+                        catch (CommunicationException ex)
+                        {
+                            Console.WriteLine($"Error al notificar al jugador {jugador.NombreUsuario}: {ex.Message}");
+
+                            IClientChannel canalCliente = jugador.CallbackChannel as IClientChannel;
+                            if (canalCliente != null && canalCliente.State == CommunicationState.Faulted)
+                            {
+                                if (canalCliente.State != CommunicationState.Closed && canalCliente.State != CommunicationState.Closing)
+                                {
+                                    Console.WriteLine($"Cerrando canal para {jugador.NombreUsuario} debido a error de comunicación.");
+                                    canalCliente.Close();
+                                }
+
+                                IGestorSalasEsperasCallBack nuevoCanal = OperationContext.Current.GetCallbackChannel<IGestorSalasEsperasCallBack>();
+                                jugador.CallbackChannel = nuevoCanal;
+                                Console.WriteLine($"Nuevo canal creado para {jugador.NombreUsuario} debido a un error de comunicación.");
+                            }
+
+                            intentos++;
+                        }
+                        catch (TimeoutException ex)
+                        {
+                            Console.WriteLine($"Timeout al notificar al jugador {jugador.NombreUsuario}: {ex.Message}");
+                            intentos++;
+                        }
                     }
 
+                    if (!reconectar)
+                    {
+                        jugadoresConError.Add(jugador);
+                        Console.WriteLine($"El jugador {jugador.NombreUsuario} ha sido marcado como inactivo.");
+                    }
                 }
 
+                if (jugadoresConError.Any())
+                {
+                    lock (lockUsuarios)
+                    {
+                        foreach (var jugador in jugadoresConError)
+                        {
+                            Console.WriteLine($"Se marcó al jugador {jugador.NombreUsuario} como inactivo.");
+                        }
+
+                        jugadoresConError.ForEach(j => jugadoresEnSalaEspera.Remove(j));
+                        Console.WriteLine($"{jugadoresConError.Count} jugadores fueron removidos o marcados como inactivos.");
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine($"La sala con código {codigoSalaEspera} no existe.");
             }
         }
+
+
         private void NotificarJugadorIngresoSalaEspera(List<JugadorSalaEspera> jugadoresSalaEspera, JugadorSalaEspera jugadorIngresando, int numeroJugadoresSalaEspera, string codigoSalaEspera)
         {
             foreach (var jugador in jugadoresSalaEspera.ToList())
@@ -302,7 +386,7 @@ namespace ServicioJuego
             RealizarSalidaLobby(codigoSalaEspera, nombreUsuario, true);
         }
 
-        private void GestionarJugadorExpulsado(JugadorSalaEspera jugadorAEliminar)
+        private static void GestionarJugadorExpulsado(JugadorSalaEspera jugadorAEliminar)
         {
             try
             {
@@ -406,46 +490,23 @@ namespace ServicioJuego
             return salasEspera.ContainsKey(codigoSalaEspera) ? GenerarCodigoSalaEspera() : codigoSalaEspera;
         }
 
-     
 
-        public void NotificarJugadoresSalaEspera(string codigoSalaEspera, List<JugadorSalaEspera> jugadoresSalaEspera)
+
+        private static void NotificarJugadoresSalaEspera(string codigoSalaEspera, List<JugadorSalaEspera> jugadores)
         {
-            foreach (var jugador in jugadoresSalaEspera)
+            foreach (var jugador in jugadores)
             {
                 try
                 {
-                    jugador.CallbackChannel.NotificarJugadoresEnSalaEspera(codigoSalaEspera, jugadoresSalaEspera);
+                    jugador.CallbackChannel.NotificarJugadoresEnSalaEspera(codigoSalaEspera, jugadores);
                 }
                 catch (CommunicationException ex)
                 {
                     ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                    Console.WriteLine($"Error notificando a {jugador.NombreUsuario}: {ex.Message}");
-                }catch(Exception ex) {
-                    ManejadorExcepciones.ManejarFatalExcepcion(ex);
                 }
             }
         }
 
-
-        private static void safeClose(IClientChannel client, ChannelFactory channelFactory)
-        {
-            if (client!=null)
-            {
-                if(client.State==CommunicationState.Faulted)
-                    client.Abort();
-            }
-
-            if (channelFactory != null)
-            {
-                if (channelFactory != null)
-                {
-                    if(channelFactory.State==CommunicationState.Faulted)
-                        channelFactory.Abort();
-                    else
-                        channelFactory.Close();
-                }
-            }
-        }
 
         
     }

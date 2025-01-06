@@ -264,7 +264,6 @@ namespace ServicioJuego
             PosicionY = 0;
         }
 
-        // Asegúrate de incluir también un constructor sin parámetros para la serialización:
         public Carta() { }
 
     }

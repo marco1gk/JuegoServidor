@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Transactions;
 using Xunit;
@@ -148,6 +149,83 @@ public class PruebaJugadorDao
             Assert.False(resultado);
         }
     }
+
+    [Fact]
+    public void ObtenerJugador_DebeLanzarExcepcionDeBaseDeDatos_CuandoHayProblemaEnLaBaseDeDatos()
+    {
+        using (var scope = new TransactionScope())
+        {
+            var jugadorDao = new JugadorDao();
+            var excepcion = Assert.Throws<ExcepcionAccesoDatos>(() => jugadorDao.ObtenerJugador(-1));
+
+            Assert.Equal("Jugador con ID -1 no existe.", excepcion.Message);
+        }
+    }
+
+
+
+    [Fact]
+    public void ObtenerJugador_DebeLanzarExcepcion_CuandoElIdEsNuloOInvalido()
+    {
+        using (var scope = new TransactionScope())
+        {
+            var jugadorDao = new JugadorDao();
+            var excepcion = Assert.Throws<ExcepcionAccesoDatos>(() => jugadorDao.ObtenerJugador(0));
+
+            Assert.Equal("Jugador con ID 0 no existe.", excepcion.Message);
+        }
+    }
+
+
+    [Fact]
+    public void EditarNombreUsuario_DebeLanzarExcepcion_CuandoLaBaseDeDatosEstaCaida()
+    {
+        var mockSet = new Mock<DbSet<Jugador>>();
+        mockSet.Setup(m => m.FirstOrDefault(It.IsAny<Func<Jugador, bool>>()))
+               .Throws(new DbUpdateException("Error en la base de datos"));
+
+        var mockContexto = new Mock<ContextoBaseDatos>();
+        mockContexto.Setup(c => c.Jugadores).Returns(mockSet.Object);
+
+        var jugadorDao = new JugadorDao();
+
+        var excepcion = Assert.Throws<Exception>(() => jugadorDao.EditarNombreUsuario(1, "NuevoNombre"));
+        Assert.Contains("Error en la base de datos", excepcion.Message);
+    }
+   
+
+    [Fact]
+    public void ObtenerJugador_DebeRetornarNull_CuandoElIdNoExiste()
+    {
+        using (var scope = new TransactionScope())
+        {
+            var jugadorDao = new JugadorDao();
+
+            var jugadorObtenido = jugadorDao.ObtenerJugador(9999);
+
+            Assert.Null(jugadorObtenido);
+        }
+    }
+
+    [Fact]
+    public void EditarNombreUsuario_DebeRetornarFalse_CuandoSeProducenErroresAlGuardar()
+    {
+        var mockSet = new Mock<DbSet<Jugador>>();
+        mockSet.Setup(m => m.FirstOrDefault(It.IsAny<Func<Jugador, bool>>()))
+               .Returns(new Jugador());
+
+        var mockContexto = new Mock<ContextoBaseDatos>();
+        mockContexto.Setup(c => c.Jugadores).Returns(mockSet.Object);
+        mockContexto.Setup(m => m.SaveChanges()).Throws(new DbUpdateException("Error al guardar"));
+
+        var jugadorDao = new JugadorDao();
+
+        var resultado = jugadorDao.EditarNombreUsuario(1, "NuevoNombre");
+
+        Assert.False(resultado);
+    }
+
+
 
 
 }

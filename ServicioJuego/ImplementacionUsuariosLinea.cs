@@ -15,48 +15,7 @@ namespace ServicioJuego
     public partial class ImplementacionServicio : IGestorUsuariosConectados
     {
         private static readonly object objetoDeBloqueo = new object();
-        private static Dictionary<string, IGestorUsuarioCallback> usuariosEnLinea = new Dictionary<string, IGestorUsuarioCallback>();
-
-        public void RegistrarUsuarioAUsuariosConectados(int jugadorId, string nombreUsuario)
-        {
-            Console.WriteLine("se conectó "+nombreUsuario);
-            IGestorUsuarioCallback actualUsuarioCallbackCanal = OperationContext.Current.GetCallbackChannel<IGestorUsuarioCallback>();
-            List<string> nombresUsuarioEnLinea = usuariosEnLinea.Keys.ToList();
-            List<string> amigosEnLinea = new List<string>();
-
-            if (!usuariosEnLinea.ContainsKey(nombreUsuario))
-            {
-                usuariosEnLinea.Add(nombreUsuario, actualUsuarioCallbackCanal);
-            }
-            else
-            {
-                usuariosEnLinea[nombreUsuario] = actualUsuarioCallbackCanal;
-            }
-
-            amigosEnLinea = nombresUsuarioEnLinea
-                .Where(onlineUsername => EsAmigo(jugadorId, onlineUsername))
-                .ToList();
-
-            try
-            {
-                actualUsuarioCallbackCanal.NotificarAmigosEnLinea(amigosEnLinea);
-            }
-            catch (CommunicationException ex)
-            {
-                ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                DesregistrarUsuarioDeUsuariosEnLinea(nombreUsuario);
-            }
-            catch (TimeoutException ex)
-            {
-                ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                DesregistrarUsuarioDeUsuariosEnLinea(nombreUsuario);
-            }
-
-            NotificarInicioDeSesiónAAmigos(jugadorId, nombreUsuario);
-
-            Task.Run(() => VerificarConexionUsuario(nombreUsuario));
-        }
-
+        private static readonly Dictionary<string, IGestorUsuarioCallback> usuariosEnLinea = new Dictionary<string, IGestorUsuarioCallback>();
         private void VerificarConexionUsuario(string nombreUsuario)
         {
             while (true)
@@ -81,7 +40,7 @@ namespace ServicioJuego
                     break;
                 }
 
-                System.Threading.Thread.Sleep(10000); // Intervalo reducido a 10 segundos
+                System.Threading.Thread.Sleep(10000); 
             }
         }
 
@@ -109,12 +68,11 @@ namespace ServicioJuego
             }
         }
 
-        private bool EsAmigo(int actualJugadorId, string nombreUsuarioEnLinea)
+        private static bool EsAmigo(int actualJugadorId, string nombreUsuarioEnLinea)
         {
             AmistadDao amistadDao = new AmistadDao();
             ImplementacionServicio usuarioA = new ImplementacionServicio();
             int idJugadorEnLinea = usuarioA.ObtenerIdJugadorPorNombreUsuario(nombreUsuarioEnLinea);
-
             bool esAmigo = amistadDao.EsAmigo(actualJugadorId, idJugadorEnLinea);
 
             return esAmigo;
@@ -153,28 +111,60 @@ namespace ServicioJuego
             {
                 if (usuariosEnLinea.ContainsKey(nombreUsuario))
                 {
-                    // Actualiza el canal de comunicación para la reconexión
                     usuariosEnLinea[nombreUsuario] = OperationContext.Current.GetCallbackChannel<IGestorUsuarioCallback>();
-
-                    Console.WriteLine($"Usuario {nombreUsuario} se ha reconectado.");
-
-                    // Sincroniza el estado del juego al usuario reconectado
-                    Dictionary<string, string> estadoJuego = ObtenerEstadoActualDelJuego(); // Este método depende de tu lógica del juego
+                    Dictionary<string, string> estadoJuego = ObtenerEstadoActualDelJuego(); 
                     usuariosEnLinea[nombreUsuario].SincronizarEstado(estadoJuego);
 
                     return true;
                 }
                 else
                 {
-                    Console.WriteLine($"No se pudo reconectar al usuario {nombreUsuario}. No estaba registrado.");
                     return false;
                 }
             }
         }
 
-        private Dictionary<string, string> ObtenerEstadoActualDelJuego()
+        public void RegistrarUsuarioAUsuariosConectados(int idJugador, string nombreUsuario)
         {
-            // Ejemplo de cómo podrías estructurar el estado del juego
+            IGestorUsuarioCallback actualUsuarioCallbackCanal = OperationContext.Current.GetCallbackChannel<IGestorUsuarioCallback>();
+            List<string> nombresUsuarioEnLinea = usuariosEnLinea.Keys.ToList();
+            List<string> amigosEnLinea;
+
+            if (!usuariosEnLinea.ContainsKey(nombreUsuario))
+            {
+                usuariosEnLinea.Add(nombreUsuario, actualUsuarioCallbackCanal);
+            }
+            else
+            {
+                usuariosEnLinea[nombreUsuario] = actualUsuarioCallbackCanal;
+            }
+
+            amigosEnLinea = nombresUsuarioEnLinea
+                .Where(onlineUsername => EsAmigo(idJugador, onlineUsername))
+                .ToList();
+
+            try
+            {
+                actualUsuarioCallbackCanal.NotificarAmigosEnLinea(amigosEnLinea);
+            }
+            catch (CommunicationException ex)
+            {
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                DesregistrarUsuarioDeUsuariosEnLinea(nombreUsuario);
+            }
+            catch (TimeoutException ex)
+            {
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                DesregistrarUsuarioDeUsuariosEnLinea(nombreUsuario);
+            }
+
+            NotificarInicioDeSesiónAAmigos(idJugador, nombreUsuario);
+
+            Task.Run(() => VerificarConexionUsuario(nombreUsuario));
+        }
+
+        private static Dictionary<string, string> ObtenerEstadoActualDelJuego()
+        {
             return new Dictionary<string, string>
     {
         { "jugador1", "posición: 10, puntuación: 150" },

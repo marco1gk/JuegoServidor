@@ -33,18 +33,15 @@ namespace AccesoDatos.DAO
             try
             {
                 smtpClient.Send(mail);
-                Console.WriteLine("Correo enviado exitosamente.");
             }
             catch (SmtpException ex)
             {
                 ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                Console.WriteLine("Error SMTP: " + ex.Message);
                 return null;
             }
             catch (Exception ex)
             {
                 ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                Console.WriteLine("Error al enviar el correo: " + ex.Message);
                 return null;
             }
 

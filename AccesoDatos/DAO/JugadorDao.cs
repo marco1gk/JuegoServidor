@@ -59,7 +59,6 @@ namespace AccesoDatos.DAO
                     catch (DbUpdateException ex)
                     {
                         ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                        Console.WriteLine("Error al actualizar el nombre de usuario: " + ex);
                         return false;
                     }
                     catch (EntityException ex)

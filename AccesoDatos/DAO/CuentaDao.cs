@@ -109,17 +109,17 @@ namespace AccesoDatos.DAO
             catch (SqlException ex)
             {
                 ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                throw new ExcepcionAccesoDatos("Error en la base de datos: " + ex.Message);
+                throw new ExcepcionAccesoDatos(ex.Message);
             }
             catch (EntityException ex)
             {
                 ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                throw new ExcepcionAccesoDatos("Error con Entity Framework: " + ex.Message);
+                throw new ExcepcionAccesoDatos( ex.Message);
             }
             catch (Exception ex)
             {
                 ManejadorExcepciones.ManejarFatalExcepcion(ex);
-                throw new ExcepcionAccesoDatos("Error inesperado al validar el inicio de sesión: " + ex.Message);
+                throw new ExcepcionAccesoDatos( ex.Message);
             }
         }
 
@@ -146,18 +146,18 @@ namespace AccesoDatos.DAO
             {
 
                 ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                throw new ExcepcionAccesoDatos("Error en la base de datos: " + ex.Message);
+                throw new ExcepcionAccesoDatos( ex.Message);
             }
             catch (EntityException ex)
             {
 
                 ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                throw new ExcepcionAccesoDatos("Error en Entity Framework: " + ex.Message);
+                throw new ExcepcionAccesoDatos(ex.Message);
             }
             catch (Exception ex)
             {
                 ManejadorExcepciones.ManejarFatalExcepcion(ex);
-                throw new ExcepcionAccesoDatos("Error inesperado al obtener la cuenta: " + ex.Message);
+                throw new ExcepcionAccesoDatos(ex.Message);
             }
         }
 
@@ -183,31 +183,26 @@ namespace AccesoDatos.DAO
                     catch (DbUpdateException ex)
                     {
                         ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                        Console.WriteLine("Error al editar la contraseña: " + ex);
                         return false;
                     }
                     catch (SqlException ex)
                     {
                         ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                        Console.WriteLine("Error de base de datos: " + ex.Message);
                         return false;
                     }
                     catch (EntityException ex)
                     {
                         ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                        Console.WriteLine("Error de Entity Framework: " + ex.Message);
                         return false;
                     }
                     catch (Exception ex)
                     {
                         ManejadorExcepciones.ManejarFatalExcepcion(ex);
-                        Console.WriteLine("Error inesperado: " + ex.Message);
                         return false;
                     }
                 }
                 else
                 {
-                    Console.WriteLine("No se encontró la cuenta con el correo proporcionado.");
                     return false;
                 }
             }
@@ -226,19 +221,16 @@ namespace AccesoDatos.DAO
             catch (SqlException ex)
             {
                 ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                Console.WriteLine("Error de base de datos: " + ex.Message);
                 return false;
             }
             catch (EntityException ex)
             {
                 ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                Console.WriteLine("Error de Entity Framework: " + ex.Message);
                 return false;
             }
             catch (Exception ex)
             {
                 ManejadorExcepciones.ManejarFatalExcepcion(ex);
-                Console.WriteLine("Error inesperado: " + ex.Message);
                 return false;
             }
 
@@ -263,25 +255,21 @@ namespace AccesoDatos.DAO
                     catch (DbUpdateException ex)
                     {
                         ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                        Console.WriteLine("Error al actualizar el correo: " + ex);
                         return false;
                     }
                     catch (SqlException ex)
                     {
                         ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                        Console.WriteLine("Error de base de datos: " + ex.Message);
                         return false;
                     }
                     catch (EntityException ex)
                     {
                         ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                        Console.WriteLine("Error de Entity Framework: " + ex.Message);
                         return false;
                     }
                     catch (Exception ex)
                     {
                         ManejadorExcepciones.ManejarFatalExcepcion(ex);
-                        Console.WriteLine("Error inesperado: " + ex.Message);
                         return false;
                     }
                 }
@@ -301,19 +289,16 @@ namespace AccesoDatos.DAO
             catch (SqlException ex)
             {
                 ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                Console.WriteLine("Error de base de datos: " + ex.Message);
                 return false;
             }
             catch (EntityException ex)
             {
                 ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                Console.WriteLine("Error de Entity Framework: " + ex.Message);
                 return false;
             }
             catch (Exception ex)
             {
                 ManejadorExcepciones.ManejarFatalExcepcion(ex);
-                Console.WriteLine("Error inesperado: " + ex.Message);
                 return false;
             }
 
@@ -332,19 +317,16 @@ namespace AccesoDatos.DAO
             catch (SqlException ex)
             {
                 ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                Console.WriteLine("Error de base de datos: " + ex.Message);
                 return false; 
             }
             catch (EntityException ex)
             {
                 ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                Console.WriteLine("Error de Entity Framework: " + ex.Message);
                 return false;
             }
             catch (Exception ex)
             {
                 ManejadorExcepciones.ManejarFatalExcepcion(ex);
-                Console.WriteLine("Error inesperado: " + ex.Message);
                 return false;
             }
         }
