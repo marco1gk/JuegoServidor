@@ -62,8 +62,7 @@ public class PruebaEstadisticasDao
 
 
     [Fact]
-<<<<<<< HEAD
-    public void ObtenerEstadisticasGlobales_DebeRetornarListaVacia_CuandoNoHayEstadisticas()
+    public void ActualizarVictoriasJugador_DebeInsertarNuevoRegistro_CuandoEsElPrimerRegistro()
     {
         using (var scope = new TransactionScope())
         {
@@ -77,37 +76,6 @@ public class PruebaEstadisticasDao
     }
 
 
-=======
-    public void ActualizarVictoriasJugador_DebeInsertarNuevoRegistro_CuandoEsElPrimerRegistro()
-    {
-        using (var scope = new TransactionScope())
-        {
-            int idJugador;
-            using (var contexto = new ContextoBaseDatos())
-            {
-                var jugador = new Jugador
-                {
-                    NombreUsuario = "NuevoJugador",
-                    NumeroFotoPerfil = 1
-                };
-                contexto.Jugadores.Add(jugador);
-                contexto.SaveChanges();
-                idJugador = jugador.JugadorId;
-            }
-
-            var dao = new EstadisticasDao();
-            var filasAfectadas = dao.ActualizarVictoriasJugador(idJugador);
-            Assert.Equal(1, filasAfectadas);
-
-            using (var contexto = new ContextoBaseDatos())
-            {
-                var estadisticas = contexto.Estadisticas.FirstOrDefault(e => e.IdJugador == idJugador);
-                Assert.NotNull(estadisticas);
-                Assert.Equal(1, estadisticas.NumeroVictorias);
-            }
-        }
-    }
->>>>>>> cambios de estandar y codigo
     [Fact]
     public void ObtenerEstadisticasGlobales_DebeRetornarEstadisticas_CuandoLaBaseDeDatosEstaDisponible()
     {
@@ -118,24 +86,12 @@ public class PruebaEstadisticasDao
         new Estadisticas { NumeroVictorias = 10 }
     }.AsQueryable(); 
 
-<<<<<<< HEAD
     [Fact]
     public void ActualizarVictoriasJugador_DebeLanzarExcepcion_CuandoOcurreExcepcionGeneral()
     {
         var mockSet = new Mock<DbSet<Estadisticas>>();
         mockSet.Setup(m => m.FirstOrDefault(It.IsAny<Func<Estadisticas, bool>>()))
                .Throws(new Exception("Simulando una excepción general"));
-=======
-        mockSet.As<IQueryable<Estadisticas>>().Setup(m => m.Provider).Returns(data.Provider);
-        mockSet.As<IQueryable<Estadisticas>>().Setup(m => m.Expression).Returns(data.Expression);
-        mockSet.As<IQueryable<Estadisticas>>().Setup(m => m.ElementType).Returns(data.ElementType);
-        mockSet.As<IQueryable<Estadisticas>>().Setup(m => m.GetEnumerator()).Returns(data.GetEnumerator());
-
-        var mockContexto = new Mock<ContextoBaseDatos>();
-        mockContexto.Setup(c => c.Estadisticas).Returns(mockSet.Object);
-
-        var estadisticasDao = new EstadisticasDao();
->>>>>>> cambios de estandar y codigo
 
         var result = estadisticasDao.ObtenerEstadisticasGlobales();
 
