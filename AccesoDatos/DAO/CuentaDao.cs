@@ -16,40 +16,6 @@ namespace AccesoDatos.DAO
 {
     public class CuentaDao
     {
-        public bool AgregarJugadorConCuenta(Jugador jugador, Cuenta cuenta)
-        {
-            using (var contexto = new ContextoBaseDatos())
-            {
-                try
-                {
-                    contexto.Cuentas.Add(cuenta);
-                contexto.Jugadores.Add(jugador);
-                cuenta.Jugador = jugador;
-                cuenta.JugadorId = jugador.JugadorId;
-                
-                    int filasAlteradas = contexto.SaveChanges();
-                    return filasAlteradas == 2;
-
-                }
-                catch (EntityException ex)
-                {
-                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                    throw new ExcepcionAccesoDatos(ex.Message);
-                }
-                catch (SqlException ex)
-                {
-
-                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                    throw new ExcepcionAccesoDatos(ex.Message);
-                }
-                catch (Exception ex)
-                {
-                    ManejadorExcepciones.ManejarFatalExcepcion(ex);
-                    throw new ExcepcionAccesoDatos(ex.Message);
-                }
-            }
-
-        }
 
         public int ObtenerIdJugadorPorNombreUsuario(string nombreUsuario)
         {
@@ -86,8 +52,41 @@ namespace AccesoDatos.DAO
 
             return jugadorId;
         }
+        public bool AgregarJugadorConCuenta(Jugador jugador, Cuenta cuenta)
+        {
+            using (var contexto = new ContextoBaseDatos())
+            {
+                try
+                {
+                    contexto.Cuentas.Add(cuenta);
+                contexto.Jugadores.Add(jugador);
+                cuenta.Jugador = jugador;
+                cuenta.JugadorId = jugador.JugadorId;
+                
+                    int filasAlteradas = contexto.SaveChanges();
+                    return filasAlteradas == 2;
 
+                }
+                catch (EntityException ex)
+                {
+                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                    throw new ExcepcionAccesoDatos(ex.Message);
+                }
+                catch (SqlException ex)
+                {
 
+                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                    throw new ExcepcionAccesoDatos(ex.Message);
+                }
+                catch (Exception ex)
+                {
+                    ManejadorExcepciones.ManejarFatalExcepcion(ex);
+                    throw new ExcepcionAccesoDatos(ex.Message);
+                }
+            }
+        }
+
+      
         public Cuenta ValidarInicioSesion(string correo, string contraseniaHash)
         {
             try
@@ -332,6 +331,7 @@ namespace AccesoDatos.DAO
         }
 
     }
+
 
 
 }

@@ -59,8 +59,6 @@ namespace ServicioJuego
         [FaultContract(typeof(HuntersTrophyExcepcion))]
         int ObtenerIdJugadorPorNombreUsuario(string nombreUsuario);
 
-
-
     }
 
     [DataContract]

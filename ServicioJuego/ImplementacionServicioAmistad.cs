@@ -1,5 +1,6 @@
 ﻿using AccesoDatos.DAO;
 using AccesoDatos.Excepciones;
+using AccesoDatos.Utilidades;
 using ServicioJuego.Excepciones;
 using System;
 using System.Collections.Generic;
@@ -27,7 +28,7 @@ namespace ServicioJuego
                     Mensaje = ex.Message,
                     StackTrace = ex.StackTrace
                 };
-
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
             }
         }
@@ -57,7 +58,7 @@ namespace ServicioJuego
                     Mensaje = ex.Message,
                     StackTrace = ex.StackTrace
                 };
-
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
             }
         }
@@ -81,7 +82,7 @@ namespace ServicioJuego
                     Mensaje = ex.Message,
                     StackTrace = ex.StackTrace
                 };
-
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
             }
 
@@ -107,7 +108,7 @@ namespace ServicioJuego
                     Mensaje = ex.Message,
                     StackTrace = ex.StackTrace
                 };
-
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
             }
 
@@ -146,7 +147,7 @@ namespace ServicioJuego
                     Mensaje = ex.Message,
                     StackTrace = ex.StackTrace
                 };
-
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
             }
         }

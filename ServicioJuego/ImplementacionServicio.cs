@@ -12,6 +12,7 @@ using System.Text;
 using System.Data.Entity.Core;
 using AccesoDatos.Excepciones;
 using ServicioJuego.Excepciones;
+using AccesoDatos.Utilidades;
 
 namespace ServicioJuego
 {
@@ -41,24 +42,27 @@ namespace ServicioJuego
                     Mensaje = ex.Message,
                     StackTrace = ex.StackTrace
                 };
-
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
             }
             catch (EntityException ex)
             {
-                Console.WriteLine(ex);
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
             }
             catch (SqlException ex)
             {
-                Console.WriteLine(ex);
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                ManejadorExcepciones.ManejarFatalExcepcion(ex);
+                
             }
 
             return nombreUsuario;
         }
+
+        //se regresa null debido a que solo se encuentra un sentido en que no existe, de esa manera se valida de forma más fácil
         public JugadorDataContract ObtenerJugador(int idJugador)
         {
 
@@ -85,7 +89,7 @@ namespace ServicioJuego
                     Mensaje = ex.Message,
                     StackTrace = ex.StackTrace
                 };
-
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
             }
 
@@ -129,7 +133,7 @@ namespace ServicioJuego
                     Mensaje = "No se pudo conectar a la base de datos. Verifique las credenciales.",
                     StackTrace = ex.StackTrace
                 };
-
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
             }
             catch (ExcepcionAccesoDatos ex)
@@ -139,7 +143,7 @@ namespace ServicioJuego
                     Mensaje = ex.Message,
                     StackTrace = ex.StackTrace
                 };
-
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
             }
             catch (Exception ex)
@@ -149,7 +153,7 @@ namespace ServicioJuego
                     Mensaje = "Ocurrió un error inesperado. Por favor, intente más tarde.",
                     StackTrace = ex.StackTrace
                 };
-
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
             }
         }
@@ -166,6 +170,8 @@ namespace ServicioJuego
             return cuentaDao.ExisteNombreUsuario(nombreUsuario);
         }
 
+
+        //se regresa null debido a que solo se encuentra un sentido en que no existe, de esa manera se valida de forma más fácil
         public JugadorDataContract ValidarInicioSesion(string nombreUsuario, string contraseniaHash)
         {
            
@@ -200,7 +206,7 @@ namespace ServicioJuego
                     Mensaje = ex.Message,
                     StackTrace = ex.StackTrace
                 };
-
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
             }
            
@@ -245,7 +251,7 @@ namespace ServicioJuego
                     Mensaje = ex.Message,
                     StackTrace = ex.StackTrace
                 };
-
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 throw new FaultException<HuntersTrophyExcepcion>(exceptionResponse, new FaultReason(exceptionResponse.Mensaje));
             }
         }

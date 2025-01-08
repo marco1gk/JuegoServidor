@@ -1,6 +1,7 @@
 ﻿using AccesoDatos.DAO;
 using AccesoDatos.Excepciones;
 using AccesoDatos.Modelo;
+using AccesoDatos.Utilidades;
 using ServicioJuego.Excepciones;
 using System;
 using System.Collections.Generic;
@@ -42,7 +43,7 @@ namespace ServicioJuego
                     Mensaje = ex.Message,
                     StackTrace = ex.StackTrace
                 };
-
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 throw new FaultException<HuntersTrophyExcepcion>(respuestaaExcepcion, new FaultReason(respuestaaExcepcion.Mensaje));
             }
 
@@ -66,7 +67,7 @@ namespace ServicioJuego
                     Mensaje = ex.Message,
                     StackTrace = ex.StackTrace
                 };
-
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
             }
         }

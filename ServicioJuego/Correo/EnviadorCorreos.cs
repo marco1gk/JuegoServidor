@@ -12,16 +12,16 @@ namespace ServicioJuego.Correo
 {
     public class EnviadorCorreos
     {
-        private readonly IPlantillaCorreo _plantillaCorreo;
+        private readonly IPlantillaCorreo plantillaCorreo;
 
         public EnviadorCorreos(IPlantillaCorreo plantillaCorreo)
         {
-            _plantillaCorreo = plantillaCorreo;
+            this.plantillaCorreo = plantillaCorreo;
         }
 
         public bool EnviarCorreo(string receptor, string mensaje)
         {
-            string contenidoCorreo = _plantillaCorreo.RealizarCorreo(mensaje);
+            string contenidoCorreo = plantillaCorreo.RealizarCorreo(mensaje);
             string emisorCorreo = "hunterstrophy01@gmail.com";
             string nombreJuego = "Invitacion";
             string asunto = "Hunters Trophy";

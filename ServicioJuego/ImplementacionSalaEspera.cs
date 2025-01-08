@@ -141,16 +141,6 @@ namespace ServicioJuego
             
         }
 
-        public string BuscarSalaEsperaDisponible()
-        {
-            if (salasEspera.Any())
-            {
-                return salasEspera.Keys.First();
-            }
-            return null;
-        }
-
-
         public void UnirSalaEsperaComoAnfitrion(string codigoSalaEspera)
         {
             if (salasEspera.ContainsKey(codigoSalaEspera))
@@ -172,7 +162,7 @@ namespace ServicioJuego
                 }
             }
         }
-
+        //los de arriba ya se revisaron apartir de aqui
         public void UnirseSalaEspera(string codigoSalaEspera, JugadorSalaEspera jugador)
         {
             IGestorSalasEsperasCallBack currentUserCallbackChannel = OperationContext.Current.GetCallbackChannel<IGestorSalasEsperasCallBack>();
@@ -353,7 +343,7 @@ namespace ServicioJuego
             }
         }
 
-
+        //de aqui para abajo ya
         private void NotificarJugadorIngresoSalaEspera(List<JugadorSalaEspera> jugadoresSalaEspera, JugadorSalaEspera jugadorIngresando, int numeroJugadoresSalaEspera, string codigoSalaEspera)
         {
             foreach (var jugador in jugadoresSalaEspera.ToList())
@@ -467,6 +457,7 @@ namespace ServicioJuego
                 }
                 catch (Exception ex)
                 {
+                    RealizarSalidaLobby(codigoSalaEspera, nombreUsuario, esExplusaldo);
                     ManejadorExcepciones.ManejarFatalExcepcion(ex);
                 }
             }
@@ -503,6 +494,10 @@ namespace ServicioJuego
                 catch (CommunicationException ex)
                 {
                     ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                }
+                catch(Exception ex)
+                {
+                    ManejadorExcepciones.ManejarFatalExcepcion(ex);
                 }
             }
         }

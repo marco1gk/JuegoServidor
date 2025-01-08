@@ -78,7 +78,7 @@ namespace ServicioJuego
                     Mensaje = ex.Message,
                     StackTrace = ex.StackTrace
                 };
-
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
             }
         }
@@ -117,7 +117,7 @@ namespace ServicioJuego
                     Mensaje = ex.Message,
                     StackTrace = ex.StackTrace
                 };
-
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
             }
         }
@@ -147,7 +147,7 @@ namespace ServicioJuego
                         Mensaje = ex.Message,
                         StackTrace = ex.StackTrace
                     };
-
+                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
                     throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
                 }
             }

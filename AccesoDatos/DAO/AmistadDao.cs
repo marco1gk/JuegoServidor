@@ -13,6 +13,7 @@ using System.Security.Cryptography;
 using System.Security.Principal;
 using AccesoDatos.Modelo;
 using AccesoDatos.Utilidades;
+using AccesoDatos.Excepciones;
 
 
 
@@ -20,14 +21,15 @@ namespace AccesoDatos.DAO
 {
     public class AmistadDao
     {
-        private const string ESTADO_AMISTAD = "Friend";
-        private const string ESTADO_SOLICITUD = "Request";
+        private const string ESTADO_AMISTAD = "Amigo";
+        private const string ESTADO_SOLICITUD = "Solicitud";
 
        
         public AmistadDao()
         {
   
         }
+
         public bool VerificarAmistad(int idJugadorMandaSolicitud, int idJugadorReciveSolicitud)
         {
             bool tieneRelacion = false;
@@ -126,18 +128,18 @@ namespace AccesoDatos.DAO
             catch (EntityException ex)
             {
                 ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                throw new Exception(ex.Message);
+                throw new ExcepcionAccesoDatos(ex.Message);
             }
             catch (SqlException ex)
             {
 
                 ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                throw new Exception(ex.Message);
+                throw new ExcepcionAccesoDatos(ex.Message);
             }
             catch (Exception ex)
             {
                 ManejadorExcepciones.ManejarFatalExcepcion(ex);
-                throw new Exception(ex.Message);
+                throw new ExcepcionAccesoDatos(ex.Message);
             }
         }
 

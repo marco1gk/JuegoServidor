@@ -29,19 +29,20 @@ namespace AccesoDatos.DAO
             catch (EntityException ex)
             {
                 ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                throw new ExcepcionAccesoDatos(ex.Message);
+                throw new ExcepcionAccesoDatos("Error al acceder a los datos: " + ex.Message);
             }
             catch (SqlException ex)
             {
                 ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                throw new ExcepcionAccesoDatos(ex.Message);
+                throw new ExcepcionAccesoDatos("Error en la base de datos: " + ex.Message);
             }
             catch (Exception ex)
             {
                 ManejadorExcepciones.ManejarFatalExcepcion(ex);
-                throw new ExcepcionAccesoDatos(ex.Message);
+                throw new ExcepcionAccesoDatos("Error inesperado: " + ex.Message);
             }
         }
+
 
         public int ActualizarVictoriasJugador(int idJugador)
         {

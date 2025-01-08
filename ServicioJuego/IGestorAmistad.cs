@@ -18,12 +18,10 @@ namespace ServicioJuego
 
         [OperationContract]
         [FaultContract(typeof(HuntersTrophyExcepcion))]
-
         bool ValidarEnvioSolicitudAmistad(int idJugadorEnviador, string nombreUsuarioSolicitado);
 
         [OperationContract]
         [FaultContract(typeof(HuntersTrophyExcepcion))]
-
         int AgregarSolicitudAmistad(int idJugadorEnvia, string nombreUsuarioSolicitado);
 
         [OperationContract]

@@ -27,15 +27,17 @@ namespace ServicioJuego
                         usuariosEnLinea[nombreUsuario].Ping();
                     }
                 }
-                catch (CommunicationException)
+                catch (CommunicationException ex)
                 {
                     Console.WriteLine($"Usuario {nombreUsuario} desconectado.");
                     DesregistrarUsuarioDeUsuariosEnLinea(nombreUsuario);
+                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
                     break;
                 }
-                catch (TimeoutException)
+                catch (TimeoutException ex)
                 {
                     Console.WriteLine($"Usuario {nombreUsuario} desconectado.");
+                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
                     DesregistrarUsuarioDeUsuariosEnLinea(nombreUsuario);
                     break;
                 }
@@ -67,7 +69,6 @@ namespace ServicioJuego
                 }
             }
         }
-
         private static bool EsAmigo(int actualJugadorId, string nombreUsuarioEnLinea)
         {
             AmistadDao amistadDao = new AmistadDao();

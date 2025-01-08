@@ -15,7 +15,6 @@ namespace ServicioJuego
         void InvitarAmigoASala(string codigoSalaEspera, string nombreAmigo, string nombreInvitador);
 
         [OperationContract(IsOneWay = true)]
-
         void CrearSalaEspera(JugadorSalaEspera jugador);
 
         [OperationContract]
@@ -33,18 +32,11 @@ namespace ServicioJuego
         [OperationContract]
         void MandarMensaje(string mensaje);
 
-        [OperationContract]
-        string BuscarSalaEsperaDisponible();
-
         [OperationContract(IsOneWay = true)]
         void IniciarPartida(string codigoSalaEspera);
 
-
         [OperationContract]
         void ExpulsarJugadorSalaEspera(string codigoSalaEspera, string username);
-
-        
-
 
     }
 

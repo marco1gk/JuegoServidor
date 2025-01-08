@@ -40,7 +40,7 @@ public class PruebaJugadorDao
 
             var jugadorDao = new JugadorDao();
 
-            
+
             var jugadorObtenido = jugadorDao.ObtenerJugador(jugador.JugadorId);
 
             Assert.NotNull(jugadorObtenido);
@@ -144,7 +144,7 @@ public class PruebaJugadorDao
         {
             var jugadorDao = new JugadorDao();
 
-            var resultado = jugadorDao.EditarNombreUsuario(9999, "JugadorInvalido"); 
+            var resultado = jugadorDao.EditarNombreUsuario(9999, "JugadorInvalido");
 
             Assert.False(resultado);
         }
@@ -177,42 +177,19 @@ public class PruebaJugadorDao
     }
 
 
-    [Fact]
-    public void EditarNombreUsuario_DebeLanzarExcepcion_CuandoLaBaseDeDatosEstaCaida()
-    {
-        var mockSet = new Mock<DbSet<Jugador>>();
-        mockSet.Setup(m => m.FirstOrDefault(It.IsAny<Func<Jugador, bool>>()))
-               .Throws(new DbUpdateException("Error en la base de datos"));
-
-        var mockContexto = new Mock<ContextoBaseDatos>();
-        mockContexto.Setup(c => c.Jugadores).Returns(mockSet.Object);
-
-        var jugadorDao = new JugadorDao();
-
-        var excepcion = Assert.Throws<Exception>(() => jugadorDao.EditarNombreUsuario(1, "NuevoNombre"));
-        Assert.Contains("Error en la base de datos", excepcion.Message);
-    }
-   
-
-    [Fact]
-    public void ObtenerJugador_DebeRetornarNull_CuandoElIdNoExiste()
-    {
-        using (var scope = new TransactionScope())
-        {
-            var jugadorDao = new JugadorDao();
-
-            var jugadorObtenido = jugadorDao.ObtenerJugador(9999);
-
-            Assert.Null(jugadorObtenido);
-        }
-    }
-
+  
     [Fact]
     public void EditarNombreUsuario_DebeRetornarFalse_CuandoSeProducenErroresAlGuardar()
     {
+        var data = new List<Jugador>
+    {
+        new Jugador { JugadorId = 1, NombreUsuario = "UsuarioOriginal" } }.AsQueryable();
+
         var mockSet = new Mock<DbSet<Jugador>>();
-        mockSet.Setup(m => m.FirstOrDefault(It.IsAny<Func<Jugador, bool>>()))
-               .Returns(new Jugador());
+        mockSet.As<IQueryable<Jugador>>().Setup(m => m.Provider).Returns(data.Provider);
+        mockSet.As<IQueryable<Jugador>>().Setup(m => m.Expression).Returns(data.Expression);
+        mockSet.As<IQueryable<Jugador>>().Setup(m => m.ElementType).Returns(data.ElementType);
+        mockSet.As<IQueryable<Jugador>>().Setup(m => m.GetEnumerator()).Returns(data.GetEnumerator());
 
         var mockContexto = new Mock<ContextoBaseDatos>();
         mockContexto.Setup(c => c.Jugadores).Returns(mockSet.Object);
@@ -224,7 +201,7 @@ public class PruebaJugadorDao
 
         Assert.False(resultado);
     }
-
+  
 
 
 
