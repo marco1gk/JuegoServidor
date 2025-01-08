@@ -39,39 +39,35 @@ namespace ServicioJuego
         private void InicializarMazo(string idPartida)
         {
             ImprimirCallbacks();
-            // Lista temporal para crear todas las cartas como instancias separadas
             var cartasTemporales = new List<Carta>();
 
-            // Contador para los IDs de las cartas
             int idCounter = 1;
 
-            // Agregar cartas al mazo asignando IDs únicos
-            cartasTemporales.AddRange(Enumerable.Repeat(0, 3)
+            cartasTemporales.AddRange(Enumerable.Repeat(0, 1)
                                                  .Select(_ => new Carta("Carta1", idCounter++, 1)));
 
-            cartasTemporales.AddRange(Enumerable.Repeat(0, 5)
+            cartasTemporales.AddRange(Enumerable.Repeat(0, 2)
                                                  .Select(_ => new Carta("Carta2", idCounter++, 2)));
-            cartasTemporales.AddRange(Enumerable.Repeat(0, 7)
+            cartasTemporales.AddRange(Enumerable.Repeat(0, 6)
                                                  .Select(_ => new Carta("Carta3", idCounter++, 3)));
 
-            cartasTemporales.AddRange(Enumerable.Repeat(0, 9)
+            cartasTemporales.AddRange(Enumerable.Repeat(0, 3)
                                                  .Select(_ => new Carta("Carta4", idCounter++, 4)));
 
-            cartasTemporales.AddRange(Enumerable.Repeat(0, 11)
+            cartasTemporales.AddRange(Enumerable.Repeat(0, 2)
                                                  .Select(_ => new Carta("Carta5", idCounter++, 5)));
 
-            cartasTemporales.AddRange(Enumerable.Repeat(0, 13)
+            cartasTemporales.AddRange(Enumerable.Repeat(0, 1)
                                                  .Select(_ => new Carta("Carta6", idCounter++, 6)));
 
-            cartasTemporales.AddRange(Enumerable.Repeat(0, 3)
+            cartasTemporales.AddRange(Enumerable.Repeat(0, 1)
                                                  .Select(_ => new Carta("Carta7", idCounter++, 7)));
 
-            cartasTemporales.AddRange(Enumerable.Repeat(0, 2)
+            cartasTemporales.AddRange(Enumerable.Repeat(0, 1)
                                                  .Select(_ => new Carta("Carta8", idCounter++, 8)));
             
             cartasTemporales.Add(cartaParteTrasera);
 
-            // Asignar el mazo completo
             CartasEnMazo = cartasTemporales;
         }
 
@@ -92,7 +88,7 @@ namespace ServicioJuego
             }
 
             CartasEnMazo = cartasSinParteTrasera;
-            CartasEnMazo.Add(cartaParteTrasera); // Mantener la carta trasera al final
+            CartasEnMazo.Add(cartaParteTrasera);
         }
 
 
@@ -165,47 +161,24 @@ namespace ServicioJuego
                 Console.WriteLine("La partida no se encontro");
             }
         }
-
         public void RegistrarJugador(string nombreUsuario)
         {
             var callback = OperationContext.Current.GetCallbackChannel<IServicioPartidaCallback>();
 
-            if (callback != null)
+            if (!_callbacks.ContainsKey(nombreUsuario))
             {
-                if (!_callbacks.ContainsKey(nombreUsuario))
-                {
-                    _callbacks[nombreUsuario] = callback;
-                    Console.WriteLine($"Callback registrado de: {nombreUsuario}");
-                }
-                else
-                {
-                    Console.WriteLine($"El jugador {nombreUsuario} ya está registrado. Actualizando el callback.");
-                    _callbacks[nombreUsuario] = callback; // Actualiza el callback si ya existe
-                }
+                _callbacks[nombreUsuario] = callback;
+                Console.WriteLine($"Callback registrado de: {nombreUsuario}");
             }
             else
             {
-                Console.WriteLine($"Error al obtener el canal de callback para {nombreUsuario}. No se pudo registrar.");
-            }
-
-            Console.WriteLine($"Estado actual de _callbacks después de registrar {nombreUsuario}:");
-            foreach (var key in _callbacks.Keys)
-            {
-                Console.WriteLine($"Jugador registrado: {key}");
+                Console.WriteLine($"El jugador {nombreUsuario} ya está registrado. Actualizando el callback.");
+                _callbacks[nombreUsuario] = callback;
             }
         }
 
         public void CrearPartida(List<JugadorPartida> jugadores, string idPartida)
         {
-            foreach (var jugador in jugadores)
-            {
-                if (!_callbacks.ContainsKey(jugador.NombreUsuario))
-                {
-                    Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un callback registrado. Registrando ahora...");
-                    RegistrarJugador(jugador.NombreUsuario);
-                }
-            }
-            ImprimirCallbacks();
             Console.WriteLine("Jugadores recibidos en el servidor: ");
 
             foreach (var jugador in jugadores)
@@ -256,7 +229,7 @@ namespace ServicioJuego
                     }
                 }
             }
-            ImprimirCallbacks();
+
             Console.WriteLine("Proceso de creación de la partida finalizado.");
         }
 
@@ -284,16 +257,11 @@ namespace ServicioJuego
 
         private void NotificarPartidaCreada(JugadorPartida jugador, string idPartida)
         {
-            Console.WriteLine("aqui esta notificar partida creada " + jugador.NombreUsuario + " " + idPartida);
-
-            // Acceder al canal de comunicación del jugador
-            var callbackChannel = OperationContext.Current.GetCallbackChannel<IServicioPartidaCallback>();
-
-            if (callbackChannel != null && callbackChannel is IClientChannel clientChannel && clientChannel.State == CommunicationState.Opened)
+            if (jugador.CallbackChannel != null)
             {
                 try
                 {
-                    callbackChannel.NotificarPartidaCreada(idPartida);
+                    jugador.CallbackChannel.NotificarPartidaCreada(idPartida);
                     Console.WriteLine($"Notificación de partida creada enviada a {jugador.NombreUsuario}");
                 }
                 catch (CommunicationException ex)
@@ -303,10 +271,9 @@ namespace ServicioJuego
             }
             else
             {
-                Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un canal válido o está desconectado.");
+                Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un callback válido.");
             }
         }
-
 
         public void EmpezarTurno(string idPartida)
         {
@@ -631,7 +598,7 @@ namespace ServicioJuego
             var partida = partidas[idPartida];
             var jugadores = partida.Jugadores;
             var jugadorObjetivoRobo = jugadores.FirstOrDefault(c => c.NombreUsuario == nombreDefensor);
-            var jugadorAtacante = jugadores[partida.TurnoActual]; // Quien inició el ataque originalmente.
+            var jugadorAtacante = jugadores[partida.TurnoActual];
             int cartasARobar = 1;
             if (cartaDuplicacionActiva)
             {
@@ -699,8 +666,6 @@ namespace ServicioJuego
                         }
                     }
                 }
-
-                // Finaliza el contexto del robo.
                 partida.RoboEnProgreso = null;
             }
             else
@@ -746,7 +711,7 @@ namespace ServicioJuego
             var partida = partidas[idPartida];
             var jugadores = partida.Jugadores;
             var jugadorObjetivoRobo = jugadores.FirstOrDefault(c => c.NombreUsuario == nombreDefensor);
-            var jugadorAtacante = jugadores[partida.TurnoActual]; // Quien inició el ataque originalmente.
+            var jugadorAtacante = jugadores[partida.TurnoActual];
             int cartasARobar = 1;
             if (cartaDuplicacionActiva)
             {
@@ -924,7 +889,7 @@ namespace ServicioJuego
                             jugadoresConCartaRevelada++;
                             if(jugador.CallbackChannel != null)
                             {
-                                jugador.CallbackChannel.NotificarPreguntaJugadores(jugadorTurnoActual.NombreUsuario);
+                                jugador.CallbackChannel.NotificarPreguntaJugadores(jugadorTurnoActual.NombreUsuario, cartaRevelada.Tipo);
                             }
                             else
                             {
@@ -1039,81 +1004,6 @@ namespace ServicioJuego
                 Console.WriteLine("Partida no encontrada");
             }
         }
-
-        /*public void FinalizarJuego(string idPartida)
-        {
-            if (!partidas.ContainsKey(idPartida))
-                return;
-
-            var partida = partidas[idPartida];
-
-            foreach (var jugador in partida.Jugadores)
-            {
-                if (CartasEnMano.ContainsKey(jugador.NombreUsuario))
-                {
-                    CartasDescarte.AddRange(CartasEnMano[jugador.NombreUsuario]);
-                    CartasEnMano[jugador.NombreUsuario].Clear();
-                }
-            }
-
-            var puntajes = CalcularPuntaje(partida.Jugadores);
-
-            var ganador = puntajes.OrderByDescending(p => p.Value).FirstOrDefault();
-
-            foreach (var jugador in partida.Jugadores)
-            {
-                if (jugador.CallbackChannel != null)
-                {
-                    jugador.CallbackChannel.NotificarResultadosJuego(puntajes, ganador.Key, ganador.Value);
-                }
-                else
-                {
-                    Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un canal de callback válido.");
-                }
-            }
-            partidas.Remove(idPartida);
-            CartasEnMano.Clear();
-            CartasEnEscondite.Clear();
-            CartasDescarte.Clear();
-        }
-
-        private Dictionary<string, int> CalcularPuntaje(List<JugadorPartida> jugadores)
-        {
-            Dictionary<string, int> puntajes = jugadores.ToDictionary(j => j.NombreUsuario, j => 0);
-
-            var tablaPuntos = new Dictionary<string, int[]>
-
-            {
-                { "Carta1", new[] { 3, 0, 0 } },
-                { "Carta2", new[] { 4, 2, 0 } },
-                { "Carta3", new[] { 5, 3, 1 } },
-                { "Carta4", new[] { 6, 2, 1 } },
-                { "Carta5", new[] { 7, 0, 0 } }
-            };
-
-            foreach (var tipoCarta in tablaPuntos.Keys)
-            {
-                var conteoPorJugador = jugadores
-                    .Select(j => new { JugadorPartida = j, Cantidad = CartasEnEscondite[j.NombreUsuario].Count(c => c.Tipo == tipoCarta) })
-                    .OrderByDescending(x => x.Cantidad)
-                    .ThenBy(x => x.JugadorPartida.NombreUsuario)
-                    .ToList();
-
-                for (int i = 0; i < conteoPorJugador.Count && i < 3; i++)
-                {
-                    var jugador = conteoPorJugador[i].JugadorPartida;
-                    int cantidad = conteoPorJugador[i].Cantidad;
-
-                    if (cantidad > 0)
-                    {
-                        puntajes[jugador.NombreUsuario] += tablaPuntos[tipoCarta][i];
-                    }
-                }
-            }
-
-            return puntajes;
-        }*/
-
         public void FinalizarJuego(string idPartida)
         {
             if (!partidas.ContainsKey(idPartida))
@@ -1191,6 +1081,27 @@ namespace ServicioJuego
             else
             {
                 Console.Write("Partida no encontrada");
+            }
+        }
+
+        public void ActualizarDecisionTurno(string idPartida)
+        {
+            if (partidas.ContainsKey(idPartida))
+            {
+                var partida = partidas[idPartida];
+                var jugadores = partida.Jugadores;
+
+                foreach( var jugador in jugadores)
+                {
+                    if(jugador.CallbackChannel != null)
+                    {
+                        jugador.CallbackChannel.NotificarActualizacionDecisionTurno();
+                    }
+                    else
+                    {
+                        Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un canal de callback válido.");
+                    }
+                }
             }
         }
 

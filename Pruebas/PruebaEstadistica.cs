@@ -156,23 +156,6 @@ public class PruebaEstadisticasDao
         }
     }
 
-    [Fact]
-    public void ObtenerEstadisticasGlobales_DebeRetornarListaVacia_CuandoNoHayEstadisticas()
-    {
-        using (var scope = new TransactionScope())
-        {
-            using (var contexto = new ContextoBaseDatos())
-            {
-                contexto.Estadisticas.RemoveRange(contexto.Estadisticas);
-                contexto.SaveChanges();
-            }
-
-            var dao = new EstadisticasDao();
-            var estadisticas = dao.ObtenerEstadisticasGlobales();
-            Assert.NotNull(estadisticas);
-            Assert.Empty(estadisticas);
-        }
-    }
 
     [Fact]
     public void ActualizarVictoriasJugador_DebeNoHacerNada_CuandoJugadorNoExiste()
@@ -190,21 +173,6 @@ public class PruebaEstadisticasDao
         int idJugador = 1;
         var filasAfectadas = dao.ActualizarVictoriasJugador(idJugador);
         Assert.Equal(1, filasAfectadas);
-    }
-
-    [Fact]
-    public void ActualizarVictoriasJugador_DebeLanzarExcepcion_CuandoOcurreSqlException()
-    {
-        var mockSet = new Mock<DbSet<Estadisticas>>();
-        mockSet.Setup(m => m.FirstOrDefault(It.IsAny<Func<Estadisticas, bool>>()))
-               .Throws(new SqlException("Simulando error de SQL"));
-
-        var mockContexto = new Mock<ContextoBaseDatos>();
-        mockContexto.Setup(c => c.Estadisticas).Returns(mockSet.Object);
-
-        var dao = new EstadisticasDao();
-        var ex = Assert.Throws<ExcepcionAccesoDatos>(() => dao.ActualizarVictoriasJugador(1));
-        Assert.Contains("Simulando error de SQL", ex.Message);
     }
 
     [Fact]

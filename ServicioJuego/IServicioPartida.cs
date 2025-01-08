@@ -101,6 +101,9 @@ namespace ServicioJuego
         [OperationContract]
         void RegistrarJugadorInvitado(JugadorPartida invitado);
 
+        [OperationContract(IsOneWay = true)]
+        void ActualizarDecisionTurno(string idPartida);
+
     }
 
     [ServiceContract]
@@ -167,7 +170,7 @@ namespace ServicioJuego
         void NotificarTiroDadoForzado(string jugadorEnTurno);
 
         [OperationContract]
-        void NotificarPreguntaJugadores(string jugadorTurnoActual);
+        void NotificarPreguntaJugadores(string jugadorTurnoActual, string tipoCartaRevelada);
 
         [OperationContract]
         void NotificarNumeroJugadoresGuardaronCarta(int numeroJugadores);
@@ -186,6 +189,9 @@ namespace ServicioJuego
 
         [OperationContract]
         void NotificarModoSeleccionCarta(int idModoSeleccion);
+
+        [OperationContract]
+        void NotificarActualizacionDecisionTurno();
 
     }
 
