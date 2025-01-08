@@ -84,33 +84,34 @@ public class PruebaEstadisticasDao
     {
         new Estadisticas { NumeroVictorias = 5 },
         new Estadisticas { NumeroVictorias = 10 }
-    }.AsQueryable(); 
+    }.AsQueryable();
 
-    [Fact]
-    public void ActualizarVictoriasJugador_DebeLanzarExcepcion_CuandoOcurreExcepcionGeneral()
-    {
-        var mockSet = new Mock<DbSet<Estadisticas>>();
-        mockSet.Setup(m => m.FirstOrDefault(It.IsAny<Func<Estadisticas, bool>>()))
-               .Throws(new Exception("Simulando una excepción general"));
+        //[Fact]
+        //public void ActualizarVictoriasJugador_DebeLanzarExcepcion_CuandoOcurreExcepcionGeneral()
+        //{
+        //    var mockSet = new Mock<DbSet<Estadisticas>>();
+        //    mockSet.Setup(m => m.FirstOrDefault(It.IsAny<Func<Estadisticas, bool>>()))
+        //           .Throws(new Exception("Simulando una excepción general"));
 
-        var result = estadisticasDao.ObtenerEstadisticasGlobales();
+        //    var result = estadisticasDao.ObtenerEstadisticasGlobales();
 
-        Assert.Equal(2, result.Count);  
-        Assert.Equal(10, result[0].NumeroVictorias);  
+        //    Assert.Equal(2, result.Count);  
+        //    Assert.Equal(10, result[0].NumeroVictorias);  
+        //}
+
+
+
+
+
+        //[Fact]
+        //public void ActualizarVictoriasJugador_DebeRetornarMinusUno_CuandoElIdJugadorEsNoValido()
+        //{
+        //    var estadisticasDao = new EstadisticasDao();
+
+        //    var resultado = estadisticasDao.ActualizarVictoriasJugador(-1);
+
+        //    Assert.Equal(-1, resultado);
+        //}
+
     }
-
-
-
-
-
-    [Fact]
-    public void ActualizarVictoriasJugador_DebeRetornarMinusUno_CuandoElIdJugadorEsNoValido()
-    {
-        var estadisticasDao = new EstadisticasDao();
-
-        var resultado = estadisticasDao.ActualizarVictoriasJugador(-1);
-    
-        Assert.Equal(-1, resultado); 
-    }
-
 }

@@ -113,6 +113,9 @@ namespace ServicioJuego
         void NotificarTurnoIniciado(string nombreUsuario);
 
         [OperationContract]
+        void NotificarJugadorDesconectado(string nombreUsuario);
+
+        [OperationContract]
         void NotificarTurnoTerminado(string nombreUsuario);
 
         [OperationContract]

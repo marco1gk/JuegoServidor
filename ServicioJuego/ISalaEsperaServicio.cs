@@ -87,6 +87,7 @@ namespace ServicioJuego
         [DataMember]
         public bool EsInvitado { get; set; }
 
+
         public IGestorSalasEsperasCallBack CallbackChannel { get; set; }
 
         public override bool Equals(object obj)

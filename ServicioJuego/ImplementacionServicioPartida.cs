@@ -20,6 +20,170 @@ namespace ServicioJuego
         private static int jugadoresGuardaronCarta = 0;
         private static int jugadoresNoGuardaronCarta = 0;
         private Carta cartaParteTrasera = new Carta("ParteTraseraCarta", 55, 9);
+        public void RegistrarJugador(string nombreUsuario)
+        {
+            var callback = OperationContext.Current.GetCallbackChannel<IServicioPartidaCallback>();
+
+            if (!_callbacks.ContainsKey(nombreUsuario))
+            {
+                _callbacks[nombreUsuario] = callback;
+                Console.WriteLine($"Callback registrado de: {nombreUsuario}");
+
+                var channel = OperationContext.Current.Channel;
+                channel.Closed += (sender, args) => DesconectarJugador(nombreUsuario);
+                channel.Faulted += (sender, args) => DesconectarJugador(nombreUsuario);
+            }
+            else
+            {
+                Console.WriteLine($"El jugador {nombreUsuario} ya está registrado. Actualizando el callback.");
+                _callbacks[nombreUsuario] = callback;
+            }
+        }
+
+
+        private void DesconectarJugador(string nombreUsuario)
+        {
+            if (_callbacks.Remove(nombreUsuario))
+            {
+                Console.WriteLine($"Jugador {nombreUsuario} desconectado y eliminado de callbacks.");
+
+                var partida = partidas.Values.FirstOrDefault(p => p.Jugadores.Any(j => j.NombreUsuario == nombreUsuario));
+                if (partida != null)
+                {
+                    var jugador = partida.Jugadores.FirstOrDefault(j => j.NombreUsuario == nombreUsuario);
+                    if (jugador != null)
+                    {
+                        partida.Jugadores.Remove(jugador);
+
+                        foreach (var j in partida.Jugadores)
+                        {
+                            j.CallbackChannel?.NotificarJugadorDesconectado(nombreUsuario);
+                        }
+
+                        Console.WriteLine($"Jugador {nombreUsuario} eliminado de la partida {partida.IdPartida}.");
+
+                        if (partida.TurnoActual >= partida.Jugadores.Count)
+                        {
+                            partida.TurnoActual = 0;
+                        }
+                        else if (partida.Jugadores.Count > 0)
+                        {
+                            partida.TurnoActual = (partida.TurnoActual + 1) % partida.Jugadores.Count;
+                        }
+
+                        EmpezarTurno(partida.IdPartida);
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine($"No se encontró el callback para el jugador {nombreUsuario}.");
+            }
+        }
+
+
+        public void EmpezarTurno(string idPartida)
+        {
+            if (partidas.ContainsKey(idPartida))
+            {
+                var partida = partidas[idPartida];
+                var jugadores = partida.Jugadores;
+                var jugadorTurnoActual = jugadores[partida.TurnoActual];
+
+                foreach (var jugador in jugadores)
+                {
+                    if (jugador.CallbackChannel != null)
+                        jugador.CallbackChannel.NotificarTurnoIniciado(jugadorTurnoActual.NombreUsuario);
+                    else
+                        Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un callback válido.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Partida no encontrada.");
+            }
+        }
+        public void FinalizarTurno(string idPartida, string nombreUsuario)
+        {
+            Console.WriteLine(idPartida);
+            if (partidas.ContainsKey(idPartida))
+            {
+                var partida = partidas[idPartida];
+                var jugadorActual = partida.Jugadores[partida.TurnoActual];
+
+                if (jugadorActual.NombreUsuario == nombreUsuario)
+                {
+                    NotificarTurnoTerminado(jugadorActual);
+                    partida.TurnoActual = (partida.TurnoActual + 1) % partida.Jugadores.Count;
+                    EmpezarTurno(idPartida);
+                }
+                else
+                {
+                    Console.WriteLine($"No es el turno de {nombreUsuario}. Actualmente le toca a {jugadorActual.NombreUsuario}.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Partida no encontrada.");
+            }
+        }
+        private void NotificarTurnoTerminado(JugadorPartida jugador)
+        {
+            if (jugador.CallbackChannel != null)
+            {
+                try
+                {
+                    jugador.CallbackChannel.NotificarTurnoTerminado(jugador.NombreUsuario);
+                    Console.WriteLine($"El turno de {jugador.NombreUsuario} ha terminado.");
+                }
+                catch (CommunicationException ex)
+                {
+                    Console.WriteLine($"Error al finalizar el turno de {jugador.NombreUsuario}: {ex.Message}");
+                }
+            }
+            else
+            {
+                Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un callback válido.");
+            }
+        }
+        public void LanzarDado(string idPartida, string nombreUsuario)
+        {
+            if (partidas.ContainsKey(idPartida))
+            {
+                var partida = partidas[idPartida];
+                var jugadorActual = partida.Jugadores[partida.TurnoActual];
+
+                if (jugadorActual.NombreUsuario == nombreUsuario)
+                {
+                    Random random = new Random();
+                    int resultadoDado = random.Next(1, 7);
+
+                    foreach (var jugador in partida.Jugadores)
+                    {
+                        if (jugador.CallbackChannel != null)
+                        {
+                            try
+                            {
+                                jugador.CallbackChannel.NotificarResultadoDado(nombreUsuario, resultadoDado);
+                                Console.WriteLine($"Resultado del dado ({resultadoDado}) notificado a {jugador.NombreUsuario}.");
+                            }
+                            catch (CommunicationException ex)
+                            {
+                                Console.WriteLine($"Error al notificar resultado del dado a {jugador.NombreUsuario}: {ex.Message}");
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"No es el turno de {nombreUsuario}. Actualmente le toca a {jugadorActual.NombreUsuario}.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Partida no encontrada.");
+            }
+        }
 
         public static void ImprimirCallbacks()
         {
@@ -161,21 +325,7 @@ namespace ServicioJuego
                 Console.WriteLine("La partida no se encontro");
             }
         }
-        public void RegistrarJugador(string nombreUsuario)
-        {
-            var callback = OperationContext.Current.GetCallbackChannel<IServicioPartidaCallback>();
-
-            if (!_callbacks.ContainsKey(nombreUsuario))
-            {
-                _callbacks[nombreUsuario] = callback;
-                Console.WriteLine($"Callback registrado de: {nombreUsuario}");
-            }
-            else
-            {
-                Console.WriteLine($"El jugador {nombreUsuario} ya está registrado. Actualizando el callback.");
-                _callbacks[nombreUsuario] = callback;
-            }
-        }
+        
 
         public void CrearPartida(List<JugadorPartida> jugadores, string idPartida)
         {
@@ -275,112 +425,7 @@ namespace ServicioJuego
             }
         }
 
-        public void EmpezarTurno(string idPartida)
-        {
-            if (partidas.ContainsKey(idPartida))
-            {
-                var partida = partidas[idPartida];
-                var jugadores = partida.Jugadores;
-                var jugadorTurnoActual = jugadores[partida.TurnoActual];
-
-                foreach(var jugador in jugadores)
-                {
-                    if (jugador.CallbackChannel != null)
-                        jugador.CallbackChannel.NotificarTurnoIniciado(jugadorTurnoActual.NombreUsuario);
-                    else
-                        Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un callback válido.");
-                }
-            }
-            else
-            {
-                Console.WriteLine("Partida no encontrada.");
-            }
-        }
-
-        public void FinalizarTurno(string idPartida, string nombreUsuario)
-        {
-            Console.WriteLine(idPartida);
-            if (partidas.ContainsKey(idPartida))
-            {
-                var partida = partidas[idPartida];
-                var jugadorActual = partida.Jugadores[partida.TurnoActual];
-
-                if (jugadorActual.NombreUsuario == nombreUsuario)
-                {
-                    NotificarTurnoTerminado(jugadorActual);
-                    partida.TurnoActual = (partida.TurnoActual + 1) % partida.Jugadores.Count;
-                    EmpezarTurno(idPartida);
-                }
-                else
-                {
-                    Console.WriteLine($"No es el turno de {nombreUsuario}. Actualmente le toca a {jugadorActual.NombreUsuario}.");
-                }
-            }
-            else
-            {
-                Console.WriteLine("Partida no encontrada.");
-            }
-        }
-
-        private void NotificarTurnoTerminado(JugadorPartida jugador)
-        {
-            if (jugador.CallbackChannel != null)
-            {
-                try
-                {
-                    jugador.CallbackChannel.NotificarTurnoTerminado(jugador.NombreUsuario);
-                    Console.WriteLine($"El turno de {jugador.NombreUsuario} ha terminado.");
-                }
-                catch (CommunicationException ex)
-                {
-                    Console.WriteLine($"Error al finalizar el turno de {jugador.NombreUsuario}: {ex.Message}");
-                }
-            }
-            else
-            {
-                Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un callback válido.");
-            }
-        }
-
-        public void LanzarDado(string idPartida, string nombreUsuario)
-        {
-            if (partidas.ContainsKey(idPartida))
-            {
-                var partida = partidas[idPartida];
-                var jugadorActual = partida.Jugadores[partida.TurnoActual];
-
-                if (jugadorActual.NombreUsuario == nombreUsuario)
-                {
-                    Random random = new Random();
-                    int resultadoDado = random.Next(1, 7);
-                    
-                    foreach (var jugador in partida.Jugadores)
-                    {
-                        if (jugador.CallbackChannel != null)
-                        {
-                            try
-                            {
-                                jugador.CallbackChannel.NotificarResultadoDado(nombreUsuario, resultadoDado);
-                                Console.WriteLine($"Resultado del dado ({resultadoDado}) notificado a {jugador.NombreUsuario}.");
-                            }
-                            catch (CommunicationException ex)
-                            {
-                                Console.WriteLine($"Error al notificar resultado del dado a {jugador.NombreUsuario}: {ex.Message}");
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    Console.WriteLine($"No es el turno de {nombreUsuario}. Actualmente le toca a {jugadorActual.NombreUsuario}.");
-                }
-            }
-            else
-            {
-                Console.WriteLine("Partida no encontrada.");
-            }
-        }
-
+       
         public void TomarCartaDeMazo(string idPartida, string nombreUsuario, int idCarta)
         {
             if (partidas.ContainsKey(idPartida))
