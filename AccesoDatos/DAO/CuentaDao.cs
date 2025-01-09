@@ -143,7 +143,6 @@ namespace AccesoDatos.DAO
             }
             catch (SqlException ex)
             {
-
                 ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 throw new ExcepcionAccesoDatos( ex.Message);
             }
@@ -182,22 +181,22 @@ namespace AccesoDatos.DAO
                     catch (DbUpdateException ex)
                     {
                         ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                        return false;
+                        throw new ExcepcionAccesoDatos(ex.Message);
                     }
                     catch (SqlException ex)
                     {
                         ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                        return false;
+                        throw new ExcepcionAccesoDatos(ex.Message);
                     }
                     catch (EntityException ex)
                     {
                         ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                        return false;
+                        throw new ExcepcionAccesoDatos(ex.Message);
                     }
                     catch (Exception ex)
                     {
                         ManejadorExcepciones.ManejarFatalExcepcion(ex);
-                        return false;
+                        throw new ExcepcionAccesoDatos(ex.Message);
                     }
                 }
                 else
@@ -220,17 +219,17 @@ namespace AccesoDatos.DAO
             catch (SqlException ex)
             {
                 ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                return false;
+                throw new ExcepcionAccesoDatos(ex.Message);
             }
             catch (EntityException ex)
             {
                 ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                return false;
+                throw new ExcepcionAccesoDatos(ex.Message);
             }
             catch (Exception ex)
             {
                 ManejadorExcepciones.ManejarFatalExcepcion(ex);
-                return false;
+                throw new ExcepcionAccesoDatos(ex.Message);
             }
 
         }
@@ -254,22 +253,22 @@ namespace AccesoDatos.DAO
                     catch (DbUpdateException ex)
                     {
                         ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                        return false;
+                        throw new ExcepcionAccesoDatos(ex.Message);
                     }
                     catch (SqlException ex)
                     {
                         ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                        return false;
+                        throw new ExcepcionAccesoDatos(ex.Message);
                     }
                     catch (EntityException ex)
                     {
                         ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                        return false;
+                        throw new ExcepcionAccesoDatos(ex.Message);
                     }
                     catch (Exception ex)
                     {
                         ManejadorExcepciones.ManejarFatalExcepcion(ex);
-                        return false;
+                        throw new ExcepcionAccesoDatos(ex.Message);
                     }
                 }
                 return false;
@@ -288,17 +287,17 @@ namespace AccesoDatos.DAO
             catch (SqlException ex)
             {
                 ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                return false;
+                throw new ExcepcionAccesoDatos(ex.Message);
             }
             catch (EntityException ex)
             {
                 ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                return false;
+                throw new ExcepcionAccesoDatos(ex.Message);
             }
             catch (Exception ex)
             {
                 ManejadorExcepciones.ManejarFatalExcepcion(ex);
-                return false;
+                throw new ExcepcionAccesoDatos(ex.Message);
             }
 
         }
@@ -316,22 +315,61 @@ namespace AccesoDatos.DAO
             catch (SqlException ex)
             {
                 ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                return false; 
+                throw new ExcepcionAccesoDatos(ex.Message);
             }
             catch (EntityException ex)
             {
                 ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                return false;
+                throw new ExcepcionAccesoDatos(ex.Message);
             }
             catch (Exception ex)
             {
                 ManejadorExcepciones.ManejarFatalExcepcion(ex);
-                return false;
+                throw new ExcepcionAccesoDatos(ex.Message);
             }
         }
 
+
+        public string ObtenerNombreUsuarioPorIdJugador(int idJugador)
+        {
+            string nombreUsuario = string.Empty;
+
+            try
+            {
+                using (var contexto = new ContextoBaseDatos())
+                {
+                    var jugador = contexto.Jugadores
+                        .FirstOrDefault(p => p.JugadorId == idJugador);
+
+                    if (jugador != null)
+                    {
+                        nombreUsuario = jugador.NombreUsuario;
+                    }
+                }
+            }
+            catch (EntityException ex)
+            {
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                throw new ExcepcionAccesoDatos(ex.Message);
+            }
+            catch (SqlException ex)
+            {
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                throw new ExcepcionAccesoDatos(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.ManejarFatalExcepcion(ex);
+                throw new ExcepcionAccesoDatos(ex.Message);
+
+            }
+
+            return nombreUsuario;
+        }
     }
 
+
+   
 
 
 }

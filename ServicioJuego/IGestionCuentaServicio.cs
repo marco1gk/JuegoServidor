@@ -18,9 +18,11 @@ namespace ServicioJuego
         bool AgregarJugador(JugadorDataContract jugador);
 
         [OperationContract]
+        [FaultContract(typeof(HuntersTrophyExcepcion))]
         string ObtenerNombreUsuarioPorIdJugador(int idJugador);
 
         [OperationContract]
+        [FaultContract(typeof(HuntersTrophyExcepcion))]
         bool EditarContraseña(string correo, string nuevaContraseña);
 
         [OperationContract]
@@ -32,24 +34,31 @@ namespace ServicioJuego
         JugadorDataContract ObtenerJugador(int idJugador);
 
         [OperationContract]
+        [FaultContract(typeof(HuntersTrophyExcepcion))]
         bool EditarNombreUsuario(int idJugador, string nuevoNombreUsuario);
 
         [OperationContract]
+        [FaultContract(typeof(HuntersTrophyExcepcion))]
         bool EditarCorreo(int idCuenta, string nuevoCorreo);
 
         [OperationContract]
+        [FaultContract(typeof(HuntersTrophyExcepcion))]
         string EnviarCodigoConfirmacion(string correo);
 
         [OperationContract]
+        [FaultContract(typeof(HuntersTrophyExcepcion))]
         bool ValidarCodigo(string codigoIngresado, string codigoEnviado);
 
         [OperationContract]
+        [FaultContract(typeof(HuntersTrophyExcepcion))]
         bool ExisteCorreo(string correo);
 
         [OperationContract]
+        [FaultContract(typeof(HuntersTrophyExcepcion))]
         bool ExisteNombreUsuario(string nombreUsuario);
 
         [OperationContract]
+        [FaultContract(typeof(HuntersTrophyExcepcion))]
         bool VerificarContrasena(string contraseniaIngresada, string correo);
 
         [OperationContract]

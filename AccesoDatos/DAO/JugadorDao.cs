@@ -34,9 +34,21 @@ namespace AccesoDatos.DAO
                     return jugador;
                 }
             }
-            catch (DbException ex)
+            catch (EntityException ex)
             {
-                throw new Exception("Ocurrió un error al acceder a la base de datos.", ex);
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                throw new ExcepcionAccesoDatos(ex.Message);
+            }
+            catch (SqlException ex)
+            {
+
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                throw new ExcepcionAccesoDatos(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                ManejadorExcepciones.ManejarFatalExcepcion(ex);
+                throw new ExcepcionAccesoDatos(ex.Message);
             }
         }
 
@@ -56,26 +68,21 @@ namespace AccesoDatos.DAO
                         int filasAlteradas = contexto.SaveChanges();
                         return filasAlteradas > 0;
                     }
-                    catch (DbUpdateException ex)
-                    {
-                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                        return false;
-                    }
                     catch (EntityException ex)
                     {
                         ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                        return false;
+                        throw new ExcepcionAccesoDatos(ex.Message);
                     }
                     catch (SqlException ex)
                     {
 
                         ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                        return false;
+                        throw new ExcepcionAccesoDatos(ex.Message);
                     }
                     catch (Exception ex)
                     {
                         ManejadorExcepciones.ManejarFatalExcepcion(ex);
-                        return false;
+                        throw new ExcepcionAccesoDatos(ex.Message);
                     }
                 }
                 return false;

@@ -13,13 +13,13 @@ namespace AccesoDatos.DAO
 {
     public class EstadisticasDao
     {
-        public List<Estadisticas> ObtenerEstadisticasGlobales()
+        public List<Estadistica> ObtenerEstadisticasGlobales()
         {
             try
             {
                 using (var contexto = new ContextoBaseDatos())
                 {
-                    List<Estadisticas> estadisticas = (from estadisticasGlobales in contexto.Estadisticas
+                    List<Estadistica> estadisticas = (from estadisticasGlobales in contexto.Estadisticas
                                                        orderby estadisticasGlobales.NumeroVictorias descending
                                                        select estadisticasGlobales).ToList();
 
@@ -29,17 +29,17 @@ namespace AccesoDatos.DAO
             catch (EntityException ex)
             {
                 ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                throw new ExcepcionAccesoDatos("Error al acceder a los datos: " + ex.Message);
+                throw new ExcepcionAccesoDatos(ex.Message);
             }
             catch (SqlException ex)
             {
                 ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                throw new ExcepcionAccesoDatos("Error en la base de datos: " + ex.Message);
+                throw new ExcepcionAccesoDatos(ex.Message);
             }
             catch (Exception ex)
             {
                 ManejadorExcepciones.ManejarFatalExcepcion(ex);
-                throw new ExcepcionAccesoDatos("Error inesperado: " + ex.Message);
+                throw new ExcepcionAccesoDatos(ex.Message);
             }
         }
 
@@ -64,7 +64,7 @@ namespace AccesoDatos.DAO
                         }
                         else
                         {
-                            estadisticasGlobalesJugador = new Estadisticas
+                            estadisticasGlobalesJugador = new Estadistica
                             {
                                 IdJugador = idJugador,
                                 NumeroVictorias = 1 
@@ -91,10 +91,6 @@ namespace AccesoDatos.DAO
                     ManejadorExcepciones.ManejarFatalExcepcion(ex);
                     throw new ExcepcionAccesoDatos(ex.Message);
                 }
-            }
-            else
-            {
-                Console.WriteLine($"El IdJugador no es válido: {idJugador}");
             }
 
             return filasAfectadas;

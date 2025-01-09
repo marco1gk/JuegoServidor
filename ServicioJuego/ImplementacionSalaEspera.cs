@@ -138,14 +138,6 @@ namespace ServicioJuego
                         Console.WriteLine($"Error al invitar a {nombreAmigo}: {ex.Message}");
                     }
                 }
-                else
-                {
-                    Console.WriteLine($"El amigo {nombreAmigo} no está en línea o no está disponible.");
-                }
-            }
-            else
-            {
-                Console.WriteLine($"La sala con código {codigoSalaEspera} no existe.");
             }
         }
 

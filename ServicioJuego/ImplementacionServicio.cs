@@ -20,48 +20,62 @@ namespace ServicioJuego
     {
         public string ObtenerNombreUsuarioPorIdJugador(int idJugador)
         {
-            string nombreUsuario = string.Empty;
+            CuentaDao accesoDatos = new CuentaDao();
 
             try
             {
-                using (var contexto = new ContextoBaseDatos())
-                {
-                    var jugador = contexto.Jugadores
-                        .FirstOrDefault(p => p.JugadorId == idJugador);
-
-                    if (jugador != null)
-                    {
-                        nombreUsuario = jugador.NombreUsuario;
-                    }
-                }
+                return accesoDatos.ObtenerNombreUsuarioPorIdJugador(idJugador);
             }
             catch (ExcepcionAccesoDatos ex)
             {
-                HuntersTrophyExcepcion respuestaExcepcion = new HuntersTrophyExcepcion
+                HuntersTrophyExcepcion exceptionResponse = new HuntersTrophyExcepcion
                 {
                     Mensaje = ex.Message,
                     StackTrace = ex.StackTrace
                 };
-                ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
+
+                throw new FaultException<HuntersTrophyExcepcion>(exceptionResponse, new FaultReason(exceptionResponse.Mensaje));
             }
-            catch (EntityException ex)
+        }
+        public bool ExisteCorreo(string correo)
+        {
+            CuentaDao cuentaDao = new CuentaDao();
+            try
             {
-                ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                return cuentaDao.ExisteCorreo(correo);
             }
-            catch (SqlException ex)
+            catch (ExcepcionAccesoDatos ex)
             {
-                ManejadorExcepciones.ManejarErrorExcepcion(ex);
-            }
-            catch (Exception ex)
-            {
-                ManejadorExcepciones.ManejarFatalExcepcion(ex);
-                
+                HuntersTrophyExcepcion exceptionResponse = new HuntersTrophyExcepcion
+                {
+                    Mensaje = ex.Message,
+                    StackTrace = ex.StackTrace
+                };
+
+                throw new FaultException<HuntersTrophyExcepcion>(exceptionResponse, new FaultReason(exceptionResponse.Mensaje));
             }
 
-            return nombreUsuario;
         }
 
+        public bool ExisteNombreUsuario(string nombreUsuario)
+        {
+            try
+            {
+                CuentaDao cuentaDao = new CuentaDao();
+                return cuentaDao.ExisteNombreUsuario(nombreUsuario);
+            }
+            catch (ExcepcionAccesoDatos ex)
+            {
+                HuntersTrophyExcepcion exceptionResponse = new HuntersTrophyExcepcion
+                {
+                    Mensaje = ex.Message,
+                    StackTrace = ex.StackTrace
+                };
+
+                throw new FaultException<HuntersTrophyExcepcion>(exceptionResponse, new FaultReason(exceptionResponse.Mensaje));
+            }
+            
+        }
         //se regresa null debido a que solo se encuentra un sentido en que no existe, de esa manera se valida de forma más fácil
         public JugadorDataContract ObtenerJugador(int idJugador)
         {
@@ -126,16 +140,6 @@ namespace ServicioJuego
 
                 return cuentaDao.AgregarJugadorConCuenta(jugadorAux, cuentaAux);
             }
-            catch (SqlException ex) when (ex.Number == 18456) 
-            {
-                HuntersTrophyExcepcion respuestaExcepcion = new HuntersTrophyExcepcion
-                {
-                    Mensaje = "No se pudo conectar a la base de datos. Verifique las credenciales.",
-                    StackTrace = ex.StackTrace
-                };
-                ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
-            }
             catch (ExcepcionAccesoDatos ex)
             {
                 HuntersTrophyExcepcion respuestaExcepcion = new HuntersTrophyExcepcion
@@ -146,28 +150,6 @@ namespace ServicioJuego
                 ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
             }
-            catch (Exception ex)
-            {
-                HuntersTrophyExcepcion respuestaExcepcion = new HuntersTrophyExcepcion
-                {
-                    Mensaje = "Ocurrió un error inesperado. Por favor, intente más tarde.",
-                    StackTrace = ex.StackTrace
-                };
-                ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
-            }
-        }
-
-        public bool ExisteCorreo(string correo)
-        {
-            CuentaDao cuentaDao = new CuentaDao();
-            return cuentaDao.ExisteCorreo(correo);
-        }
-
-        public bool ExisteNombreUsuario(string nombreUsuario)
-        {
-            CuentaDao cuentaDao = new CuentaDao();
-            return cuentaDao.ExisteNombreUsuario(nombreUsuario);
         }
 
 
@@ -216,23 +198,52 @@ namespace ServicioJuego
 
         public bool EditarContraseña(string correo, string nuevaContraseña)
         {
-            CuentaDao cuentaDao = new CuentaDao();
-            return cuentaDao.EditarContraseñaPorCorreo(correo, nuevaContraseña);
+            try
+            {
+                CuentaDao cuentaDao = new CuentaDao();
+                return cuentaDao.EditarContraseñaPorCorreo(correo, nuevaContraseña);
+            }
+            catch (ExcepcionAccesoDatos ex)
+            {
+                HuntersTrophyExcepcion exceptionResponse = new HuntersTrophyExcepcion
+                {
+                    Mensaje = ex.Message,
+                    StackTrace = ex.StackTrace
+                };
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                throw new FaultException<HuntersTrophyExcepcion>(exceptionResponse, new FaultReason(exceptionResponse.Mensaje));
+            }
         }
 
         public bool VerificarContrasena(string contraseniaIngresada, string correo)
         {
-            CuentaDao cuentaDao = new CuentaDao();
-            var cuenta = cuentaDao.ObtenerCuentaPorNombreUsuario(correo);
-            if (cuenta != null)
+
+            try
             {
-                if (Recursos.VerificarContrasena(contraseniaIngresada, cuenta))
-                    return true;
+                CuentaDao cuentaDao = new CuentaDao();
+                var cuenta = cuentaDao.ObtenerCuentaPorNombreUsuario(correo);
+                if (cuenta != null)
+                {
+                    if (Recursos.VerificarContrasena(contraseniaIngresada, cuenta))
+                        return true;
+                    else
+                        return false;
+                }
                 else
                     return false;
+
             }
-            else
-                return false;
+            catch (ExcepcionAccesoDatos ex)
+            {
+                HuntersTrophyExcepcion exceptionResponse = new HuntersTrophyExcepcion
+                {
+                    Mensaje = ex.Message,
+                    StackTrace = ex.StackTrace
+                };
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                throw new FaultException<HuntersTrophyExcepcion>(exceptionResponse, new FaultReason(exceptionResponse.Mensaje));
+            }
+            
         
         }
 
@@ -259,26 +270,79 @@ namespace ServicioJuego
 
         public bool EditarNombreUsuario(int idJugador, string nuevoNombreUsuario)
         {
-            JugadorDao jugador = new JugadorDao();
-            return jugador.EditarNombreUsuario(idJugador, nuevoNombreUsuario);
+            try
+            {
+                JugadorDao jugador = new JugadorDao();
+                return jugador.EditarNombreUsuario(idJugador, nuevoNombreUsuario);
+            }
+            catch (ExcepcionAccesoDatos ex)
+            {
+                HuntersTrophyExcepcion exceptionResponse = new HuntersTrophyExcepcion
+                {
+                    Mensaje = ex.Message,
+                    StackTrace = ex.StackTrace
+                };
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                throw new FaultException<HuntersTrophyExcepcion>(exceptionResponse, new FaultReason(exceptionResponse.Mensaje));
+            }
         }
 
         public bool EditarCorreo(int idCuenta, string nuevoCorreo)
         {
-            CuentaDao cuenta = new CuentaDao();
-            return cuenta.EditarCorreo(idCuenta, nuevoCorreo);
+            try
+            {
+                CuentaDao cuenta = new CuentaDao();
+                return cuenta.EditarCorreo(idCuenta, nuevoCorreo);
+            }
+            catch (ExcepcionAccesoDatos ex)
+            {
+                HuntersTrophyExcepcion exceptionResponse = new HuntersTrophyExcepcion
+                {
+                    Mensaje = ex.Message,
+                    StackTrace = ex.StackTrace
+                };
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                throw new FaultException<HuntersTrophyExcepcion>(exceptionResponse, new FaultReason(exceptionResponse.Mensaje));
+            }
         }
 
         public string EnviarCodigoConfirmacion(string correo)
         {
-            Recursos recurso = new Recursos();
-            return recurso.EnviarCodigoConfirmacion(correo);
+            try
+            {
+                Recursos recurso = new Recursos();
+                return recurso.EnviarCodigoConfirmacion(correo);
+
+            }
+            catch (ExcepcionAccesoDatos ex)
+            {
+                HuntersTrophyExcepcion exceptionResponse = new HuntersTrophyExcepcion
+                {
+                    Mensaje = ex.Message,
+                    StackTrace = ex.StackTrace
+                };
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                throw new FaultException<HuntersTrophyExcepcion>(exceptionResponse, new FaultReason(exceptionResponse.Mensaje));
+            }
         }
 
         public bool ValidarCodigo(string codigoIngresado, string codigoEnviado)
         {
-            Recursos recurso = new Recursos();
-            return recurso.ValidarCodigo(codigoIngresado, codigoEnviado);
+            try
+            {
+                Recursos recurso = new Recursos();
+                return recurso.ValidarCodigo(codigoIngresado, codigoEnviado);
+            }
+            catch (ExcepcionAccesoDatos ex)
+            {
+                HuntersTrophyExcepcion exceptionResponse = new HuntersTrophyExcepcion
+                {
+                    Mensaje = ex.Message,
+                    StackTrace = ex.StackTrace
+                };
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                throw new FaultException<HuntersTrophyExcepcion>(exceptionResponse, new FaultReason(exceptionResponse.Mensaje));
+            }
         }
 
 

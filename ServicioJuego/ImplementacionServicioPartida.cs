@@ -91,7 +91,7 @@ namespace ServicioJuego
                 var jugadorTurnoActual = jugadores[partida.TurnoActual];
 
                 foreach (var jugador in jugadores)
-                {
+                {//aqui poner try catch
                     if (jugador.CallbackChannel != null)
                         jugador.CallbackChannel.NotificarTurnoIniciado(jugadorTurnoActual.NombreUsuario);
                     else

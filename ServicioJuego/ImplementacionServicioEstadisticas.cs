@@ -15,18 +15,18 @@ namespace ServicioJuego
     public partial class ImplementacionServicio : IEstadisticasGlobales
     {
 
-        public List<Estadisticas> ObtenerEstadisticasGlobales()
+        public List<Estadistica> ObtenerEstadisticasGlobales()
         {
             EstadisticasDao accesoDatos = new EstadisticasDao();
-            List<Estadisticas> estadisiticasGlobales = new List<Estadisticas>();
+            List<Estadistica> estadisiticasGlobales = new List<Estadistica>();
 
             try
             {
-                List<Estadisticas> puntuaciones = accesoDatos.ObtenerEstadisticasGlobales();
+                List<Estadistica> puntuaciones = accesoDatos.ObtenerEstadisticasGlobales();
 
-                foreach (Estadisticas puntuacion in puntuaciones)
+                foreach (Estadistica puntuacion in puntuaciones)
                 {
-                    Estadisticas estadisticasGlobales = new Estadisticas
+                    Estadistica estadisticasGlobales = new Estadistica
                     {
                         IdEstadisticas = puntuacion.IdEstadisticas,
                         IdJugador = puntuacion.IdJugador,

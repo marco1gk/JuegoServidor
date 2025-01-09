@@ -79,11 +79,11 @@ public class PruebaEstadisticasDao
     [Fact]
     public void ObtenerEstadisticasGlobales_DebeRetornarEstadisticas_CuandoLaBaseDeDatosEstaDisponible()
     {
-        var mockSet = new Mock<DbSet<Estadisticas>>();
-        var data = new List<Estadisticas>
+        var mockSet = new Mock<DbSet<Estadistica>>();
+        var data = new List<Estadistica>
     {
-        new Estadisticas { NumeroVictorias = 5 },
-        new Estadisticas { NumeroVictorias = 10 }
+        new Estadistica { NumeroVictorias = 5 },
+        new Estadistica { NumeroVictorias = 10 }
     }.AsQueryable();
 
         //[Fact]

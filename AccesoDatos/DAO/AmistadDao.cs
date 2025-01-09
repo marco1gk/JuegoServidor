@@ -51,18 +51,18 @@ namespace AccesoDatos.DAO
             catch (EntityException ex)
             {
                 ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                throw new Exception(ex.Message);
+                throw new ExcepcionAccesoDatos(ex.Message);
             }
             catch (SqlException ex)
             {
 
                 ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                throw new Exception(ex.Message);
+                throw new ExcepcionAccesoDatos(ex.Message);
             }
             catch (Exception ex)
             {
                 ManejadorExcepciones.ManejarFatalExcepcion(ex);
-                throw new Exception(ex.Message);
+                throw new ExcepcionAccesoDatos(ex.Message);
             }
 
             return tieneRelacion;
@@ -91,18 +91,18 @@ namespace AccesoDatos.DAO
                 catch (EntityException ex)
                 {
                     ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                    throw new Exception(ex.Message);
+                    throw new ExcepcionAccesoDatos(ex.Message);
                 }
                 catch (SqlException ex)
                 {
 
                     ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                    throw new Exception(ex.Message);
+                    throw new ExcepcionAccesoDatos(ex.Message);
                 }
                 catch (Exception ex)
                 {
                     ManejadorExcepciones.ManejarFatalExcepcion(ex);
-                    throw new Exception(ex.Message);
+                    throw new ExcepcionAccesoDatos(ex.Message);
                 }
             }
 
@@ -170,18 +170,18 @@ namespace AccesoDatos.DAO
             catch (EntityException ex)
             {
                 ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                throw new Exception(ex.Message);
+                throw new ExcepcionAccesoDatos(ex.Message);
             }
             catch (SqlException ex)
             {
 
                 ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                throw new Exception(ex.Message);
+                throw new ExcepcionAccesoDatos(ex.Message);
             }
             catch (Exception ex)
             {
                 ManejadorExcepciones.ManejarFatalExcepcion(ex);
-                throw new Exception(ex.Message);
+                throw new ExcepcionAccesoDatos(ex.Message);
             }
         }
 
@@ -208,18 +208,18 @@ namespace AccesoDatos.DAO
             catch (EntityException ex)
             {
                 ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                throw new Exception(ex.Message);
+                throw new ExcepcionAccesoDatos(ex.Message);
             }
             catch (SqlException ex)
             {
 
                 ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                throw new Exception(ex.Message);
+                throw new ExcepcionAccesoDatos(ex.Message);
             }
             catch (Exception ex)
             {
                 ManejadorExcepciones.ManejarFatalExcepcion(ex);
-                throw new Exception(ex.Message);
+                throw new ExcepcionAccesoDatos(ex.Message);
             }
 
             return filasAfectadas;
@@ -248,18 +248,18 @@ namespace AccesoDatos.DAO
             catch (EntityException ex)
             {
                 ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                throw new Exception(ex.Message);
+                throw new ExcepcionAccesoDatos(ex.Message);
             }
             catch (SqlException ex)
             {
 
                 ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                throw new Exception(ex.Message);
+                throw new ExcepcionAccesoDatos(ex.Message);
             }
             catch (Exception ex)
             {
                 ManejadorExcepciones.ManejarFatalExcepcion(ex);
-                throw new Exception(ex.Message);
+                throw new ExcepcionAccesoDatos(ex.Message);
             }
 
             return filasAfectadas;
@@ -288,18 +288,18 @@ namespace AccesoDatos.DAO
             catch (EntityException ex)
             {
                 ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                throw new Exception(ex.Message);
+                throw new ExcepcionAccesoDatos(ex.Message);
             }
             catch (SqlException ex)
             {
 
                 ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                throw new Exception(ex.Message);
+                throw new ExcepcionAccesoDatos(ex.Message);
             }
             catch (Exception ex)
             {
                 ManejadorExcepciones.ManejarFatalExcepcion(ex);
-                throw new Exception(ex.Message);
+                throw new ExcepcionAccesoDatos(ex.Message);
             }
 
             return filasAfectadas;
@@ -327,18 +327,18 @@ namespace AccesoDatos.DAO
             catch (EntityException ex)
             {
                 ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                throw new Exception(ex.Message);
+                throw new ExcepcionAccesoDatos(ex.Message);
             }
             catch (SqlException ex)
             {
 
                 ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                throw new Exception(ex.Message);
+                throw new ExcepcionAccesoDatos(ex.Message);
             }
             catch (Exception ex)
             {
                 ManejadorExcepciones.ManejarFatalExcepcion(ex);
-                throw new Exception(ex.Message);
+                throw new ExcepcionAccesoDatos(ex.Message);
             }
         }
     }

@@ -15,7 +15,7 @@ namespace ServicioJuego
     {
         [OperationContract]
         [FaultContract(typeof(HuntersTrophyExcepcion))]
-        List<Estadisticas> ObtenerEstadisticasGlobales();
+        List<Estadistica> ObtenerEstadisticasGlobales();
 
         [OperationContract]
         [FaultContract(typeof(HuntersTrophyExcepcion))]

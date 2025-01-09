@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace AccesoDatos.Modelo
 {
-    public class Estadisticas
+    public class Estadistica
     {
         [Key]
         public int IdEstadisticas { get; set; }
