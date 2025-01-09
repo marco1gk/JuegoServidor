@@ -1,4 +1,5 @@
 ﻿using AccesoDatos.Modelo;
+using AccesoDatos.Utilidades;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -88,14 +89,39 @@ namespace ServicioJuego
             {
                 var partida = partidas[idPartida];
                 var jugadores = partida.Jugadores;
-                var jugadorTurnoActual = jugadores[partida.TurnoActual];
+                JugadorPartida jugadorTurnoActual = null;
+
+                try
+                {
+                    jugadorTurnoActual = jugadores[partida.TurnoActual];
+                }
+                catch (ArgumentOutOfRangeException ex)
+                {
+                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                    return; 
+                }
 
                 foreach (var jugador in jugadores)
-                {//aqui poner try catch
+                {
                     if (jugador.CallbackChannel != null)
-                        jugador.CallbackChannel.NotificarTurnoIniciado(jugadorTurnoActual.NombreUsuario);
+                    {
+                        try
+                        {
+                            jugador.CallbackChannel.NotificarTurnoIniciado(jugadorTurnoActual.NombreUsuario);
+                        }
+                        catch (EndpointNotFoundException ex)
+                        {
+                            ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                        }
+                        catch (CommunicationException ex)
+                        {
+                            ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                        }
+                    }
                     else
+                    {
                         Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un callback válido.");
+                    }
                 }
             }
             else
@@ -103,6 +129,7 @@ namespace ServicioJuego
                 Console.WriteLine("Partida no encontrada.");
             }
         }
+
         public void FinalizarTurno(string idPartida, string nombreUsuario)
         {
             Console.WriteLine(idPartida);

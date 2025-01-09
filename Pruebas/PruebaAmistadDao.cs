@@ -57,7 +57,7 @@ namespace Pruebas
                     {
                         JugadorId = jugadorId,
                         AmigoId = amigoId,
-                        EstadoAmistad = "Friend"
+                        EstadoAmistad = "Amigo"
                     };
 
                     contexto.Amistades.Add(amistad);
@@ -298,7 +298,7 @@ namespace Pruebas
                     {
                         JugadorId = idJugador1,
                         AmigoId = idJugador2,
-                        EstadoAmistad = "Friend",
+                        EstadoAmistad = "Amigo",
                         EnLinea = true
                     });
 
@@ -397,7 +397,7 @@ namespace Pruebas
                 Assert.False(resultado);
             }
         }
-
+        
         [Fact]
         public void ObtenerIdJugadorSolicitantesAmistad_DebeDevolverSolicitantes_CuandoExistenSolicitudesDeAmistad()
         {
@@ -595,7 +595,7 @@ namespace Pruebas
                         .FirstOrDefault(fs => fs.JugadorId == idJugadorActual && fs.AmigoId == idJugadorAceptado);
 
                     Assert.NotNull(amistadActualizada);
-                    Assert.Equal("Friend", amistadActualizada.EstadoAmistad);
+                    Assert.Equal("Amigo", amistadActualizada.EstadoAmistad);
                     Assert.Equal(1, rowsAffected);
                 }
             }
@@ -658,7 +658,7 @@ namespace Pruebas
                     {
                         JugadorId = idJugadorActual,
                         AmigoId = idJugadorAceptado,
-                        EstadoAmistad = "Friend",
+                        EstadoAmistad = "Amigo",
                         EnLinea = true
                     });
 
@@ -672,7 +672,7 @@ namespace Pruebas
                 Assert.Equal(-1, rowsAffected);
             }
         }
-
+        
         [Fact]
         public void BorrarSolicitudAmistad_DeberiaEliminarSolicitud_CuandoLaSolicitudExiste()
         {
@@ -796,7 +796,7 @@ namespace Pruebas
                     {
                         JugadorId = idJugadorActual,
                         AmigoId = idJugadorRechazado,
-                        EstadoAmistad = "Friend",
+                        EstadoAmistad = "Amigo",
                         EnLinea = true
                     });
 
@@ -855,7 +855,7 @@ namespace Pruebas
                     {
                         JugadorId = idJugadorActual,
                         AmigoId = idJugadorAmigo,
-                        EstadoAmistad = "Friend",
+                        EstadoAmistad = "Amigo",
                         EnLinea = true
                     });
 
@@ -1004,7 +1004,7 @@ namespace Pruebas
                 {
                     JugadorId = idJugadorActual,
                     AmigoId = jugadorAmigo1.JugadorId,
-                    EstadoAmistad = "Friend",
+                    EstadoAmistad = "Amigo",
                     EnLinea = true
                 });
 
@@ -1012,7 +1012,7 @@ namespace Pruebas
                 {
                     JugadorId = idJugadorActual,
                     AmigoId = jugadorAmigo2.JugadorId,
-                    EstadoAmistad = "Friend",
+                    EstadoAmistad = "Amigo",
                     EnLinea = true
                 });
 

@@ -10,414 +10,414 @@ using AccesoDatos.Modelo;
 using Moq;
 using Xunit;
 
-namespace Pruebas
-{
-    public class PruebaCuentaDao
+    namespace Pruebas
     {
-        [Fact]
-        public void AgregarJugadorConCuenta_DebeRegresarTrue_CuandoSeAgreganJugadorYCuenta()
+        public class PruebaCuentaDao
         {
-            using (var scope = new TransactionScope())
+            [Fact]
+            public void AgregarJugadorConCuenta_DebeRegresarTrue_CuandoSeAgreganJugadorYCuenta()
             {
-                var jugador = new Jugador
+                using (var scope = new TransactionScope())
                 {
-                    NombreUsuario = "JugadorTest",
-                    NumeroFotoPerfil = 2
-                };
+                    var jugador = new Jugador
+                    {
+                        NombreUsuario = "JugadorTest",
+                        NumeroFotoPerfil = 2
+                    };
 
-                var cuenta = new Cuenta
-                {
-                    Correo = "jugadortest@example.com",
-                    ContraseniaHash = "hashed_password_test",
-                    Salt = "random_salt_test"
-                };
+                    var cuenta = new Cuenta
+                    {
+                        Correo = "jugadortest@example.com",
+                        ContraseniaHash = "hashed_password_test",
+                        Salt = "random_salt_test"
+                    };
 
-                var cuentaDao = new CuentaDao();
-
-
-                var resultado = cuentaDao.AgregarJugadorConCuenta(jugador, cuenta);
-
-
-                Assert.True(resultado, "El método no agregó correctamente el jugador y la cuenta.");
+                    var cuentaDao = new CuentaDao();
 
 
+                    var resultado = cuentaDao.AgregarJugadorConCuenta(jugador, cuenta);
+
+
+                    Assert.True(resultado, "El método no agregó correctamente el jugador y la cuenta.");
+
+
+                }
             }
-        }
 
-        [Fact]
-        public void AgregarJugadorConCuenta_DebeRegresarFalse_CuandoElNumeroDeFilasAfectadasNoEsDos()
-        {
-            using (var scope = new TransactionScope())
+            [Fact]
+            public void AgregarJugadorConCuenta_DebeRegresarFalse_CuandoElNumeroDeFilasAfectadasNoEsDos()
             {
-                var jugador = new Jugador
+                using (var scope = new TransactionScope())
                 {
-                    NombreUsuario = "JugadorTest2",
-                    NumeroFotoPerfil = 2
-                };
+                    var jugador = new Jugador
+                    {
+                        NombreUsuario = "JugadorTest2",
+                        NumeroFotoPerfil = 2
+                    };
 
-                var cuenta = new Cuenta
+                    var cuenta = new Cuenta
+                    {
+                        Correo = "jugadortest2@example.com",
+                        ContraseniaHash = "hashed_password_test2",
+                        Salt = "random_salt_test2"
+                    };
+
+                    var cuentaDao = new CuentaDao();
+
+                    var resultado = cuentaDao.AgregarJugadorConCuenta(jugador, cuenta);
+
+                    if (resultado)
+                    {
+                        using (var contexto = new ContextoBaseDatos())
+                        {
+                            var jugadorGuardado = contexto.Jugadores
+                                .FirstOrDefault(j => j.NombreUsuario == "JugadorTest2");
+
+                            var cuentaGuardada = contexto.Cuentas
+                                .FirstOrDefault(c => c.Correo == "jugadortest2@example.com");
+
+                            Assert.NotNull(jugadorGuardado);
+                            Assert.NotNull(cuentaGuardada);
+
+                            contexto.Jugadores.Remove(jugadorGuardado);
+                            contexto.Cuentas.Remove(cuentaGuardada);
+                            contexto.SaveChanges();
+                        }
+                    }
+                    else
+                    {
+                        Assert.False(resultado, "El método debería haber regresado false si no se agregaron ambas entidades.");
+                    }
+                }
+            }
+
+
+            [Fact]
+            public void ValidarInicioSesion_DebeRetornarCuenta_CuandoCredencialesSonCorrectas()
+            {
+                using (var scope = new TransactionScope())
                 {
-                    Correo = "jugadortest2@example.com",
-                    ContraseniaHash = "hashed_password_test2",
-                    Salt = "random_salt_test2"
-                };
+                    var cuentaValida = new Cuenta
+                    {
+                        Correo = "usuario@example.com",
+                        ContraseniaHash = "hashed_password",
+                        Salt = "random_salt",
+                        Jugador = new Jugador
+                        {
+                            NombreUsuario = "UsuarioValido",
+                            NumeroFotoPerfil = 1
+                        }
+                    };
 
-                var cuentaDao = new CuentaDao();
-
-                var resultado = cuentaDao.AgregarJugadorConCuenta(jugador, cuenta);
-
-                if (resultado)
-                {
                     using (var contexto = new ContextoBaseDatos())
                     {
-                        var jugadorGuardado = contexto.Jugadores
-                            .FirstOrDefault(j => j.NombreUsuario == "JugadorTest2");
+                        contexto.Cuentas.Add(cuentaValida);
+                        contexto.SaveChanges();
+                    }
 
-                        var cuentaGuardada = contexto.Cuentas
-                            .FirstOrDefault(c => c.Correo == "jugadortest2@example.com");
+                    var cuentaDao = new CuentaDao();
 
-                        Assert.NotNull(jugadorGuardado);
-                        Assert.NotNull(cuentaGuardada);
+                    var resultado = cuentaDao.ValidarInicioSesion("usuario@example.com", "hashed_password");
 
-                        contexto.Jugadores.Remove(jugadorGuardado);
-                        contexto.Cuentas.Remove(cuentaGuardada);
+                    Assert.NotNull(resultado);
+                    Assert.Equal("usuario@example.com", resultado.Correo);
+                    Assert.Equal("UsuarioValido", resultado.Jugador.NombreUsuario);
+                }
+            }
+            [Fact]
+            public void ValidarInicioSesion_DebeLanzarExcepcion_CuandoCorreoEsIncorrecto()
+            {
+                using (var scope = new TransactionScope())
+                {
+                    var cuentaValida = new Cuenta
+                    {
+                        Correo = "usuario@example.com",
+                        ContraseniaHash = "hashed_password",
+                        Salt = "random_salt",
+                        Jugador = new Jugador
+                        {
+                            NombreUsuario = "UsuarioValido",
+                            NumeroFotoPerfil = 1
+                        }
+                    };
+
+                    using (var contexto = new ContextoBaseDatos())
+                    {
+                        contexto.Cuentas.Add(cuentaValida);
+                        contexto.SaveChanges();
+                    }
+
+                    var cuentaDao = new CuentaDao();
+                    var exception = Assert.Throws<ExcepcionAccesoDatos>(() => cuentaDao.ValidarInicioSesion("incorrecto@example.com", "hashed_password"));
+                    Assert.Contains("No se encontró una cuenta con el correo: incorrecto@example.com", exception.Message);
+                }
+            }
+
+
+
+            [Fact]
+            public void AgregarJugadorConCuenta_DebeRegresarTrue_CuandoSeAgrega()
+            {
+                using (var scope = new TransactionScope())
+                {
+                    var jugador = new Jugador
+                    {
+                        NombreUsuario = "JugadorTest",
+                        NumeroFotoPerfil = 2
+                    };
+
+                    var cuenta = new Cuenta
+                    {
+                        Correo = "jugadortest@example.com",
+                        ContraseniaHash = "hashed_password_test",
+                        Salt = "random_salt_test"
+                    };
+
+                    var cuentaDao = new CuentaDao();
+
+                    var resultado = cuentaDao.AgregarJugadorConCuenta(jugador, cuenta);
+
+                    Assert.True(resultado, "El método no agregó correctamente el jugador y la cuenta.");
+
+                    using (var contexto = new ContextoBaseDatos())
+                    {
+                        var jugadorEliminado = contexto.Jugadores.FirstOrDefault(j => j.NombreUsuario == "JugadorTest");
+                        if (jugadorEliminado != null)
+                        {
+                            contexto.Jugadores.Remove(jugadorEliminado);
+                        }
+
+                        var cuentaEliminada = contexto.Cuentas.FirstOrDefault(c => c.Correo == "jugadortest@example.com");
+                        if (cuentaEliminada != null)
+                        {
+                            contexto.Cuentas.Remove(cuentaEliminada);
+                        }
+
                         contexto.SaveChanges();
                     }
                 }
-                else
-                {
-                    Assert.False(resultado, "El método debería haber regresado false si no se agregaron ambas entidades.");
-                }
             }
-        }
 
-
-        [Fact]
-        public void ValidarInicioSesion_DebeRetornarCuenta_CuandoCredencialesSonCorrectas()
-        {
-            using (var scope = new TransactionScope())
+            [Fact]
+            public void ObtenerCuentaPorNombreUsuario_DebeRetornarCuenta_CuandoExiste()
             {
-                var cuentaValida = new Cuenta
+                using (var scope = new TransactionScope())
                 {
-                    Correo = "usuario@example.com",
-                    ContraseniaHash = "hashed_password",
-                    Salt = "random_salt",
-                    Jugador = new Jugador
+                    var cuentaValida = new Cuenta
                     {
-                        NombreUsuario = "UsuarioValido",
-                        NumeroFotoPerfil = 1
-                    }
-                };
-
-                using (var contexto = new ContextoBaseDatos())
-                {
-                    contexto.Cuentas.Add(cuentaValida);
-                    contexto.SaveChanges();
-                }
-
-                var cuentaDao = new CuentaDao();
-
-                var resultado = cuentaDao.ValidarInicioSesion("usuario@example.com", "hashed_password");
-
-                Assert.NotNull(resultado);
-                Assert.Equal("usuario@example.com", resultado.Correo);
-                Assert.Equal("UsuarioValido", resultado.Jugador.NombreUsuario);
-            }
-        }
-        [Fact]
-        public void ValidarInicioSesion_DebeLanzarExcepcion_CuandoCorreoEsIncorrecto()
-        {
-            using (var scope = new TransactionScope())
-            {
-                var cuentaValida = new Cuenta
-                {
-                    Correo = "usuario@example.com",
-                    ContraseniaHash = "hashed_password",
-                    Salt = "random_salt",
-                    Jugador = new Jugador
-                    {
-                        NombreUsuario = "UsuarioValido",
-                        NumeroFotoPerfil = 1
-                    }
-                };
-
-                using (var contexto = new ContextoBaseDatos())
-                {
-                    contexto.Cuentas.Add(cuentaValida);
-                    contexto.SaveChanges();
-                }
-
-                var cuentaDao = new CuentaDao();
-                var exception = Assert.Throws<ExcepcionAccesoDatos>(() => cuentaDao.ValidarInicioSesion("incorrecto@example.com", "hashed_password"));
-                Assert.Contains("No se encontró una cuenta con el correo: incorrecto@example.com", exception.Message);
-            }
-        }
-
-
-
-        [Fact]
-        public void AgregarJugadorConCuenta_DebeRegresarTrue_CuandoSeAgrega()
-        {
-            using (var scope = new TransactionScope())
-            {
-                var jugador = new Jugador
-                {
-                    NombreUsuario = "JugadorTest",
-                    NumeroFotoPerfil = 2
-                };
-
-                var cuenta = new Cuenta
-                {
-                    Correo = "jugadortest@example.com",
-                    ContraseniaHash = "hashed_password_test",
-                    Salt = "random_salt_test"
-                };
-
-                var cuentaDao = new CuentaDao();
-
-                var resultado = cuentaDao.AgregarJugadorConCuenta(jugador, cuenta);
-
-                Assert.True(resultado, "El método no agregó correctamente el jugador y la cuenta.");
-
-                using (var contexto = new ContextoBaseDatos())
-                {
-                    var jugadorEliminado = contexto.Jugadores.FirstOrDefault(j => j.NombreUsuario == "JugadorTest");
-                    if (jugadorEliminado != null)
-                    {
-                        contexto.Jugadores.Remove(jugadorEliminado);
-                    }
-
-                    var cuentaEliminada = contexto.Cuentas.FirstOrDefault(c => c.Correo == "jugadortest@example.com");
-                    if (cuentaEliminada != null)
-                    {
-                        contexto.Cuentas.Remove(cuentaEliminada);
-                    }
-
-                    contexto.SaveChanges();
-                }
-            }
-        }
-
-        [Fact]
-        public void ObtenerCuentaPorNombreUsuario_DebeRetornarCuenta_CuandoExiste()
-        {
-            using (var scope = new TransactionScope())
-            {
-                var cuentaValida = new Cuenta
-                {
-                    Correo = "usuario@example.com",
-                    ContraseniaHash = "hashed_password",
-                    Salt = "random_salt",
-                    Jugador = new Jugador
-                    {
-                        NombreUsuario = "UsuarioValido",
-                        NumeroFotoPerfil = 1
-                    }
-                };
-
-                using (var contexto = new ContextoBaseDatos())
-                {
-                    contexto.Cuentas.Add(cuentaValida);
-                    contexto.SaveChanges();
-                }
-
-                var cuentaDao = new CuentaDao();
-
-                var resultado = cuentaDao.ObtenerCuentaPorNombreUsuario("usuario@example.com");
-
-                Assert.NotNull(resultado);
-                Assert.Equal("usuario@example.com", resultado.Correo);
-                Assert.Equal("UsuarioValido", resultado.Jugador.NombreUsuario);
-            }
-        }
-
-
-
-        [Fact]
-        public void EditarContraseñaPorCorreo_DebeActualizarContrasena_CuandoCorreoExiste()
-        {
-            using (var scope = new TransactionScope())
-            {
-                var cuenta = new Cuenta
-                {
-                    Correo = "usuario@example.com",
-                    ContraseniaHash = "hashed_password",
-                    Salt = "random_salt",
-                    Jugador = new Jugador
-                    {
-                        NombreUsuario = "UsuarioValido",
-                        NumeroFotoPerfil = 1
-                    }
-                };
-
-                using (var contexto = new ContextoBaseDatos())
-                {
-                    contexto.Cuentas.Add(cuenta);
-                    contexto.SaveChanges();
-                }
-
-                var cuentaDao = new CuentaDao();
-                string nuevaContrasenia = "nueva_password";
-
-                var resultado = cuentaDao.EditarContraseñaPorCorreo("usuario@example.com", nuevaContrasenia);
-
-                Assert.True(resultado);
-
-                using (var contexto = new ContextoBaseDatos())
-                {
-                    var cuentaActualizada = contexto.Cuentas.SingleOrDefault(c => c.Correo == "usuario@example.com");
-                    Assert.NotNull(cuentaActualizada);
-
-                    Assert.NotEqual("hashed_password", cuentaActualizada.ContraseniaHash);
-                    Assert.NotEqual("random_salt", cuentaActualizada.Salt);
-                }
-            }
-        }
-
-        [Fact]
-        public void EditarContraseñaPorCorreo_DebeRetornarFalse_CuandoCorreoNoExiste()
-        {
-            using (var scope = new TransactionScope())
-            {
-                var cuentaDao = new CuentaDao();
-                string nuevaContrasenia = "nueva_password";
-
-                var resultado = cuentaDao.EditarContraseñaPorCorreo("noexiste@example.com", nuevaContrasenia);
-
-                Assert.False(resultado);
-            }
-        }
-
-        [Fact]
-        public void ExistenciaCorreo_DebeRetornarTrue_CuandoElCorreoExiste()
-        {
-            using (var scope = new TransactionScope())
-            {
-                var cuenta = new Cuenta
-                {
-                    Correo = "usuario@example.com",
-                    ContraseniaHash = "hashed_password",
-                    Salt = "random_salt",
-                    Jugador = new Jugador
-                    {
-                        NombreUsuario = "UsuarioValido",
-                        NumeroFotoPerfil = 1
-                    }
-                };
-
-                using (var contexto = new ContextoBaseDatos())
-                {
-                    contexto.Cuentas.Add(cuenta);
-                    contexto.SaveChanges();
-                }
-
-                var cuentaDao = new CuentaDao();
-
-                var resultado = cuentaDao.ExistenciaCorreo("usuario@example.com");
-
-                Assert.True(resultado);
-            }
-        }
-
-        [Fact]
-        public void ExistenciaCorreo_DebeRetornarFalse_CuandoElCorreoNoExiste()
-        {
-            using (var scope = new TransactionScope())
-            {
-                var cuentaDao = new CuentaDao();
-
-                var resultado = cuentaDao.ExistenciaCorreo("noexiste@example.com");
-
-                Assert.False(resultado);
-            }
-        }
-
-
-        [Fact]
-        public void EditarCorreo_DebeActualizarCorreo_CuandoCuentaExiste()
-        {
-            using (var scope = new TransactionScope())
-            {
-                var cuenta = new Cuenta
-                {
-                    Correo = "usuario@example.com",
-                    ContraseniaHash = "hashed_password",
-                    Salt = "random_salt",
-                    Jugador = new Jugador
-                    {
-                        NombreUsuario = "UsuarioValido",
-                        NumeroFotoPerfil = 1
-                    }
-                };
-
-                using (var contexto = new ContextoBaseDatos())
-                {
-                    contexto.Cuentas.Add(cuenta);
-                    contexto.SaveChanges();
-                }
-
-                var cuentaDao = new CuentaDao();
-                string nuevoCorreo = "nuevoCorreo@example.com";
-
-                var resultado = cuentaDao.EditarCorreo(cuenta.JugadorId, nuevoCorreo);
-
-                Assert.True(resultado);
-
-                using (var contexto = new ContextoBaseDatos())
-                {
-                    var cuentaActualizada = contexto.Cuentas
-                        .SingleOrDefault(c => c.JugadorId == cuenta.JugadorId);
-                    Assert.NotNull(cuentaActualizada);
-                    Assert.Equal(nuevoCorreo, cuentaActualizada.Correo);
-                }
-            }
-        }
-
-        [Fact]
-        public void EditarCorreo_DebeRetornarFalse_CuandoCuentaNoExiste()
-        {
-            using (var scope = new TransactionScope())
-            {
-                var cuentaDao = new CuentaDao();
-                string nuevoCorreo = "nuevoCorreo@example.com";
-
-                var resultado = cuentaDao.EditarCorreo(9999, nuevoCorreo);
-
-                Assert.False(resultado);
-            }
-        }
-
-
-        [Fact]
-        public void ExisteNombreUsuario_DebeRetornarTrue_CuandoElNombreUsuarioExiste()
-        {
-            using (var scope = new TransactionScope())
-            {
-                var jugador = new Jugador
-                {
-                    NombreUsuario = "JugadorExistente",
-                    NumeroFotoPerfil = 1,
-                    Cuenta = new Cuenta
-                    {
-                        Correo = "jugador@example.com",
+                        Correo = "usuario@example.com",
                         ContraseniaHash = "hashed_password",
-                        Salt = "random_salt"
+                        Salt = "random_salt",
+                        Jugador = new Jugador
+                        {
+                            NombreUsuario = "UsuarioValido",
+                            NumeroFotoPerfil = 1
+                        }
+                    };
+
+                    using (var contexto = new ContextoBaseDatos())
+                    {
+                        contexto.Cuentas.Add(cuentaValida);
+                        contexto.SaveChanges();
                     }
-                };
 
-                using (var contexto = new ContextoBaseDatos())
-                {
-                    contexto.Jugadores.Add(jugador);
-                    contexto.SaveChanges();
+                    var cuentaDao = new CuentaDao();
+
+                    var resultado = cuentaDao.ObtenerCuentaPorNombreUsuario("usuario@example.com");
+
+                    Assert.NotNull(resultado);
+                    Assert.Equal("usuario@example.com", resultado.Correo);
+                    Assert.Equal("UsuarioValido", resultado.Jugador.NombreUsuario);
                 }
-
-                var cuentaDao = new CuentaDao();
-
-                var resultado = cuentaDao.ExisteNombreUsuario("JugadorExistente");
-
-                Assert.True(resultado);
             }
-        }
+
+
+
+            [Fact]
+            public void EditarContraseñaPorCorreo_DebeActualizarContrasena_CuandoCorreoExiste()
+            {
+                using (var scope = new TransactionScope())
+                {
+                    var cuenta = new Cuenta
+                    {
+                        Correo = "usuario@example.com",
+                        ContraseniaHash = "hashed_password",
+                        Salt = "random_salt",
+                        Jugador = new Jugador
+                        {
+                            NombreUsuario = "UsuarioValido",
+                            NumeroFotoPerfil = 1
+                        }
+                    };
+
+                    using (var contexto = new ContextoBaseDatos())
+                    {
+                        contexto.Cuentas.Add(cuenta);
+                        contexto.SaveChanges();
+                    }
+
+                    var cuentaDao = new CuentaDao();
+                    string nuevaContrasenia = "nueva_password";
+
+                    var resultado = cuentaDao.EditarContraseñaPorCorreo("usuario@example.com", nuevaContrasenia);
+
+                    Assert.True(resultado);
+
+                    using (var contexto = new ContextoBaseDatos())
+                    {
+                        var cuentaActualizada = contexto.Cuentas.SingleOrDefault(c => c.Correo == "usuario@example.com");
+                        Assert.NotNull(cuentaActualizada);
+
+                        Assert.NotEqual("hashed_password", cuentaActualizada.ContraseniaHash);
+                        Assert.NotEqual("random_salt", cuentaActualizada.Salt);
+                    }
+                }
+            }
+
+            [Fact]
+            public void EditarContraseñaPorCorreo_DebeRetornarFalse_CuandoCorreoNoExiste()
+            {
+                using (var scope = new TransactionScope())
+                {
+                    var cuentaDao = new CuentaDao();
+                    string nuevaContrasenia = "nueva_password";
+
+                    var resultado = cuentaDao.EditarContraseñaPorCorreo("noexiste@example.com", nuevaContrasenia);
+
+                    Assert.False(resultado);
+                }
+            }
+
+            [Fact]
+            public void ExistenciaCorreo_DebeRetornarTrue_CuandoElCorreoExiste()
+            {
+                using (var scope = new TransactionScope())
+                {
+                    var cuenta = new Cuenta
+                    {
+                        Correo = "usuario@example.com",
+                        ContraseniaHash = "hashed_password",
+                        Salt = "random_salt",
+                        Jugador = new Jugador
+                        {
+                            NombreUsuario = "UsuarioValido",
+                            NumeroFotoPerfil = 1
+                        }
+                    };
+
+                    using (var contexto = new ContextoBaseDatos())
+                    {
+                        contexto.Cuentas.Add(cuenta);
+                        contexto.SaveChanges();
+                    }
+
+                    var cuentaDao = new CuentaDao();
+
+                    var resultado = cuentaDao.ExistenciaCorreo("usuario@example.com");
+
+                    Assert.True(resultado);
+                }
+            }
+
+            [Fact]
+            public void ExistenciaCorreo_DebeRetornarFalse_CuandoElCorreoNoExiste()
+            {
+                using (var scope = new TransactionScope())
+                {
+                    var cuentaDao = new CuentaDao();
+
+                    var resultado = cuentaDao.ExistenciaCorreo("noexiste@example.com");
+
+                    Assert.False(resultado);
+                }
+            }
+
+
+            [Fact]
+            public void EditarCorreo_DebeActualizarCorreo_CuandoCuentaExiste()
+            {
+                using (var scope = new TransactionScope())
+                {
+                    var cuenta = new Cuenta
+                    {
+                        Correo = "usuario@example.com",
+                        ContraseniaHash = "hashed_password",
+                        Salt = "random_salt",
+                        Jugador = new Jugador
+                        {
+                            NombreUsuario = "UsuarioValido",
+                            NumeroFotoPerfil = 1
+                        }
+                    };
+
+                    using (var contexto = new ContextoBaseDatos())
+                    {
+                        contexto.Cuentas.Add(cuenta);
+                        contexto.SaveChanges();
+                    }
+
+                    var cuentaDao = new CuentaDao();
+                    string nuevoCorreo = "nuevoCorreo@example.com";
+
+                    var resultado = cuentaDao.EditarCorreo(cuenta.JugadorId, nuevoCorreo);
+
+                    Assert.True(resultado);
+
+                    using (var contexto = new ContextoBaseDatos())
+                    {
+                        var cuentaActualizada = contexto.Cuentas
+                            .SingleOrDefault(c => c.JugadorId == cuenta.JugadorId);
+                        Assert.NotNull(cuentaActualizada);
+                        Assert.Equal(nuevoCorreo, cuentaActualizada.Correo);
+                    }
+                }
+            }
+
+            [Fact]
+            public void EditarCorreo_DebeRetornarFalse_CuandoCuentaNoExiste()
+            {
+                using (var scope = new TransactionScope())
+                {
+                    var cuentaDao = new CuentaDao();
+                    string nuevoCorreo = "nuevoCorreo@example.com";
+
+                    var resultado = cuentaDao.EditarCorreo(9999, nuevoCorreo);
+
+                    Assert.False(resultado);
+                }
+            }
+
+
+            [Fact]
+            public void ExisteNombreUsuario_DebeRetornarTrue_CuandoElNombreUsuarioExiste()
+            {
+                using (var scope = new TransactionScope())
+                {
+                    var jugador = new Jugador
+                    {
+                        NombreUsuario = "JugadorExistente",
+                        NumeroFotoPerfil = 1,
+                        Cuenta = new Cuenta
+                        {
+                            Correo = "jugador@example.com",
+                            ContraseniaHash = "hashed_password",
+                            Salt = "random_salt"
+                        }
+                    };
+
+                    using (var contexto = new ContextoBaseDatos())
+                    {
+                        contexto.Jugadores.Add(jugador);
+                        contexto.SaveChanges();
+                    }
+
+                    var cuentaDao = new CuentaDao();
+
+                    var resultado = cuentaDao.ExisteNombreUsuario("JugadorExistente");
+
+                    Assert.True(resultado);
+                }
+            }
 
         [Fact]
         public void ExisteNombreUsuario_DebeRetornarFalse_CuandoElNombreUsuarioNoExiste()

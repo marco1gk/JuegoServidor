@@ -30,14 +30,11 @@ namespace Pruebas
         [Fact]
         public void EnviarCodigoConfirmacion_DebeRetornarNull_CuandoCorreoEsInvalido()
         {
-            // Arrange
             var recursos = new Recursos();
             string correoInvalido = "correo_invalido";
 
-            // Act
             string codigo = recursos.EnviarCodigoConfirmacion(correoInvalido);
 
-            // Assert
             Assert.Null(codigo);
         }
 
