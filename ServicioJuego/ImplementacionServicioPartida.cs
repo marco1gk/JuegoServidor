@@ -101,7 +101,7 @@ namespace ServicioJuego
                     return; 
                 }
 
-                foreach (var jugador in jugadores)
+                foreach (var jugador in jugadores.ToList())
                 {
                     if (jugador.CallbackChannel != null)
                     {
@@ -185,7 +185,9 @@ namespace ServicioJuego
                     Random random = new Random();
                     int resultadoDado = random.Next(1, 7);
 
-                    foreach (var jugador in partida.Jugadores)
+                    var jugadores = partida.Jugadores.ToList();
+
+                    foreach (var jugador in jugadores)
                     {
                         if (jugador.CallbackChannel != null)
                         {
