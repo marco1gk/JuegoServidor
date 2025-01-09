@@ -852,8 +852,6 @@ namespace ServicioJuego
                         }
                     }
                 }
-
-                // Finaliza el contexto del robo.
                 partida.RoboEnProgreso = null;
             }
             else
