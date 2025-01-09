@@ -110,7 +110,7 @@ namespace ServicioJuego
     public interface IServicioPartidaCallback
     {
         [OperationContract]
-        void NotificarTurnoIniciado(string nombreUsuario);
+        void NotificarTurnoIniciado(string jugadorTurnoActual);
 
         [OperationContract]
         void NotificarJugadorDesconectado(string nombreUsuario);
@@ -118,14 +118,12 @@ namespace ServicioJuego
         [OperationContract]
         void NotificarTurnoTerminado(string nombreUsuario);
 
-        [OperationContract]
-        void NotificarResultadoAccion(string accion, bool sucedio);
 
         [OperationContract]
         void NotificarPartidaCreada(string idPartida);
 
         [OperationContract]
-        void NotificarResultadoDado(string nombreUsuario, int resultado);
+        void NotificarResultadoDado(string nombreJugador, int resultadoDado);
 
         [OperationContract]
         void NotificarCartasEnMano(List<Carta> cartasRepartidas);
@@ -140,13 +138,13 @@ namespace ServicioJuego
         void NotificarCartaAgregadaAMano(Carta carta);
 
         [OperationContract]
-        void NotificarFichaTomadaMesa(string nombreUsuario, int idFicha);
+        void NotificarFichaTomadaMesa(string jugadorTurnoActual, int idFicha);
 
         [OperationContract]
-        void NotificarCartaUtilizada(int idCarta);
+        void NotificarCartaUtilizada(int idCartaUtilizada);
 
         [OperationContract]
-        void NotificarCartaAgregadaADescarte(Carta carta);
+        void NotificarCartaAgregadaADescarte(Carta cartaUtilizada);
 
         [OperationContract]
         void NotificarFichaDevuelta(int idFicha, string nombreJugadorTurnoActual);
@@ -155,28 +153,25 @@ namespace ServicioJuego
         void NotificarCartaAgregadaAEscondite(int idCarta);
 
         [OperationContract]
-        void NotificarIntentoRoboCarta(string nombreUsuario);
+        void NotificarCartaRobada(Carta carta, string jugadorObjetivoRobo, string jugadorTurnoActual);
 
         [OperationContract]
-        void NotificarCartaRobada(Carta cartaRobada, string nombreJugadorObjetivoRobo, string nombreJugadorTurnoActual);
+        void NotificarIntentoRoboCartaEscondite(string nombreJugadorAtacante);
 
         [OperationContract]
-        void NotificarIntentoRoboCartaEscondite(string nombreUsuario);
-
-        [OperationContract]
-        void NotificarCartaEsconditeRobada(Carta cartaRobada, string nombreJugadorObjetivoRobo, string nombreJugadorTurnoActual);
+        void NotificarCartaEsconditeRobada(Carta carta, string jugadorObjetivoRobo, string jugadorTurnoActual);
 
         [OperationContract]
         void NotificarCartaTomadaDescarte(int idCarta);
 
         [OperationContract]
-        void NotificarTiroDadoForzado(string jugadorEnTurno);
+        void NotificarTiroDadoForzado(string jugadorTurnoActual);
 
         [OperationContract]
         void NotificarPreguntaJugadores(string jugadorTurnoActual, string tipoCartaRevelada);
 
         [OperationContract]
-        void NotificarNumeroJugadoresGuardaronCarta(int numeroJugadores);
+        void NotificarNumeroJugadoresGuardaronCarta(int numeroJugadoresGuardaronCarta);
 
         [OperationContract]
         void NotificarMazoRevelado();
@@ -191,10 +186,13 @@ namespace ServicioJuego
         void NotificarPararTirarDado();
 
         [OperationContract]
-        void NotificarModoSeleccionCarta(int idModoSeleccion);
+        void NotificarModoSeleccionCarta(int idModoSeleccionCarta);
 
         [OperationContract]
         void NotificarActualizacionDecisionTurno();
+
+        [OperationContract]
+        void NotificarIntentoRobo(string nombreJugadorDefensor);
 
     }
 

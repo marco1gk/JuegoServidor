@@ -700,7 +700,7 @@ namespace ServicioJuego
                     {
                         if (jugador.CallbackChannel != null)
                         {
-                            jugador.CallbackChannel.NotificarIntentoRoboCarta(nombreDefensor);
+                            jugador.CallbackChannel.NotificarIntentoRobo(nombreDefensor);
                         }
                         else
                         {
@@ -772,7 +772,7 @@ namespace ServicioJuego
                 {
                     if (jugador.CallbackChannel != null)
                     {
-                        jugador.CallbackChannel.NotificarIntentoRoboCarta(partida.RoboEnProgreso.Defensor.NombreUsuario);
+                        jugador.CallbackChannel.NotificarIntentoRobo(partida.RoboEnProgreso.Defensor.NombreUsuario);
                     }
                 }
             }
