@@ -117,6 +117,10 @@ namespace ServicioJuego
                         {
                             ManejadorExcepciones.ManejarErrorExcepcion(ex);
                         }
+                        catch(TimeoutException ex)
+                        {
+                            ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                        }
                     }
                     else
                     {
@@ -163,9 +167,17 @@ namespace ServicioJuego
                     jugador.CallbackChannel.NotificarTurnoTerminado(jugador.NombreUsuario);
                     Console.WriteLine($"El turno de {jugador.NombreUsuario} ha terminado.");
                 }
+                catch (EndpointNotFoundException ex)
+                {
+                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                }
                 catch (CommunicationException ex)
                 {
-                    Console.WriteLine($"Error al finalizar el turno de {jugador.NombreUsuario}: {ex.Message}");
+                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                }
+                catch (TimeoutException ex)
+                {
+                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 }
             }
             else
@@ -196,9 +208,17 @@ namespace ServicioJuego
                                 jugador.CallbackChannel.NotificarResultadoDado(nombreUsuario, resultadoDado);
                                 Console.WriteLine($"Resultado del dado ({resultadoDado}) notificado a {jugador.NombreUsuario}.");
                             }
+                            catch (EndpointNotFoundException ex)
+                            {
+                                ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                            }
                             catch (CommunicationException ex)
                             {
-                                Console.WriteLine($"Error al notificar resultado del dado a {jugador.NombreUsuario}: {ex.Message}");
+                                ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                            }
+                            catch (TimeoutException ex)
+                            {
+                                ManejadorExcepciones.ManejarErrorExcepcion(ex);
                             }
                         }
                     }
@@ -338,9 +358,17 @@ namespace ServicioJuego
                             jugador.CallbackChannel.NotificarCartasEnMano(CartasEnMano[jugador.NombreUsuario]);
                             jugador.CallbackChannel.NotificarCartasEnMazo(CartasEnMazo);
                         }
+                        catch (EndpointNotFoundException ex)
+                        {
+                            ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                        }
                         catch (CommunicationException ex)
                         {
-                            Console.WriteLine($"Error al notificar al jugador {jugador.NombreUsuario}: {ex.Message}");
+                            ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                        }
+                        catch (TimeoutException ex)
+                        {
+                            ManejadorExcepciones.ManejarErrorExcepcion(ex);
                         }
                     }
                     else
@@ -358,13 +386,6 @@ namespace ServicioJuego
 
         public void CrearPartida(List<JugadorPartida> jugadores, string idPartida)
         {
-            Console.WriteLine("Jugadores recibidos en el servidor: ");
-
-            foreach (var jugador in jugadores)
-            {
-                Console.WriteLine($"Jugador: {jugador.NombreUsuario}");
-            }
-
             var partida = new Partida
             {
                 IdPartida = idPartida,
@@ -428,9 +449,17 @@ namespace ServicioJuego
                     Console.WriteLine($"Error: No se pudo obtener el canal de callback para el invitado {invitado.NombreUsuario}");
                 }
             }
-            catch (Exception ex)
+            catch (EndpointNotFoundException ex)
             {
-                Console.WriteLine($"Error al registrar el jugador invitado: {ex.Message}");
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
+            }
+            catch (CommunicationException ex)
+            {
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
+            }
+            catch (TimeoutException ex)
+            {
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
             }
         }
 
@@ -443,9 +472,17 @@ namespace ServicioJuego
                     jugador.CallbackChannel.NotificarPartidaCreada(idPartida);
                     Console.WriteLine($"Notificación de partida creada enviada a {jugador.NombreUsuario}");
                 }
+                catch (EndpointNotFoundException ex)
+                {
+                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                }
                 catch (CommunicationException ex)
                 {
-                    Console.WriteLine($"Error al notificar la creación de partida al jugador {jugador.NombreUsuario}: {ex.Message}");
+                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                }
+                catch (TimeoutException ex)
+                {
+                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 }
             }
             else
@@ -474,9 +511,17 @@ namespace ServicioJuego
                             {
                                 jugador.CallbackChannel.NotificarCartaTomadaMazo(cartaTomadaMazo.IdCarta);
                             }
+                            catch (EndpointNotFoundException ex)
+                            {
+                                ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                            }
                             catch (CommunicationException ex)
                             {
-                                Console.WriteLine($"Error al notificar resultado del dado a {jugador.NombreUsuario}: {ex.Message}");
+                                ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                            }
+                            catch (TimeoutException ex)
+                            {
+                                ManejadorExcepciones.ManejarErrorExcepcion(ex);
                             }
                         }
                         else
@@ -506,13 +551,28 @@ namespace ServicioJuego
 
                 if (jugador != null)
                 {
-                    if (jugador.CallbackChannel != null)
+                    try
                     {
-                        jugador.CallbackChannel.NotificarCartaAgregadaAMano(carta);
+                        if (jugador.CallbackChannel != null)
+                        {
+                            jugador.CallbackChannel.NotificarCartaAgregadaAMano(carta);
+                        }
+                        else
+                        {
+                            Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un callback válido.");
+                        }
                     }
-                    else
+                    catch (EndpointNotFoundException ex)
                     {
-                        Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un callback válido.");
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                    }
+                    catch (CommunicationException ex)
+                    {
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                    }
+                    catch (TimeoutException ex)
+                    {
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
                     }
                 }
                 else
@@ -536,14 +596,30 @@ namespace ServicioJuego
                 
                 foreach (var jugador in jugadores)
                 {
-                    if(jugador.CallbackChannel != null)
+                    try
                     {
-                        jugador.CallbackChannel.NotificarFichaTomadaMesa(jugadorTurnoActual.NombreUsuario, idFicha);
+                        if (jugador.CallbackChannel != null)
+                        {
+                            jugador.CallbackChannel.NotificarFichaTomadaMesa(jugadorTurnoActual.NombreUsuario, idFicha);
+                        }
+                        else
+                        {
+                            Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un callback válido.");
+                        }
                     }
-                    else
+                    catch (EndpointNotFoundException ex)
                     {
-                        Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un callback válido.");
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
                     }
+                    catch (CommunicationException ex)
+                    {
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                    }
+                    catch (TimeoutException ex)
+                    {
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                    }
+                    
                 }
             }
             else
@@ -564,14 +640,30 @@ namespace ServicioJuego
                     CartasEnMano[nombreJugador].Remove(cartaUtilizada);
                     AgregarCartaADescarte(cartaUtilizada, jugadores);
 
-                    if(jugadorActual.CallbackChannel != null)
+                    try
                     {
-                        jugadorActual.CallbackChannel.NotificarCartaUtilizada(cartaUtilizada.IdCarta);
+                        if (jugadorActual.CallbackChannel != null)
+                        {
+                            jugadorActual.CallbackChannel.NotificarCartaUtilizada(cartaUtilizada.IdCarta);
+                        }
+                        else
+                        {
+                            Console.WriteLine($"El jugador {jugadorActual.NombreUsuario} no tiene un callback válido.");
+                        }
                     }
-                    else
+                    catch (EndpointNotFoundException ex)
                     {
-                        Console.WriteLine($"El jugador {jugadorActual.NombreUsuario} no tiene un callback válido.");
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
                     }
+                    catch (CommunicationException ex)
+                    {
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                    }
+                    catch (TimeoutException ex)
+                    {
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                    }
+                    
                 }
                 else
                 {
@@ -590,14 +682,30 @@ namespace ServicioJuego
             
             foreach(var jugador in jugadores)
             {
-                if(jugador.CallbackChannel != null)
+                try
                 {
-                    jugador.CallbackChannel.NotificarCartaAgregadaADescarte(cartaUtilizada);
+                    if (jugador.CallbackChannel != null)
+                    {
+                        jugador.CallbackChannel.NotificarCartaAgregadaADescarte(cartaUtilizada);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un callback válido.");
+                    }
                 }
-                else
+                catch (EndpointNotFoundException ex)
                 {
-                    Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un callback válido.");
+                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 }
+                catch (CommunicationException ex)
+                {
+                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                }
+                catch (TimeoutException ex)
+                {
+                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                }
+                
             }
         }
 
@@ -610,14 +718,30 @@ namespace ServicioJuego
 
                 foreach (var jugador in jugadores)
                 {
-                    if(jugador.CallbackChannel != null)
+                    try
                     {
-                        jugador.CallbackChannel.NotificarFichaDevuelta(idFicha, jugadorTurnoActual.NombreUsuario);
+                        if (jugador.CallbackChannel != null)
+                        {
+                            jugador.CallbackChannel.NotificarFichaDevuelta(idFicha, jugadorTurnoActual.NombreUsuario);
+                        }
+                        else
+                        {
+                            Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un callback válido.");
+                        }
                     }
-                    else
+                    catch (EndpointNotFoundException ex)
                     {
-                        Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un callback válido.");
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
                     }
+                    catch (CommunicationException ex)
+                    {
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                    }
+                    catch (TimeoutException ex)
+                    {
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                    }
+                    
                 }
             }
             else
@@ -640,14 +764,30 @@ namespace ServicioJuego
                 CartasEnEscondite[jugador.NombreUsuario].Add(carta);
                 CartasEnMano[jugador.NombreUsuario].Remove(carta);
 
-                if(jugador.CallbackChannel != null)
+                try
                 {
-                    jugador.CallbackChannel.NotificarCartaAgregadaAEscondite(carta.IdCarta);
+                    if (jugador.CallbackChannel != null)
+                    {
+                        jugador.CallbackChannel.NotificarCartaAgregadaAEscondite(carta.IdCarta);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un callback válido.");
+                    }
                 }
-                else
+                catch (EndpointNotFoundException ex)
                 {
-                    Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un callback válido.");
+                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 }
+                catch (CommunicationException ex)
+                {
+                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                }
+                catch (TimeoutException ex)
+                {
+                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                }
+                
             }
             else
             {
@@ -700,14 +840,30 @@ namespace ServicioJuego
 
                     foreach (var jugador in jugadores)
                     {
-                        if (jugador.CallbackChannel != null)
+                        try
                         {
-                            jugador.CallbackChannel.NotificarIntentoRobo(nombreDefensor);
+                            if (jugador.CallbackChannel != null)
+                            {
+                                jugador.CallbackChannel.NotificarIntentoRobo(nombreDefensor);
+                            }
+                            else
+                            {
+                                Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un callback válido.");
+                            }
                         }
-                        else
+                        catch (EndpointNotFoundException ex)
                         {
-                            Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un callback válido.");
+                            ManejadorExcepciones.ManejarErrorExcepcion(ex);
                         }
+                        catch (CommunicationException ex)
+                        {
+                            ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                        }
+                        catch (TimeoutException ex)
+                        {
+                            ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                        }
+                        
                     }
                 }
             }
@@ -723,43 +879,82 @@ namespace ServicioJuego
             var partida = partidas[idPartida];
             if (partida.RoboEnProgreso != null)
             {
-                var atacante = partida.RoboEnProgreso.Atacante;
-                var defensor = partida.RoboEnProgreso.Defensor;
-
-                if (CartasEnMano[defensor.NombreUsuario].Count > 0)
-                {
-                    var cartaRobada = CartasEnMano[defensor.NombreUsuario][new Random().Next(CartasEnMano[defensor.NombreUsuario].Count)];
-                    CartasEnMano[defensor.NombreUsuario].Remove(cartaRobada);
-                    CartasEnMano[atacante.NombreUsuario].Add(cartaRobada);
-
-                    foreach (var jugador in partida.Jugadores)
-                    {
-                        if (jugador.CallbackChannel != null)
-                        {
-                            jugador.CallbackChannel.NotificarCartaRobada(cartaRobada, defensor.NombreUsuario, atacante.NombreUsuario);
-                        }
-                    }
-                }
-                partida.RoboEnProgreso = null;
+                ProcesarRoboEnProgreso(partida);
             }
             else
             {
-                var jugadorObjetivoRobo = partida.Jugadores.FirstOrDefault(j => j.NombreUsuario == nombreDefensor);
-                var jugadorTurnoActual = partida.Jugadores[partida.TurnoActual];
-                var cartaRobada = CartasEnMano[jugadorObjetivoRobo.NombreUsuario][new Random().Next(CartasEnMano[jugadorObjetivoRobo.NombreUsuario].Count)];
-                CartasEnMano[jugadorObjetivoRobo.NombreUsuario].Remove(cartaRobada);
-                CartasEnMano[jugadorTurnoActual.NombreUsuario].Add(cartaRobada);
+                ProcesarNuevoRobo(partida, nombreDefensor);
+            }
+        }
 
-                foreach (var jugador in partida.Jugadores)
+        private void ProcesarRoboEnProgreso(Partida partida)
+        {
+            var atacante = partida.RoboEnProgreso.Atacante;
+            var defensor = partida.RoboEnProgreso.Defensor;
+
+            if (CartasEnMano[defensor.NombreUsuario].Count > 0)
+            {
+                var cartaRobada = RobarCartaDeJugador(defensor.NombreUsuario, atacante.NombreUsuario);
+                NotificarJugadores(partida, cartaRobada, defensor.NombreUsuario, atacante.NombreUsuario);
+            }
+
+            partida.RoboEnProgreso = null;
+        }
+
+        private void ProcesarNuevoRobo(Partida partida, string nombreDefensor)
+        {
+            var jugadorObjetivoRobo = partida.Jugadores.FirstOrDefault(j => j.NombreUsuario == nombreDefensor);
+            if (jugadorObjetivoRobo == null)
+            {
+                Console.WriteLine($"El jugador {nombreDefensor} no existe en la partida.");
+                return;
+            }
+
+            var jugadorTurnoActual = partida.Jugadores[partida.TurnoActual];
+            var cartaRobada = RobarCartaDeJugador(jugadorObjetivoRobo.NombreUsuario, jugadorTurnoActual.NombreUsuario);
+            NotificarJugadores(partida, cartaRobada, jugadorObjetivoRobo.NombreUsuario, jugadorTurnoActual.NombreUsuario);
+        }
+
+        private Carta RobarCartaDeJugador(string nombreDefensor, string nombreAtacante)
+        {
+            var cartasDefensor = CartasEnMano[nombreDefensor];
+            var cartaRobada = cartasDefensor[new Random().Next(cartasDefensor.Count)];
+            cartasDefensor.Remove(cartaRobada);
+
+            CartasEnMano[nombreAtacante].Add(cartaRobada);
+            return cartaRobada;
+        }
+
+        private void NotificarJugadores(Partida partida, Carta cartaRobada, string nombreDefensor, string nombreAtacante)
+        {
+            foreach (var jugador in partida.Jugadores)
+            {
+                try
                 {
                     if (jugador.CallbackChannel != null)
                     {
-                        jugador.CallbackChannel.NotificarCartaRobada(cartaRobada, jugadorObjetivoRobo.NombreUsuario, jugadorTurnoActual.NombreUsuario);
+                        jugador.CallbackChannel.NotificarCartaRobada(cartaRobada, nombreDefensor, nombreAtacante);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un callback válido.");
                     }
                 }
-
+                catch (EndpointNotFoundException ex)
+                {
+                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                }
+                catch (CommunicationException ex)
+                {
+                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                }
+                catch (TimeoutException ex)
+                {
+                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                }
             }
         }
+
 
         public void UtilizarCartaDefensiva(string idPartida, string nombreDefensor)
         {
@@ -772,10 +967,30 @@ namespace ServicioJuego
 
                 foreach (var jugador in partida.Jugadores)
                 {
-                    if (jugador.CallbackChannel != null)
+                    try
                     {
-                        jugador.CallbackChannel.NotificarIntentoRobo(partida.RoboEnProgreso.Defensor.NombreUsuario);
+                        if (jugador.CallbackChannel != null)
+                        {
+                            jugador.CallbackChannel.NotificarIntentoRobo(partida.RoboEnProgreso.Defensor.NombreUsuario);
+                        }
+                        else
+                        {
+                            Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un callback válido.");
+                        }
                     }
+                    catch (EndpointNotFoundException ex)
+                    {
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                    }
+                    catch (CommunicationException ex)
+                    {
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                    }
+                    catch (TimeoutException ex)
+                    {
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                    }
+                    
                 }
             }
         }
@@ -786,50 +1001,81 @@ namespace ServicioJuego
             var jugadores = partida.Jugadores;
             var jugadorObjetivoRobo = jugadores.FirstOrDefault(c => c.NombreUsuario == nombreDefensor);
             var jugadorAtacante = jugadores[partida.TurnoActual];
-            int cartasARobar = 1;
-            if (cartaDuplicacionActiva)
+
+            if (jugadorObjetivoRobo == null)
             {
-                cartasARobar = 2;
+                Console.WriteLine("Jugador objetivo de robo no encontrado.");
+                return;
             }
 
-            if (jugadorObjetivoRobo != null)
+            int cartasARobar = cartaDuplicacionActiva ? 2 : 1;
+            var cartasBloqueoRobo = ObtenerCartasBloqueo(nombreDefensor);
+
+            if (cartasBloqueoRobo.Count == 0)
             {
-                var cartasBloqueoRobo = CartasEnMano[nombreDefensor].Where(c => c.Tipo == "Carta7" || c.Tipo == "Carta8").ToList();
-
-                if (cartasBloqueoRobo.Count == 0)
-                {
-                    for(int i = 0; i < cartasARobar; i ++)
-                    {
-                        RobarCartaEscondite(partida.IdPartida, nombreDefensor);
-                    }
-                    
-                }
-                else
-                {
-                    partida.RoboEnProgreso = new RoboContexto
-                    {
-                        Atacante = jugadorAtacante,
-                        Defensor = jugadorObjetivoRobo
-                    };
-
-                    foreach (var jugador in jugadores)
-                    {
-                        if (jugador.CallbackChannel != null)
-                        {
-                            jugador.CallbackChannel.NotificarIntentoRoboCartaEscondite(nombreDefensor);
-                        }
-                        else
-                        {
-                            Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un callback válido.");
-                        }
-                    }
-                }
+                RobarCartas(partida.IdPartida, nombreDefensor, cartasARobar);
             }
             else
             {
-                Console.WriteLine("Jugador de objetivo de robo no encontrado");
+                IniciarRoboEnProgreso(partida, jugadorAtacante, jugadorObjetivoRobo);
+                NotificarIntentoRobo(jugadores, nombreDefensor);
             }
         }
+
+        private List<Carta> ObtenerCartasBloqueo(string nombreDefensor)
+        {
+            return CartasEnMano[nombreDefensor]
+                .Where(c => c.Tipo == "Carta7" || c.Tipo == "Carta8")
+                .ToList();
+        }
+
+        private void RobarCartas(string idPartida, string nombreDefensor, int cantidad)
+        {
+            for (int i = 0; i < cantidad; i++)
+            {
+                RobarCartaEscondite(idPartida, nombreDefensor);
+            }
+        }
+
+        private void IniciarRoboEnProgreso(Partida partida, JugadorPartida atacante, JugadorPartida defensor)
+        {
+            partida.RoboEnProgreso = new RoboContexto
+            {
+                Atacante = atacante,
+                Defensor = defensor
+            };
+        }
+
+        private void NotificarIntentoRobo(List<JugadorPartida> jugadores, string nombreDefensor)
+        {
+            foreach (var jugador in jugadores)
+            {
+                try
+                {
+                    if (jugador.CallbackChannel != null)
+                    {
+                        jugador.CallbackChannel.NotificarIntentoRoboCartaEscondite(nombreDefensor);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un callback válido.");
+                    }
+                }
+                catch (EndpointNotFoundException ex)
+                {
+                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                }
+                catch (CommunicationException ex)
+                {
+                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                }
+                catch (TimeoutException ex)
+                {
+                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                }
+            }
+        }
+
 
 
         public void RobarCartaEscondite(string idPartida, string nombreDefensor)
@@ -848,10 +1094,30 @@ namespace ServicioJuego
 
                     foreach (var jugador in partida.Jugadores)
                     {
-                        if (jugador.CallbackChannel != null)
+                        try
                         {
-                            jugador.CallbackChannel.NotificarCartaEsconditeRobada(cartaRobada, defensor.NombreUsuario, atacante.NombreUsuario);
+                            if (jugador.CallbackChannel != null)
+                            {
+                                jugador.CallbackChannel.NotificarCartaEsconditeRobada(cartaRobada, defensor.NombreUsuario, atacante.NombreUsuario);
+                            }
+                            else
+                            {
+                                Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un callback válido.");
+                            }
                         }
+                        catch (EndpointNotFoundException ex)
+                        {
+                            ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                        }
+                        catch (CommunicationException ex)
+                        {
+                            ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                        }
+                        catch (TimeoutException ex)
+                        {
+                            ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                        }
+                        
                     }
                 }
                 partida.RoboEnProgreso = null;
@@ -866,10 +1132,30 @@ namespace ServicioJuego
 
                 foreach (var jugador in partida.Jugadores)
                 {
-                    if (jugador.CallbackChannel != null)
+                    try
                     {
-                        jugador.CallbackChannel.NotificarCartaEsconditeRobada(cartaRobada, jugadorObjetivoRobo.NombreUsuario, jugadorTurnoActual.NombreUsuario);
+                        if (jugador.CallbackChannel != null)
+                        {
+                            jugador.CallbackChannel.NotificarCartaEsconditeRobada(cartaRobada, jugadorObjetivoRobo.NombreUsuario, jugadorTurnoActual.NombreUsuario);
+                        }
+                        else
+                        {
+                            Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un callback válido.");
+                        }
                     }
+                    catch (EndpointNotFoundException ex)
+                    {
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                    }
+                    catch (CommunicationException ex)
+                    {
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                    }
+                    catch (TimeoutException ex)
+                    {
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                    }
+                    
                 }
 
             }
@@ -894,9 +1180,17 @@ namespace ServicioJuego
                             {
                                 jugador.CallbackChannel.NotificarCartaTomadaDescarte(cartaTomadaDescarte.IdCarta);
                             }
+                            catch (EndpointNotFoundException ex)
+                            {
+                                ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                            }
                             catch (CommunicationException ex)
                             {
-                                Console.WriteLine($"Error al notificar resultado del dado a {jugador.NombreUsuario}: {ex.Message}");
+                                ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                            }
+                            catch (TimeoutException ex)
+                            {
+                                ManejadorExcepciones.ManejarErrorExcepcion(ex);
                             }
                         }
                         else
@@ -923,17 +1217,33 @@ namespace ServicioJuego
                 var partida = partidas[idPartida];
                 var jugadores = partida.Jugadores;
                 var jugadorEnTurno = jugadores[partida.TurnoActual];
-                // Notificar al jugador que debe tirar el dado
+
                 foreach( var jugador in jugadores)
                 {
-                    if (jugador.CallbackChannel != null)
+                    try
                     {
-                        jugador.CallbackChannel.NotificarTiroDadoForzado(jugadorEnTurno.NombreUsuario);
+                        if (jugador.CallbackChannel != null)
+                        {
+                            jugador.CallbackChannel.NotificarTiroDadoForzado(jugadorEnTurno.NombreUsuario);
+                        }
+                        else
+                        {
+                            Console.WriteLine($"El jugador {jugadorEnTurno.NombreUsuario} no tiene un canal de callback válido.");
+                        }
                     }
-                    else
+                    catch (EndpointNotFoundException ex)
                     {
-                        Console.WriteLine($"El jugador {jugadorEnTurno.NombreUsuario} no tiene un canal de callback válido.");
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
                     }
+                    catch (CommunicationException ex)
+                    {
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                    }
+                    catch (TimeoutException ex)
+                    {
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                    }
+                    
                 }
                 
             }
@@ -959,25 +1269,57 @@ namespace ServicioJuego
                         if (CartasEnMano[jugador.NombreUsuario].Any(c => c.Tipo == cartaRevelada.Tipo))
                         {
                             jugadoresConCartaRevelada++;
-                            if(jugador.CallbackChannel != null)
+                            try
                             {
-                                jugador.CallbackChannel.NotificarPreguntaJugadores(jugadorTurnoActual.NombreUsuario, cartaRevelada.Tipo);
+                                if (jugador.CallbackChannel != null)
+                                {
+                                    jugador.CallbackChannel.NotificarPreguntaJugadores(jugadorTurnoActual.NombreUsuario, cartaRevelada.Tipo);
+                                }
+                                else
+                                {
+                                    Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un canal de callback válido.");
+                                }
                             }
-                            else
+                            catch (EndpointNotFoundException ex)
                             {
-                                Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un canal de callback válido.");
+                                ManejadorExcepciones.ManejarErrorExcepcion(ex);
                             }
+                            catch (CommunicationException ex)
+                            {
+                                ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                            }
+                            catch (TimeoutException ex)
+                            {
+                                ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                            }
+                            
                         }
                         else
                         {
-                            if(jugadorTurnoActual.CallbackChannel != null)
+                            try
                             {
-                                jugadorTurnoActual.CallbackChannel.NotificarNumeroJugadoresGuardaronCarta(0);
+                                if (jugadorTurnoActual.CallbackChannel != null)
+                                {
+                                    jugadorTurnoActual.CallbackChannel.NotificarNumeroJugadoresGuardaronCarta(0);
+                                }
+                                else
+                                {
+                                    Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un canal de callback válido.");
+                                }
                             }
-                            else
+                            catch (EndpointNotFoundException ex)
                             {
-                                Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un canal de callback válido.");
+                                ManejadorExcepciones.ManejarErrorExcepcion(ex);
                             }
+                            catch (CommunicationException ex)
+                            {
+                                ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                            }
+                            catch (TimeoutException ex)
+                            {
+                                ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                            }
+                            
                         }
                     }
                 }
@@ -1008,14 +1350,30 @@ namespace ServicioJuego
                 Console.WriteLine($"Jugadores que no guardaron carta: {jugadoresNoGuardaronCarta}");
                 if (jugadoresGuardaronCarta + jugadoresNoGuardaronCarta == jugadoresConCartaRevelada)
                 {
-                    if(jugadorTurnoActual.CallbackChannel != null)
+                    try
                     {
-                        jugadorTurnoActual.CallbackChannel.NotificarNumeroJugadoresGuardaronCarta(jugadoresGuardaronCarta);
+                        if (jugadorTurnoActual.CallbackChannel != null)
+                        {
+                            jugadorTurnoActual.CallbackChannel.NotificarNumeroJugadoresGuardaronCarta(jugadoresGuardaronCarta);
+                        }
+                        else
+                        {
+                            Console.WriteLine($"El jugador {jugadorTurnoActual.NombreUsuario} no tiene un canal de callback válido.");
+                        }
                     }
-                    else
+                    catch (EndpointNotFoundException ex)
                     {
-                        Console.WriteLine($"El jugador {jugadorTurnoActual.NombreUsuario} no tiene un canal de callback válido.");
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
                     }
+                    catch (CommunicationException ex)
+                    {
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                    }
+                    catch (TimeoutException ex)
+                    {
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                    }
+                    
                     jugadoresConCartaRevelada = 0;
                     jugadoresGuardaronCarta = 0;
                     jugadoresNoGuardaronCarta = 0;
@@ -1034,16 +1392,33 @@ namespace ServicioJuego
                 CartasEnMazo.Remove(CartasEnMazo.Last());
                 var partida = partidas[idPartida];
                 var jugadores = partida.Jugadores;
+
                 foreach(var jugador in jugadores)
                 {
-                    if(jugador.CallbackChannel != null)
+                    try
                     {
-                        jugador.CallbackChannel.NotificarMazoRevelado();
+                        if (jugador.CallbackChannel != null)
+                        {
+                            jugador.CallbackChannel.NotificarMazoRevelado();
+                        }
+                        else
+                        {
+                            Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un canal de callback válido.");
+                        }
                     }
-                    else
+                    catch (EndpointNotFoundException ex)
                     {
-                        Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un canal de callback válido.");
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
                     }
+                    catch (CommunicationException ex)
+                    {
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                    }
+                    catch (TimeoutException ex)
+                    {
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                    }
+                    
                 }
             }
             else
@@ -1061,13 +1436,28 @@ namespace ServicioJuego
                 var jugadores = partida.Jugadores;
                 foreach (var jugador in jugadores)
                 {
-                    if (jugador.CallbackChannel != null)
+                    try
                     {
-                        jugador.CallbackChannel.NotificarMazoOculto(cartaParteTrasera);
+                        if (jugador.CallbackChannel != null)
+                        {
+                            jugador.CallbackChannel.NotificarMazoOculto(cartaParteTrasera);
+                        }
+                        else
+                        {
+                            Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un canal de callback válido.");
+                        }
                     }
-                    else
+                    catch (EndpointNotFoundException ex)
                     {
-                        Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un canal de callback válido.");
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                    }
+                    catch (CommunicationException ex)
+                    {
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                    }
+                    catch (TimeoutException ex)
+                    {
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
                     }
                 }
             }
@@ -1093,13 +1483,28 @@ namespace ServicioJuego
             var ganador = puntajes.OrderByDescending(p => p.Value).FirstOrDefault();
             foreach (var jugador in partida.Jugadores)
             {
-                if (jugador.CallbackChannel != null)
+                try
                 {
-                    jugador.CallbackChannel.NotificarResultadosJuego(puntajes, ganador.Key, ganador.Value);
+                    if (jugador.CallbackChannel != null)
+                    {
+                        jugador.CallbackChannel.NotificarResultadosJuego(puntajes, ganador.Key, ganador.Value);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un canal de callback válido.");
+                    }
                 }
-                else
+                catch (EndpointNotFoundException ex)
                 {
-                    Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un canal de callback válido.");
+                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                }
+                catch (CommunicationException ex)
+                {
+                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                }
+                catch (TimeoutException ex)
+                {
+                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 }
             }
             partidas.Remove(idPartida);
@@ -1147,7 +1552,30 @@ namespace ServicioJuego
 
                 foreach(var jugador in jugadores)
                 {
-                    jugador.CallbackChannel.NotificarPararTirarDado();
+                    try
+                    {
+                        if (jugador.CallbackChannel != null)
+                        {
+                            jugador.CallbackChannel.NotificarPararTirarDado();
+                        }
+                        else
+                        {
+                            Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un canal de callback válido.");
+                        }
+                    }
+                    catch (EndpointNotFoundException ex)
+                    {
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                    }
+                    catch (CommunicationException ex)
+                    {
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                    }
+                    catch (TimeoutException ex)
+                    {
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                    }
+                    
                 }
             }
             else
@@ -1165,25 +1593,74 @@ namespace ServicioJuego
 
                 foreach( var jugador in jugadores)
                 {
-                    if(jugador.CallbackChannel != null)
+                    try
                     {
-                        jugador.CallbackChannel.NotificarActualizacionDecisionTurno();
+                        if (jugador.CallbackChannel != null)
+                        {
+                            jugador.CallbackChannel.NotificarActualizacionDecisionTurno();
+                        }
+                        else
+                        {
+                            Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un canal de callback válido.");
+                        }
+                    }
+                    catch (EndpointNotFoundException ex)
+                    {
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                    }
+                    catch (CommunicationException ex)
+                    {
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                    }
+                    catch (TimeoutException ex)
+                    {
+                        ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                    }
+                }
+            }
+            else
+            {
+                Console.Write("Partida no encontrada");
+            }
+        }
+
+        public void EstablecerModoSeleccionCarta(string idPartida, int idModoSeleccion, string nombreJugador)
+        {
+            if (partidas.ContainsKey(idPartida))
+            {
+                var partida = partidas[idPartida];
+                var jugadores = partida.Jugadores;
+                var jugador = jugadores.FirstOrDefault(j => j.NombreUsuario == nombreJugador);
+
+                try
+                {
+                    if (jugador.CallbackChannel != null)
+                    {
+                        jugador.CallbackChannel.NotificarModoSeleccionCarta(idModoSeleccion);
                     }
                     else
                     {
                         Console.WriteLine($"El jugador {jugador.NombreUsuario} no tiene un canal de callback válido.");
                     }
                 }
+                catch (EndpointNotFoundException ex)
+                {
+                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                }
+                catch (CommunicationException ex)
+                {
+                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                }
+                catch (TimeoutException ex)
+                {
+                    ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                }
             }
-        }
-
-        public void EstablecerModoSeleccionCarta(string idPartida, int idModoSeleccion, string nombreJugador)
-        {
-            var partida = partidas[idPartida];
-            var jugadores = partida.Jugadores;
-            var jugador = jugadores.FirstOrDefault(j => j.NombreUsuario == nombreJugador);
-
-            jugador.CallbackChannel.NotificarModoSeleccionCarta(idModoSeleccion);
+            else
+            {
+                Console.Write("Partida no encontrada");
+            }
+            
         }
     }
 }
