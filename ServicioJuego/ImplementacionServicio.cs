@@ -76,40 +76,7 @@ namespace ServicioJuego
             }
             
         }
-        //se regresa null debido a que solo se encuentra un sentido en que no existe, de esa manera se valida de forma más fácil
-        public JugadorDataContract ObtenerJugador(int idJugador)
-        {
-
-            try
-            {
-                JugadorDao JugadorDao = new JugadorDao();
-                Jugador jugador = JugadorDao.ObtenerJugador(idJugador);
-
-                if (jugador != null && jugador.Cuenta != null)
-                {
-                    return new JugadorDataContract
-                    {
-                        NombreUsuario = jugador.NombreUsuario,
-                        NumeroFotoPerfil = jugador.NumeroFotoPerfil,
-                        Correo = jugador.Cuenta.Correo,
-                        ContraseniaHash = jugador.Cuenta.ContraseniaHash
-                    };
-                }
-            }
-            catch (ExcepcionAccesoDatos ex)
-            {
-                HuntersTrophyExcepcion respuestaExcepcion = new HuntersTrophyExcepcion
-                {
-                    Mensaje = ex.Message,
-                    StackTrace = ex.StackTrace
-                };
-                ManejadorExcepciones.ManejarErrorExcepcion(ex);
-                throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
-            }
-
-            return null;
-        }
-
+  
         public bool ValidarUsuarioEnLinea(string nombreUsuario)
         {
             bool esEnLinea = true;
@@ -152,8 +119,6 @@ namespace ServicioJuego
             }
         }
 
-
-        //se regresa null debido a que solo se encuentra un sentido en que no existe, de esa manera se valida de forma más fácil
         public JugadorDataContract ValidarInicioSesion(string nombreUsuario, string contraseniaHash)
         {
            
@@ -304,6 +269,39 @@ namespace ServicioJuego
                 ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 throw new FaultException<HuntersTrophyExcepcion>(exceptionResponse, new FaultReason(exceptionResponse.Mensaje));
             }
+        }
+
+        public JugadorDataContract ObtenerJugador(int idJugador)
+        {
+
+            try
+            {
+                JugadorDao JugadorDao = new JugadorDao();
+                Jugador jugador = JugadorDao.ObtenerJugador(idJugador);
+
+                if (jugador != null && jugador.Cuenta != null)
+                {
+                    return new JugadorDataContract
+                    {
+                        NombreUsuario = jugador.NombreUsuario,
+                        NumeroFotoPerfil = jugador.NumeroFotoPerfil,
+                        Correo = jugador.Cuenta.Correo,
+                        ContraseniaHash = jugador.Cuenta.ContraseniaHash
+                    };
+                }
+            }
+            catch (ExcepcionAccesoDatos ex)
+            {
+                HuntersTrophyExcepcion respuestaExcepcion = new HuntersTrophyExcepcion
+                {
+                    Mensaje = ex.Message,
+                    StackTrace = ex.StackTrace
+                };
+                ManejadorExcepciones.ManejarErrorExcepcion(ex);
+                throw new FaultException<HuntersTrophyExcepcion>(respuestaExcepcion, new FaultReason(respuestaExcepcion.Mensaje));
+            }
+
+            return null;
         }
 
         public string EnviarCodigoConfirmacion(string correo)

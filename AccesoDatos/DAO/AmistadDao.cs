@@ -287,18 +287,14 @@ namespace AccesoDatos.DAO
             }
             catch (EntityException ex)
             {
-                ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 throw new ExcepcionAccesoDatos(ex.Message);
             }
             catch (SqlException ex)
             {
-
-                ManejadorExcepciones.ManejarErrorExcepcion(ex);
                 throw new ExcepcionAccesoDatos(ex.Message);
             }
             catch (Exception ex)
             {
-                ManejadorExcepciones.ManejarFatalExcepcion(ex);
                 throw new ExcepcionAccesoDatos(ex.Message);
             }
 
